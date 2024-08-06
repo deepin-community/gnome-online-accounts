@@ -18,7 +18,7 @@ Build-Depends: debhelper-compat (= 13),
                libsecret-1-dev [!ia64 !kfreebsd-amd64 !kfreebsd-i386],
                libsoup2.4-dev (>= 2.42) [!ia64 !kfreebsd-amd64 !kfreebsd-i386],
                libjavascriptcoregtk-4.0-dev [!ia64 !kfreebsd-amd64 !kfreebsd-i386],
-               libwebkit2gtk-4.0-dev (>= 2.26) [!ia64 !kfreebsd-amd64 !kfreebsd-i386],
+               libwebkit2gtk-4.1-dev (>= 2.26) [!ia64 !kfreebsd-amd64 !kfreebsd-i386],
                valac
 Build-Depends-Indep: libglib2.0-doc <!nodoc>, libgtk-3-doc <!nodoc>
 Rules-Requires-Root: no

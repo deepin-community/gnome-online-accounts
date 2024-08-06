@@ -1,0 +1,80 @@
+From 9bcaded851516f7f7b062090344a39fd00f33bdd Mon Sep 17 00:00:00 2001
+From: hudeng <hudeng@deepin.org>
+Date: Tue, 6 Aug 2024 15:30:34 +0800
+Subject: [PATCH] Bump libwebkit2gtk-4.0-dev to libwebkit2gtk-4.1-dev
+
+---
+ configure    | 18 +++++++++---------
+ configure.ac |  2 +-
+ 2 files changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/configure b/configure
+index fb1449e..5f6973d 100755
+--- a/configure
++++ b/configure
+@@ -16309,12 +16309,12 @@ if test -n "$WEBKIT_GTK_CFLAGS"; then
+     pkg_cv_WEBKIT_GTK_CFLAGS="$WEBKIT_GTK_CFLAGS"
+  elif test -n "$PKG_CONFIG"; then
+     if test -n "$PKG_CONFIG" && \
+-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"webkit2gtk-4.0 >= 2.26.0\""; } >&5
+-  ($PKG_CONFIG --exists --print-errors "webkit2gtk-4.0 >= 2.26.0") 2>&5
++    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"webkit2gtk-4.1 >= 2.26.0\""; } >&5
++  ($PKG_CONFIG --exists --print-errors "webkit2gtk-4.1 >= 2.26.0") 2>&5
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-  pkg_cv_WEBKIT_GTK_CFLAGS=`$PKG_CONFIG --cflags "webkit2gtk-4.0 >= 2.26.0" 2>/dev/null`
++  pkg_cv_WEBKIT_GTK_CFLAGS=`$PKG_CONFIG --cflags "webkit2gtk-4.1 >= 2.26.0" 2>/dev/null`
+ 		      test "x$?" != "x0" && pkg_failed=yes
+ else
+   pkg_failed=yes
+@@ -16326,12 +16326,12 @@ if test -n "$WEBKIT_GTK_LIBS"; then
+     pkg_cv_WEBKIT_GTK_LIBS="$WEBKIT_GTK_LIBS"
+  elif test -n "$PKG_CONFIG"; then
+     if test -n "$PKG_CONFIG" && \
+-    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"webkit2gtk-4.0 >= 2.26.0\""; } >&5
+-  ($PKG_CONFIG --exists --print-errors "webkit2gtk-4.0 >= 2.26.0") 2>&5
++    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"webkit2gtk-4.1 >= 2.26.0\""; } >&5
++  ($PKG_CONFIG --exists --print-errors "webkit2gtk-4.1 >= 2.26.0") 2>&5
+   ac_status=$?
+   $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+   test $ac_status = 0; }; then
+-  pkg_cv_WEBKIT_GTK_LIBS=`$PKG_CONFIG --libs "webkit2gtk-4.0 >= 2.26.0" 2>/dev/null`
++  pkg_cv_WEBKIT_GTK_LIBS=`$PKG_CONFIG --libs "webkit2gtk-4.1 >= 2.26.0" 2>/dev/null`
+ 		      test "x$?" != "x0" && pkg_failed=yes
+ else
+   pkg_failed=yes
+@@ -16352,14 +16352,14 @@ else
+         _pkg_short_errors_supported=no
+ fi
+         if test $_pkg_short_errors_supported = yes; then
+-	        WEBKIT_GTK_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "webkit2gtk-4.0 >= 2.26.0" 2>&1`
++	        WEBKIT_GTK_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "webkit2gtk-4.1 >= 2.26.0" 2>&1`
+         else
+-	        WEBKIT_GTK_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "webkit2gtk-4.0 >= 2.26.0" 2>&1`
++	        WEBKIT_GTK_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "webkit2gtk-4.1 >= 2.26.0" 2>&1`
+         fi
+ 	# Put the nasty error message in config.log where it belongs
+ 	echo "$WEBKIT_GTK_PKG_ERRORS" >&5
+ 
+-	as_fn_error $? "Package requirements (webkit2gtk-4.0 >= 2.26.0) were not met:
++	as_fn_error $? "Package requirements (webkit2gtk-4.1 >= 2.26.0) were not met:
+ 
+ $WEBKIT_GTK_PKG_ERRORS
+ 
+diff --git a/configure.ac b/configure.ac
+index 0f0f8ac..db9e1ff 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -117,7 +117,7 @@ if test "$enable_backend" != "no"; then
+   AC_SUBST(JAVASCRIPT_CORE_GTK_CFLAGS)
+   AC_SUBST(JAVASCRIPT_CORE_GTK_LIBS)
+ 
+-  PKG_CHECK_MODULES(WEBKIT_GTK, [webkit2gtk-4.0 >= 2.26.0])
++  PKG_CHECK_MODULES(WEBKIT_GTK, [webkit2gtk-4.1 >= 2.26.0])
+   AC_SUBST(WEBKIT_GTK_CFLAGS)
+   AC_SUBST(WEBKIT_GTK_LIBS)
+ 
+-- 
+2.43.4
+
