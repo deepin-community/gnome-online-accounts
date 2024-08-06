@@ -25,7 +25,6 @@
 #include <glib.h>
 #include <glib/gi18n-lib.h>
 #include <jsc/jsc.h>
-#include <libsoup/soup.h>
 #include <webkit2/webkit2.h>
 
 #include "goawebview.h"
@@ -77,17 +76,17 @@ web_view_clear_notify_progress_cb (gpointer user_data)
 static char *
 web_view_create_loading_title (const gchar *url)
 {
-  SoupURI *uri;
+  GUri *uri;
   const gchar *hostname;
   gchar *title;
 
   g_return_val_if_fail (url != NULL && url[0] != '\0', NULL);
 
-  uri = soup_uri_new (url);
-  hostname = soup_uri_get_host (uri);
+  uri = g_uri_parse (url, G_URI_FLAGS_NONE, NULL);
+  hostname = g_uri_get_host (uri);
   /* translators: %s here is the address of the web page */
   title = g_strdup_printf (_("Loading “%s”…"), hostname);
-  soup_uri_free (uri);
+  g_uri_unref (uri);
 
   return title;
 }
@@ -257,7 +256,7 @@ goa_web_view_get_preferred_height (GtkWidget *widget, gint *minimum_size, gint *
     *minimum_size = 200;
 
   if (natural_size != NULL)
-    *natural_size = 400;
+    *natural_size = 500;
 }
 
 static void
@@ -267,7 +266,7 @@ goa_web_view_get_preferred_width (GtkWidget *widget, gint *minimum_size, gint *n
     *minimum_size = 300;
 
   if (natural_size != NULL)
-    *natural_size = 500;
+    *natural_size = 600;
 }
 
 static GtkSizeRequestMode

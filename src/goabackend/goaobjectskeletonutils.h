@@ -38,16 +38,10 @@ void             goa_object_skeleton_attach_contacts       (GoaObjectSkeleton *o
                                                             gboolean           contacts_enabled,
                                                             gboolean           accept_ssl_errors);
 
-void             goa_object_skeleton_attach_documents      (GoaObjectSkeleton *object,
-                                                            gboolean           documents_enabled);
-
 void             goa_object_skeleton_attach_files          (GoaObjectSkeleton *object,
                                                             const gchar       *uri,
                                                             gboolean           files_enabled,
                                                             gboolean           accept_ssl_errors);
-
-void             goa_object_skeleton_attach_maps           (GoaObjectSkeleton *object,
-                                                            gboolean           maps_enabled);
 
 void             goa_object_skeleton_attach_photos         (GoaObjectSkeleton *object,
                                                             gboolean           photos_enabled);

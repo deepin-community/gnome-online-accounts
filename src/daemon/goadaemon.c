@@ -250,15 +250,13 @@ on_network_monitor_network_changed (GoaDaemon *self, gboolean available)
 static void
 goa_daemon_init (GoaDaemon *self)
 {
-  static volatile GQuark goa_error_domain = 0;
   GoaObjectSkeleton *object;
   gchar *path;
 
   /* this will force associating errors in the GOA_ERROR error domain
    * with org.freedesktop.Goa.Error.* errors via g_dbus_error_register_error_domain().
    */
-  goa_error_domain = GOA_ERROR;
-  goa_error_domain; /* shut up -Wunused-but-set-variable */
+  goa_error_quark ();
 
   goa_provider_ensure_builtins_loaded ();
 
@@ -1496,7 +1494,7 @@ is_authorization_error (GError *error)
   g_return_val_if_fail (error != NULL, FALSE);
 
   ret = FALSE;
-  if (error->domain == REST_PROXY_ERROR || error->domain == SOUP_HTTP_ERROR)
+  if (error->domain == REST_PROXY_ERROR)
     {
       if (SOUP_STATUS_IS_CLIENT_ERROR (error->code))
         ret = TRUE;

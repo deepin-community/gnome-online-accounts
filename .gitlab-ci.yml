@@ -1,0 +1,29 @@
+stages:
+  - build
+
+build-meson:
+  image: archlinux:latest
+  stage: build
+  before_script:
+    - pacman -Syu --noconfirm
+    - pacman -S --noconfirm
+      meson git gcc dbus gcr glib2 gobject-introspection
+      gtk-doc gtk3 json-glib krb5 libsecret
+      libsoup3 vala webkit2gtk-4.1
+  script:
+    - meson setup -Dgtk_doc=true _build
+    - meson compile -C _build
+    - meson test -C _build
+
+build-meson-nobackend:
+  image: fedora:latest
+  stage: build
+  before_script:
+    - dnf update -y
+    - dnf -y install
+      meson gcc dbus-devel glib2-devel gobject-introspection-devel
+      gtk3-devel rest-devel vala
+  script:
+    - meson setup -Dgtk_doc=false -Dgoabackend=false _build
+    - meson compile -C _build
+    - meson test -C _build

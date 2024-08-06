@@ -2,6 +2,7 @@
 
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 export DEB_LDFLAGS_MAINT_APPEND = -Wl,-O1 -Wl,-z,defs
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
 
 DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
@@ -10,35 +11,17 @@ ifeq ($(shell dpkg-vendor --is Ubuntu && echo yes) $(DEB_HOST_ARCH), yes i386)
 endif
 
 ifneq ($(filter ia64 kfreebsd-amd64 kfreebsd-i386,$(DEB_HOST_ARCH)),)
-  DISABLE_BACKEND := --disable-backend
+  DISABLE_BACKEND := -Dgoabackend=false
 endif
 
 %:
 	dh $@
 
-override_dh_autoreconf:
-	dh_autoreconf --as-needed
-
 override_dh_auto_configure:
 	dh_auto_configure -- \
-		--enable-documentation \
-		--enable-gtk-doc \
-		--enable-kerberos \
-		--disable-media-server \
-		--enable-facebook \
-		--enable-flickr \
-		--disable-fedora \
-		--enable-windows-live \
-		--enable-google \
-		--enable-owncloud \
-		--enable-imap-smtp \
-		--enable-exchange \
-		--enable-foursquare \
+		-Dgtk_doc=true \
+		-Dman=true \
 		$(DISABLE_BACKEND)
-
-execute_before_dh_install:
-	find debian/tmp -name '*.a' -print -delete
-	find debian/tmp -name '*.la' -print -delete
 
 override_dh_makeshlibs:
 	dh_makeshlibs -- -c4

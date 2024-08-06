@@ -22,8 +22,6 @@
 
 #include <glib/gi18n-lib.h>
 
-#include <libsoup/soup.h>
-
 #include "goahttpclient.h"
 #include "goaprovider.h"
 #include "goaowncloudprovider.h"
@@ -72,52 +70,48 @@ get_provider_features (GoaProvider *provider)
   return GOA_PROVIDER_FEATURE_BRANDED |
          GOA_PROVIDER_FEATURE_CALENDAR |
          GOA_PROVIDER_FEATURE_CONTACTS |
-         GOA_PROVIDER_FEATURE_DOCUMENTS |
          GOA_PROVIDER_FEATURE_FILES;
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
 
 static char *
-uri_to_string_with_path (SoupURI *soup_uri, const gchar *path)
+uri_to_string_with_path (GUri *uri, const gchar *path)
 {
   gchar *uri_string;
   gchar *uri_tmp;
 
-  if (soup_uri == NULL)
+  if (uri == NULL)
     return NULL;
 
-  uri_tmp = soup_uri_to_string (soup_uri, FALSE);
+  uri_tmp = g_uri_to_string (uri);
   uri_string = g_strconcat (uri_tmp, path, NULL);
   g_free (uri_tmp);
 
   return uri_string;
 }
 
-static char *get_webdav_uri (SoupURI *soup_uri)
+static char *get_webdav_uri (GUri *uri)
 {
-  SoupURI *uri_tmp;
+  GUri *uri_tmp;
   gchar *uri_webdav;
   const gchar *scheme;
-  guint port;
 
-  if (soup_uri == NULL)
+  if (uri == NULL)
     return NULL;
 
-  scheme = soup_uri_get_scheme (soup_uri);
-  port = soup_uri_get_port (soup_uri);
-  uri_tmp = soup_uri_copy (soup_uri);
-
-  if (g_strcmp0 (scheme, SOUP_URI_SCHEME_HTTPS) == 0)
-    soup_uri_set_scheme (uri_tmp, "davs");
-  else
-    soup_uri_set_scheme (uri_tmp, "dav");
-
-  if (!soup_uri_uses_default_port (soup_uri))
-    soup_uri_set_port (uri_tmp, port);
+  scheme = g_uri_get_scheme (uri);
+  uri_tmp = g_uri_build (g_uri_get_flags (uri),
+                         g_strcmp0 (scheme, "https") == 0 ? "davs" : "dav",
+                         g_uri_get_userinfo (uri),
+                         g_uri_get_host (uri),
+                         g_uri_get_port (uri),
+                         g_uri_get_path (uri),
+                         g_uri_get_query (uri),
+                         g_uri_get_fragment (uri));
 
   uri_webdav = uri_to_string_with_path (uri_tmp, WEBDAV_ENDPOINT);
-  soup_uri_free (uri_tmp);
+  g_uri_unref (uri_tmp);
 
   return uri_webdav;
 }
@@ -141,11 +135,10 @@ build_object (GoaProvider         *provider,
   gchar *uri_carddav;
   gchar *uri_webdav;
   GoaPasswordBased *password_based = NULL;
-  SoupURI *uri = NULL;
+  GUri *uri = NULL;
   gboolean accept_ssl_errors;
   gboolean calendar_enabled;
   gboolean contacts_enabled;
-  gboolean documents_enabled;
   gboolean files_enabled;
   gboolean ret = FALSE;
   const gchar *identity;
@@ -178,9 +171,24 @@ build_object (GoaProvider         *provider,
   account = goa_object_get_account (GOA_OBJECT (object));
   identity = goa_account_get_identity (account);
   uri_string = g_key_file_get_string (key_file, group, "Uri", NULL);
-  uri = soup_uri_new (uri_string);
+  uri = g_uri_parse (uri_string, G_URI_FLAGS_ENCODED, NULL);
   if (uri != NULL)
-    soup_uri_set_user (uri, identity);
+    {
+      GUri *tmp_uri;
+
+      tmp_uri = g_uri_build_with_user (g_uri_get_flags (uri),
+                                       g_uri_get_scheme (uri),
+                                       identity,
+                                       g_uri_get_password (uri),
+                                       g_uri_get_auth_params (uri),
+                                       g_uri_get_host (uri),
+                                       g_uri_get_port (uri),
+                                       g_uri_get_path (uri),
+                                       g_uri_get_query (uri),
+                                       g_uri_get_fragment (uri));
+      g_uri_unref (uri);
+      uri = tmp_uri;
+    }
 
   accept_ssl_errors = g_key_file_get_boolean (key_file, group, "AcceptSslErrors", NULL);
 
@@ -196,10 +204,6 @@ build_object (GoaProvider         *provider,
   goa_object_skeleton_attach_contacts (object, uri_carddav, contacts_enabled, accept_ssl_errors);
   g_free (uri_carddav);
 
-  /* Documents */
-  documents_enabled = g_key_file_get_boolean (key_file, group, "DocumentsEnabled", NULL);
-  goa_object_skeleton_attach_documents (object, documents_enabled);
-
   /* Files */
   files_enabled = g_key_file_get_boolean (key_file, group, "FilesEnabled", NULL);
   uri_webdav = get_webdav_uri (uri);
@@ -210,7 +214,6 @@ build_object (GoaProvider         *provider,
     {
       goa_account_set_calendar_disabled (account, !calendar_enabled);
       goa_account_set_contacts_disabled (account, !contacts_enabled);
-      goa_account_set_documents_disabled (account, !documents_enabled);
       goa_account_set_files_disabled (account, !files_enabled);
 
       g_signal_connect (account,
@@ -222,10 +225,6 @@ build_object (GoaProvider         *provider,
                         G_CALLBACK (goa_util_account_notify_property_cb),
                         (gpointer) "ContactsEnabled");
       g_signal_connect (account,
-                        "notify::documents-disabled",
-                        G_CALLBACK (goa_util_account_notify_property_cb),
-                        (gpointer) "DocumentsEnabled");
-      g_signal_connect (account,
                         "notify::files-disabled",
                         G_CALLBACK (goa_util_account_notify_property_cb),
                         (gpointer) "FilesEnabled");
@@ -235,7 +234,7 @@ build_object (GoaProvider         *provider,
 
  out:
   g_clear_object (&password_based);
-  g_clear_pointer (&uri, soup_uri_free);
+  g_clear_pointer (&uri, g_uri_unref);
   g_free (uri_string);
   return ret;
 }
@@ -365,8 +364,11 @@ add_entry (GtkWidget     *grid,
 static gchar *
 normalize_uri (const gchar *address, gchar **server)
 {
-  SoupURI *uri = NULL;
+  GUri *uri = NULL;
+  GUri *uri_tmp = NULL;
   const gchar *path;
+  const gchar *new_scheme;
+  gchar *new_path = NULL;
   gchar *ret = NULL;
   gchar *scheme = NULL;
   gchar *uri_string = NULL;
@@ -395,48 +397,56 @@ normalize_uri (const gchar *address, gchar **server)
   else
     goto out;
 
-  uri = soup_uri_new (uri_string);
+  uri = g_uri_parse (uri_string, G_URI_FLAGS_ENCODED, NULL);
   if (uri == NULL)
     goto out;
 
   if (g_strcmp0 (scheme, "dav") == 0)
-    soup_uri_set_scheme (uri, SOUP_URI_SCHEME_HTTP);
+    new_scheme = "http";
   else if (g_strcmp0 (scheme, "davs") == 0)
-    soup_uri_set_scheme (uri, SOUP_URI_SCHEME_HTTPS);
+    new_scheme = "https";
+  else
+    new_scheme = g_uri_get_scheme (uri);
 
-  path = soup_uri_get_path (uri);
+  path = g_uri_get_path (uri);
   if (!g_str_has_suffix (path, "/"))
-    {
-      gchar *new_path;
-
       new_path = g_strconcat (path, "/", NULL);
-      soup_uri_set_path (uri, new_path);
-      path = soup_uri_get_path (uri);
-      g_free (new_path);
-    }
+
+  uri_tmp = g_uri_build (g_uri_get_flags (uri),
+                         new_scheme,
+                         g_uri_get_userinfo (uri),
+                         g_uri_get_host (uri),
+                         g_uri_get_port (uri),
+                         new_path ? new_path : path,
+                         g_uri_get_query (uri),
+                         g_uri_get_fragment (uri));
+  g_free (new_path);
+  g_uri_unref (uri);
+  uri = uri_tmp;
+  path = g_uri_get_path (uri);
 
   if (server != NULL)
     {
       gchar *port_string;
       gchar *pretty_path;
-      guint port;
+      gint port;
 
-      port = soup_uri_get_port (uri);
-      port_string = g_strdup_printf (":%u", port);
+      port = g_uri_get_port (uri);
+      port_string = g_strdup_printf (":%d", port);
 
       pretty_path = g_strdup (path);
       pretty_path[strlen(pretty_path) - 1] = '\0';
 
-      *server = g_strconcat (soup_uri_get_host (uri), (port == std_port) ? "" : port_string, pretty_path, NULL);
+      *server = g_strconcat (g_uri_get_host (uri), (port == std_port || port == -1) ? "" : port_string, pretty_path, NULL);
 
       g_free (port_string);
       g_free (pretty_path);
     }
 
-  ret = soup_uri_to_string (uri, FALSE);
+  ret = g_uri_to_string (uri);
 
  out:
-  g_clear_pointer (&uri, soup_uri_free);
+  g_clear_pointer (&uri, g_uri_unref);
   g_free (scheme);
   g_free (uri_string);
   return ret;
@@ -750,7 +760,6 @@ add_account (GoaProvider    *provider,
   g_variant_builder_init (&details, G_VARIANT_TYPE ("a{ss}"));
   g_variant_builder_add (&details, "{ss}", "CalendarEnabled", "true");
   g_variant_builder_add (&details, "{ss}", "ContactsEnabled", "true");
-  g_variant_builder_add (&details, "{ss}", "DocumentsEnabled", "true");
   g_variant_builder_add (&details, "{ss}", "FilesEnabled", "true");
   g_variant_builder_add (&details, "{ss}", "Uri", uri);
   g_variant_builder_add (&details, "{ss}", "AcceptSslErrors", (accept_ssl_errors) ? "true" : "false");
