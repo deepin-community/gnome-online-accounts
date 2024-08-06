@@ -39,13 +39,6 @@ G_BEGIN_DECLS
 
 typedef gpointer (*GoaPeekInterfaceFunc)   (GoaObject *);
 
-void             goa_utils_account_add_attention_needed (GoaClient    *client,
-                                                         GoaObject    *object,
-                                                         GoaProvider  *provider,
-                                                         GtkBox       *vbox);
-
-void             goa_utils_account_add_header (GoaObject *object, GtkGrid *grid, gint row);
-
 gboolean         goa_utils_check_duplicate (GoaClient              *client,
                                             const gchar            *identity,
                                             const gchar            *presentation_identity,
@@ -61,8 +54,6 @@ gchar           *goa_utils_data_input_stream_read_line (GDataInputStream  *strea
                                                         gsize             *length,
                                                         GCancellable      *cancellable,
                                                         GError           **error);
-
-void             goa_utils_set_dialog_title (GoaProvider *provider, GtkDialog *dialog, gboolean add_account);
 
 gboolean         goa_utils_delete_credentials_for_account_sync (GoaProvider    *provider,
                                                                 GoaAccount     *account,
@@ -117,6 +108,11 @@ gboolean         goa_utils_get_credentials (GoaProvider    *provider,
                                             gchar         **password,
                                             GCancellable   *cancellable,
                                             GError        **error);
+
+gchar           *goa_utils_base64_url_encode (const guchar *data,
+                                              gsize len);
+gchar           *goa_utils_generate_code_verifier (void);
+gchar           *goa_utils_generate_code_challenge (const gchar *code_verifier);
 
 G_END_DECLS
 

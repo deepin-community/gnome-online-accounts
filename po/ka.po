@@ -1,0 +1,939 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Ekaterine Papava <papava.e@gtu.ge>, 2023-2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/gnome-online-accounts/"
+"issues\n"
+"POT-Creation-Date: 2024-04-23 15:23+0000\n"
+"PO-Revision-Date: 2024-04-24 17:13+0200\n"
+"Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
+"Language-Team: Georgian <(nothing)>\n"
+"Language: ka\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.3.2\n"
+
+#: data/org.gnome.online-accounts.gschema.xml:6
+msgid "List of providers that are allowed to be loaded"
+msgstr "ჩასატვირთი მომწოდებლების სია"
+
+#: data/org.gnome.online-accounts.gschema.xml:7
+msgid ""
+"A list of strings representing the providers that are allowed to be loaded "
+"(default: 'all'). This is only evaluated on startup."
+msgstr ""
+"სტრიქონების სია, რომელიც წარმოადგენს მომწოდებლების სიას, რომლებიც იტვირთება "
+"სისტემის გაშვების დროს (ნაგულისხმები: 'ყველა')."
+
+#. TODO: more specific
+#: src/daemon/goadaemon.c:1141 src/daemon/goadaemon.c:1458
+#, c-format
+msgid "Failed to find a provider for: %s"
+msgstr "მომწოდებლის პოვნის შეცდომა: %s"
+
+#: src/daemon/goadaemon.c:1401
+msgid "IsLocked property is set for account"
+msgstr "ანგარიშს დაყენებული აქვს isLocked თვისება"
+
+#. TODO: more specific
+#: src/daemon/goadaemon.c:1446
+msgid "ProviderType property is not set for account"
+msgstr "ანგარიშს არ აქვს დაყენებული ProviderType თვისება"
+
+#. TODO: more specific
+#: src/goabackend/goaewsclient.c:284
+msgid "Failed to parse autodiscover response XML"
+msgstr "ავტომატური აღმომჩენის XML პასუხის დამუშავების შეცდომა"
+
+#. TODO: more specific
+#. Translators: the parameter is an XML element name.
+#: src/goabackend/goaewsclient.c:295 src/goabackend/goaewsclient.c:310
+#: src/goabackend/goaewsclient.c:325
+#, c-format
+msgid "Failed to find “%s” element"
+msgstr "ელემენტს (%s) პოვნა შეუძლებელია"
+
+#. TODO: more specific
+#: src/goabackend/goaewsclient.c:346
+msgid "Failed to find ASUrl and OABUrl in autodiscover response"
+msgstr "ავტომატური აღმომჩენის პასუხში ASUrl და OABUrl-ის პოვნა შეუძლებელია"
+
+#: src/goabackend/goaexchangeprovider.c:52
+msgid "Microsoft Exchange"
+msgstr "Microsoft Exchange"
+
+#. Translators: the first %s is the username
+#. * (eg., debarshi.ray@gmail.com or rishi), and the
+#. * (%s, %d) is the error domain and code.
+#.
+#: src/goabackend/goaexchangeprovider.c:249
+#: src/goabackend/goawebdavprovider.c:374
+#, c-format
+msgid "Invalid password with username “%s” (%s, %d): "
+msgstr "არასწორი პაროლი მომხმარებლით “%s” (%s, %d): "
+
+#. provider name
+#: src/goabackend/goaexchangeprovider.c:373
+msgid ""
+"Connect to a Microsoft Exchange provider to access calendars, contacts and "
+"files"
+msgstr ""
+"დაუკავშირდით მომწოდებელს Microsoft Exchange კალენდრებთან, კონტაქტებთან და "
+"ფაილებთან წვდომისთვის"
+
+#: src/goabackend/goaexchangeprovider.c:376
+#: src/goabackend/goaimapsmtpprovider.c:548
+msgid "_Email"
+msgstr "_ელფოტა"
+
+#: src/goabackend/goaexchangeprovider.c:377
+#: src/goabackend/goafedoraprovider.c:171
+#: src/goabackend/goaimapsmtpprovider.c:549
+#: src/goabackend/goaimapsmtpprovider.c:568
+#: src/goabackend/goaimapsmtpprovider.c:589
+#: src/goabackend/goawebdavprovider.c:471
+msgid "_Password"
+msgstr "_პაროლი"
+
+#: src/goabackend/goaexchangeprovider.c:378
+msgid ""
+"Exchange account details will be auto-detected from your email address when "
+"possible"
+msgstr ""
+"Exchange-ის ანგარიშის დეტალები ავტომატურად დადგინდება თქვენი ელფოსტის "
+"მისამართიდან, როცა ეს შესაძლებელია"
+
+#: src/goabackend/goaexchangeprovider.c:382
+msgid "Account Details"
+msgstr "ანგარშის დეტალები"
+
+#: src/goabackend/goaexchangeprovider.c:383
+#: src/goabackend/goafedoraprovider.c:170
+#: src/goabackend/goaimapsmtpprovider.c:567
+#: src/goabackend/goaimapsmtpprovider.c:588
+#: src/goabackend/goawebdavprovider.c:470
+msgid "User_name"
+msgstr "მომხმარებლის სახელი"
+
+#: src/goabackend/goaexchangeprovider.c:384
+msgid "_Domain"
+msgstr "_დომენი"
+
+#: src/goabackend/goaexchangeprovider.c:385
+msgid "Example domain: example.com"
+msgstr "დომენი მაგალითისთვის: example.com"
+
+#: src/goabackend/goafedoraprovider.c:51
+msgid "Fedora"
+msgstr "Fedora"
+
+#: src/goabackend/goafedoraprovider.c:167
+#: src/goabackend/goakerberosprovider.c:592
+msgid "Access restricted web and network resources for your organization"
+msgstr ""
+"იქონიეთ წვდომა შეზღუდულ ვების და ქსელურ რესურსებთან თქვენი ორგანიზაციისთვის"
+
+#: src/goabackend/goagoogleprovider.c:57
+msgid "Google"
+msgstr "Google"
+
+#: src/goabackend/goagoogleprovider.c:213
+#: src/goabackend/goamsgraphprovider.c:162
+#: src/goabackend/goawindowsliveprovider.c:165
+#, c-format
+msgid ""
+"Expected status 200 when requesting your identity, instead got status %d (%s)"
+msgstr ""
+"თქვენი პირადობის გამოთხოვნისას მოსალოდნელი 200-ე პასუხის მაგიერ მიღებული "
+"პასუხია %d (%s)"
+
+#. TODO: more specific
+#: src/goabackend/goagoogleprovider.c:232
+#: src/goabackend/goagoogleprovider.c:243
+#: src/goabackend/goamsgraphprovider.c:181
+#: src/goabackend/goamsgraphprovider.c:192
+#: src/goabackend/goamsgraphprovider.c:203
+#: src/goabackend/goaoauth2provider.c:679
+#: src/goabackend/goaoauth2provider.c:709
+#: src/goabackend/goaoauth2provider.c:720 src/goabackend/goautils.c:133
+#: src/goabackend/goawindowsliveprovider.c:184
+#: src/goabackend/goawindowsliveprovider.c:195
+#: src/goabackend/goawindowsliveprovider.c:204
+#: src/goabackend/goawindowsliveprovider.c:217
+msgid "Could not parse response"
+msgstr "პასუხის დამუშავების შეცდომა"
+
+#. TODO: more specific
+#: src/goabackend/goaimapauthlogin.c:84 src/goabackend/goasmtpauth.c:149
+msgid "Service not available"
+msgstr "სერვისი ხელმიუწვდომელია"
+
+#. TODO: more specific
+#: src/goabackend/goaimapauthlogin.c:104 src/goabackend/goasmtpauth.c:102
+#: src/goabackend/goautils.c:681
+msgid "Authentication failed"
+msgstr "ავთენტიკაციის შეცდომა"
+
+#: src/goabackend/goaimapauthlogin.c:166 src/goabackend/goasmtpauth.c:600
+msgid "Server does not support STARTTLS"
+msgstr "სერვერს არ აქვს STARTTLS-ის მხარდაჭერა"
+
+#: src/goabackend/goaimapsmtpprovider.c:54
+msgid "IMAP and SMTP"
+msgstr "IMAP და SMTP"
+
+#. Translators: the first %s is a field name. The
+#. * second %s is the IMAP
+#. * username (eg., rishi), and the (%s, %d)
+#. * is the error domain and code.
+#.
+#. Translators: the first %s is a field name. The
+#. * second %s is the SMTP
+#. * username (eg., rishi), and the (%s, %d)
+#. * is the error domain and code.
+#.
+#: src/goabackend/goaimapsmtpprovider.c:311
+#: src/goabackend/goaimapsmtpprovider.c:362
+#, c-format
+msgid "Invalid %s with username “%s” (%s, %d): "
+msgstr "არასწორი %s მომხმარებლით “%s” (%s, %d): "
+
+#. Keep in sync with GoaTlsType
+#: src/goabackend/goaimapsmtpprovider.c:535
+msgid "None"
+msgstr "არც_ერთი"
+
+#. GOA_TLS_TYPE_NONE
+#: src/goabackend/goaimapsmtpprovider.c:536
+msgid "STARTTLS after connecting"
+msgstr "STARTTLS დაკავშირების შემდეგ"
+
+#. GOA_TLS_TYPE_STARTTLS
+#: src/goabackend/goaimapsmtpprovider.c:537
+msgid "SSL on a dedicated port"
+msgstr "SSL ცალკე პორტზე"
+
+#: src/goabackend/goaimapsmtpprovider.c:542
+#: src/goabackend/goaimapsmtpprovider.c:1206
+msgid "Email"
+msgstr "ელფოტა"
+
+#: src/goabackend/goaimapsmtpprovider.c:543
+msgid "Connect to an email account"
+msgstr "მიუერთდით ელფოსტის ანგარიშს"
+
+#: src/goabackend/goaimapsmtpprovider.c:547
+msgid "_Name"
+msgstr "_სახელი"
+
+#: src/goabackend/goaimapsmtpprovider.c:550
+msgid ""
+"IMAP and SMTP details will be auto-detected from your service provider when "
+"possible"
+msgstr ""
+"IMAP და SMTP დეტალები ავტომატურად დადგინდება თქვენი სერვისის მომწოდებლისგან, "
+"როცა ეს შესაძლებელია"
+
+#. IMAP
+#: src/goabackend/goaimapsmtpprovider.c:565
+msgid "IMAP Settings"
+msgstr "IMAP-ის მორგება"
+
+#: src/goabackend/goaimapsmtpprovider.c:566
+msgid "IMAP _Server"
+msgstr "IMAP _სერვერი"
+
+#: src/goabackend/goaimapsmtpprovider.c:574
+#: src/goabackend/goaimapsmtpprovider.c:595
+msgid "Encryption"
+msgstr "დაშიფვრა"
+
+#: src/goabackend/goaimapsmtpprovider.c:579
+msgid "Example server: imap.example.com"
+msgstr "სერვერი მაგალითისთვის: imap.example.com"
+
+#. SMTP
+#: src/goabackend/goaimapsmtpprovider.c:586
+msgid "SMTP Settings"
+msgstr "SMTP-ის მორგება"
+
+#: src/goabackend/goaimapsmtpprovider.c:587
+msgid "SMTP _Server"
+msgstr "SMTP _სერვერი"
+
+#: src/goabackend/goaimapsmtpprovider.c:600
+msgid "Example server: smtp.example.com"
+msgstr "სერვერი მაგალითისთვის: smtp.example.com"
+
+#: src/goabackend/goaimapsmtpprovider.c:1197
+msgid "Name"
+msgstr "სახელი"
+
+#: src/goabackend/goaimapsmtpprovider.c:1223
+msgid "IMAP"
+msgstr "IMAP"
+
+#: src/goabackend/goaimapsmtpprovider.c:1241
+msgid "SMTP"
+msgstr "SMTP"
+
+#: src/goabackend/goakerberosprovider.c:80
+msgid "Kerberos"
+msgstr "Kerberos"
+
+#: src/goabackend/goakerberosprovider.c:418
+msgid "Operation was cancelled"
+msgstr "ოპერაცია გაუქმდა"
+
+#: src/goabackend/goakerberosprovider.c:462
+#: src/goaidentity/goaidentityservice.c:1114
+msgid "Log In to Realm"
+msgstr "Realm-ში შესვლა"
+
+#: src/goabackend/goakerberosprovider.c:463
+msgid "Please enter your password below."
+msgstr "შეიყვანეთ თქვენი პაროლი."
+
+#: src/goabackend/goakerberosprovider.c:464
+msgid "Remember this password"
+msgstr "პაროლის დამახსოვრება"
+
+#: src/goabackend/goakerberosprovider.c:595
+msgid "_Principal"
+msgstr "_ძირითადი"
+
+#: src/goabackend/goakerberosprovider.c:596
+msgid "Example principal: user@EXAMPLE.COM"
+msgstr "პრინციპალი მაგალითისთვის: user@EXAMPLE.COM"
+
+#: src/goabackend/goakerberosprovider.c:599
+#: src/goabackend/goamsgraphprovider.c:374
+msgid "_Sign in…"
+msgstr "_შე_სვლა…"
+
+#: src/goabackend/goakerberosprovider.c:1291
+msgid "Ticketing is disabled for account"
+msgstr "ანგარიშისთვის ბილეთები გათიშულია"
+
+#: src/goabackend/goakerberosprovider.c:1318
+#, c-format
+msgid "Could not find saved credentials for principal “%s” in keyring"
+msgstr ""
+"ვერ მოიძებნა შენახული მომხმარებელი და პაროლი ძირითად, „%s“-ისთვის გასაღების "
+"რგოლში"
+
+#: src/goabackend/goakerberosprovider.c:1333
+#, c-format
+msgid "Did not find password for principal “%s” in credentials"
+msgstr "ვერ ვიპოვე ძირითადი „%s“ პაროლი სერთიფიკატებში"
+
+#: src/goabackend/goakerberosprovider.c:1515
+msgid "Identity service returned invalid key"
+msgstr "იდენტურობის სერვისმა არასწორი გასაღები დააბრუნა"
+
+#: src/goabackend/goamsgraphprovider.c:64
+msgid "Microsoft 365"
+msgstr "Microsoft 365"
+
+#. provider name
+#: src/goabackend/goamsgraphprovider.c:362
+msgid "Connect to a Microsoft 365 provider to access files"
+msgstr "ფაილებთან წვდომისთვის დაუკავშირდით Microsoft 365 მომწოდებელს"
+
+#: src/goabackend/goamsgraphprovider.c:364
+msgid "Authorization Details"
+msgstr "ავტორიზაციის დეტალები"
+
+#. Translators: See https://learn.microsoft.com/globalization/reference/microsoft-terminology
+#: src/goabackend/goamsgraphprovider.c:366
+msgid ""
+"A custom Client or Tenant ID may need to be provided depending on the "
+"settings for your organization"
+msgstr ""
+"თქვენ ორგანიზაციის პარამეტრებზე დამოკიდებულებით, საჭიროა მომხმარებლის "
+"კლიენტის ან მდგმურის ID-ის მითითება"
+
+#: src/goabackend/goamsgraphprovider.c:368
+msgid "_Client ID"
+msgstr "_კლიენტის ID"
+
+#. Translators: See https://learn.microsoft.com/globalization/reference/microsoft-terminology
+#: src/goabackend/goamsgraphprovider.c:370
+msgid "_Tenant ID"
+msgstr "_პატრონის ID"
+
+#: src/goabackend/goamsgraphprovider.c:371
+msgid "Example ID: 00000000-0000-0000-0000-000000000000"
+msgstr "ID-ის მაგალითი: 00000000-0000-0000-0000-000000000000"
+
+#: src/goabackend/goaoauth2provider.c:655
+#, c-format
+msgid ""
+"Expected status 200 when requesting access token, instead got status %d (%s)"
+msgstr ""
+"წვდომის კოდის გამოთხოვნისას მოსალოდნელი 200-ე პასუხის მაგიერ მიღებული "
+"პასუხია %d (%s)"
+
+#: src/goabackend/goaoauth2provider.c:799
+msgid "Authorization response: "
+msgstr "ავტორიზაციის პასუხი: "
+
+#: src/goabackend/goaoauth2provider.c:862
+#, c-format
+msgid "Authorization response: %s"
+msgstr "ავტორიზაციის პასუხი: %s"
+
+#: src/goabackend/goaoauth2provider.c:870
+msgid "Failed to authenticate"
+msgstr "ავთენტიკაციის შეცდომა"
+
+#: src/goabackend/goaoauth2provider.c:906
+msgid "Error getting an Access Token: "
+msgstr "წვდომის კოდის მიღების შეცდომა: "
+
+#: src/goabackend/goaoauth2provider.c:922
+msgid "Error getting identity: "
+msgstr "იდენტობის მიღების შეცდომა: "
+
+#: src/goabackend/goaoauth2provider.c:943
+#, c-format
+msgid "Sign in to %s with your browser"
+msgstr "შედით %s-ში თქვენი ბრაუზერიდან"
+
+#: src/goabackend/goaoauth2provider.c:945
+#: src/goabackend/goaproviderdialog.c:689
+msgid "_Sign In…"
+msgstr "შე_სვლა…"
+
+#: src/goabackend/goaoauth2provider.c:1292
+#, c-format
+msgid "Was asked to log in as %s, but logged in as %s"
+msgstr "მოთხოვნა შეეხებოდა შესვლას %s მაგრამ შეხვედით, როგორც %s"
+
+#: src/goabackend/goaoauth2provider.c:1479
+msgid "Credentials do not contain access_token"
+msgstr "მომხმარებელი და პაროლი access_token-ს არ შეიცავენ"
+
+#: src/goabackend/goaoauth2provider.c:1523
+#, c-format
+msgid "Failed to refresh access token (%s, %d): "
+msgstr "წვდომის კოდის განახლების შეცდომა (%s, %d): "
+
+#: src/goabackend/goaowncloudprovider.c:55
+msgid "Nextcloud"
+msgstr "Nextcloud"
+
+#: src/goabackend/goaprovider.c:118
+msgid "_Mail"
+msgstr "_ფოსტა"
+
+#: src/goabackend/goaprovider.c:123
+msgid "Cale_ndar"
+msgstr "კალე_ნდარი"
+
+#: src/goabackend/goaprovider.c:128
+msgid "_Contacts"
+msgstr "_კონტაქტები"
+
+#: src/goabackend/goaprovider.c:133
+msgid "C_hat"
+msgstr "_სასაუბრო"
+
+#: src/goabackend/goaprovider.c:138
+msgid "_Documents"
+msgstr "_დოკუმენტები"
+
+#: src/goabackend/goaprovider.c:143
+msgid "M_usic"
+msgstr "_მუსიკა"
+
+#: src/goabackend/goaprovider.c:148
+msgid "_Photos"
+msgstr "_ფოტოები"
+
+#: src/goabackend/goaprovider.c:153
+msgid "_Files"
+msgstr "_ფაილები"
+
+#: src/goabackend/goaprovider.c:158
+msgid "Network _Resources"
+msgstr "ქსელური _რესურსები"
+
+#: src/goabackend/goaprovider.c:163
+msgid "_Read Later"
+msgstr "_მოგვიანებით წაკითხვა"
+
+#: src/goabackend/goaprovider.c:168
+msgid "Prin_ters"
+msgstr "_პრინტერები"
+
+#: src/goabackend/goaprovider.c:173
+msgid "_Maps"
+msgstr "_რუკები"
+
+#: src/goabackend/goaprovider.c:178
+msgid "T_o Do"
+msgstr "_გასაკეთებელი საქმეები"
+
+#: src/goabackend/goaprovider.c:923
+msgid "Account is disabled"
+msgstr "ანგარიში გათიშულია"
+
+#: src/goabackend/goaprovider.c:936
+msgid "Unknown error"
+msgstr "უცნობი შეცდომა"
+
+#: src/goabackend/goaprovider.c:955
+#, c-format
+msgid "ensure_credentials_sync is not implemented on type %s"
+msgstr "ამ ტიპზე (%s) ensure_credentials_sync ხელმიუწვდომელია"
+
+#. Translators: this is the title of the "Add Account" and "Refresh
+#. * Account" dialogs. The %s is the name of the provider. eg.,
+#. * 'Google'.
+#.
+#: src/goabackend/goaproviderdialog.c:168
+#, c-format
+msgid "%s Account"
+msgstr "%s ანგარიში"
+
+#: src/goabackend/goaproviderdialog.c:606
+msgid "Remove this Account?"
+msgstr "წავშალო ეს ანგარიში?"
+
+#: src/goabackend/goaproviderdialog.c:607
+msgid ""
+"If you remove this Online Account you will have to connect to it again to "
+"use it with apps and services."
+msgstr ""
+"თუ წაშლით ამ ინტერნეტ-ანგარიშს, აპებთან და სერვისებთან მისი გამოყენებისთვის "
+"მისი თავიდან მიერთება მოგიწევთ."
+
+#: src/goabackend/goaproviderdialog.c:609
+msgid "_Cancel"
+msgstr "_გაუქმება"
+
+#: src/goabackend/goaproviderdialog.c:610
+msgid "_Remove"
+msgstr "_წაშლა"
+
+#: src/goabackend/goaproviderdialog.c:688
+msgid "Sign in to reconnect to this account"
+msgstr "ანგარიშის ჩასართავად შედით შიგნით"
+
+#. Remove
+#: src/goabackend/goaproviderdialog.c:737
+msgid "_Remove…"
+msgstr "_წაშლა…"
+
+#: src/goabackend/goaproviderdialog.c:832
+msgid "_Sign In"
+msgstr "_შესვლა"
+
+#: src/goabackend/goaproviderdialog.c:894
+msgid "_Try Again"
+msgstr "_თავიდან სცადეთ"
+
+#: src/goabackend/goaproviderdialog.c:898
+msgid "_Ignore"
+msgstr "_იგნორი"
+
+#: src/goabackend/goaproviderdialog.c:1143
+msgid "Dialog was dismissed"
+msgstr "ფანჯარა დახურულია"
+
+#. TODO: more specific
+#: src/goabackend/goasmtpauth.c:164
+msgid "TLS not available"
+msgstr "TLS მიუწვდომელია"
+
+#: src/goabackend/goasmtpauth.c:470
+msgid "Unknown authentication mechanism"
+msgstr "ავთენტიკაციის უცნობი მექანიზმი"
+
+#: src/goabackend/goautils.c:77
+#, c-format
+msgid "A %s account already exists for %s"
+msgstr "%s-ის ანგარიში %s-თვის უკვე არსებობს"
+
+#. TODO: more specific
+#: src/goabackend/goautils.c:190
+msgid "Failed to delete credentials from the keyring"
+msgstr "მომხმარებლის/პაროლის გასაღების რგოლიდან წაშლის შეცდომა"
+
+#. TODO: more specific
+#: src/goabackend/goautils.c:238
+msgid "Failed to retrieve credentials from the keyring"
+msgstr "მომხმარებლის/პაროლის გასაღების რგოლიდან ამოღების შეცდომა"
+
+#. TODO: more specific
+#: src/goabackend/goautils.c:248
+msgid "No credentials found in the keyring"
+msgstr "მომხმარებელი/პაროლი გასაღების რგოლში ნაპოვნი არაა"
+
+#: src/goabackend/goautils.c:261
+msgid "Error parsing result obtained from the keyring: "
+msgstr "გასაღების რგოლიდან მიღებული პასუხის დამუშავების შეცდომა: "
+
+#. Translators: The %s is the type of the provider, e.g. 'google' or 'yahoo'
+#: src/goabackend/goautils.c:302
+#, c-format
+msgid "GOA %s credentials for identity %s"
+msgstr "GOA-ის %s-ის მომხმარებელი/პაროლი %s იდენტურობაში"
+
+#. TODO: more specific
+#: src/goabackend/goautils.c:319
+msgid "Failed to store credentials in the keyring"
+msgstr "გასაღების რგოლში მომხმარებლის/პაროლის დამახსოვრების შეცდომა"
+
+#: src/goabackend/goautils.c:672
+msgid "Not supported"
+msgstr "მხარდაუჭერელია"
+
+#: src/goabackend/goautils.c:675
+msgid "Not found"
+msgstr "ნაპოვნი არაა"
+
+#: src/goabackend/goautils.c:686
+#, c-format
+msgid "Code: %u — Unexpected response from server"
+msgstr "კოდი %u - მოულოდნელი პასუხი სერვერიდან"
+
+#: src/goabackend/goautils.c:703
+msgid "The signing certificate authority is not known."
+msgstr "ხელმოწერის სერტიფიკატის მფლობელი უცნობია."
+
+#: src/goabackend/goautils.c:707
+msgid ""
+"The certificate does not match the expected identity of the site that it was "
+"retrieved from."
+msgstr "სერტიფიკატი არ ემთხვევა იმ საიტს იდენტურობას, საიდანაც ის გადმოწერეთ."
+
+#: src/goabackend/goautils.c:712
+msgid "The certificate’s activation time is still in the future."
+msgstr "სერტიფიკატის აქტივაციის დრო ჯერ კიდევ მომავალშია."
+
+#: src/goabackend/goautils.c:716
+msgid "The certificate has expired."
+msgstr "სერტიფიკატი ვადაგასულია."
+
+#: src/goabackend/goautils.c:720
+msgid "The certificate has been revoked."
+msgstr "სერტიფიკატი გაუქმებულია."
+
+#: src/goabackend/goautils.c:724
+msgid "The certificate’s algorithm is considered insecure."
+msgstr "სერტიფიკატის ალგორითმი მიჩნეულია, როგორც არასაიმედო."
+
+#: src/goabackend/goautils.c:730
+msgid "Invalid certificate."
+msgstr "არასწორი სერტიფიკატი."
+
+#. TODO: more specific
+#: src/goabackend/goautils.c:765
+#, c-format
+msgid "Did not find %s with identity “%s” in credentials"
+msgstr "%s-ის პოვნა %s იდენტურობით მომხმარებელ/პაროლებში შეუძლებელია"
+
+#: src/goabackend/goawebdavprovider.c:462
+msgid "Calendar, Contacts and Files"
+msgstr "კალენდრები, კონტაქტები და ფაილები"
+
+#: src/goabackend/goawebdavprovider.c:463
+msgid ""
+"Add a calendar, contacts and files account by entering your WebDAV server "
+"and account details"
+msgstr ""
+"დაამატეთ კალენდარი, კონტაქტები და ფაილები ანგარიშს თქვენი WebDAV სერვერისა "
+"და ანგარიშის დეტალების შეყვანით"
+
+#: src/goabackend/goawebdavprovider.c:466
+msgid "_Server Address"
+msgstr "_სერვერის მისამართი"
+
+#: src/goabackend/goawebdavprovider.c:467
+msgid "Examples: example.com, 192.168.0.82"
+msgstr "მაგალითები: example.com, 192.168.0.82"
+
+#: src/goabackend/goawebdavprovider.c:477
+msgid "Server Addresses (Optional)"
+msgstr "სერვერის მისამართები (არასავალდებულო)"
+
+#: src/goabackend/goawebdavprovider.c:478
+msgid "Files"
+msgstr "ფაილები"
+
+#: src/goabackend/goawebdavprovider.c:479
+msgid "Calendar (CalDAV)"
+msgstr "კალენდარი (CalDAV)"
+
+#: src/goabackend/goawebdavprovider.c:480
+msgid "Contacts (CardDAV)"
+msgstr "კონტაქტები (CardDAV)"
+
+#: src/goabackend/goawebdavprovider.c:692
+#, c-format
+msgid "Invalid URI: %s"
+msgstr "არასწორი URI: %s"
+
+#: src/goabackend/goawindowsliveprovider.c:56
+#| msgid "Microsoft 365"
+msgid "Microsoft"
+msgstr "Microsoft"
+
+#: src/goaidentity/goaidentityservice.c:564
+msgid "Initial secret key is invalid"
+msgstr "პირველი საიდუმლო გასაღები არასწორია"
+
+#. TODO: more specific
+#: src/goaidentity/goaidentityservice.c:786
+#, c-format
+msgid "Couldn't get GoaObject for object path %s"
+msgstr "ობიექტის ბილიკისთვის %s GoaObject-ის მიღება შეუძლებელია"
+
+#: src/goaidentity/goaidentityservice.c:1119
+#, c-format
+msgid "The network realm %s needs some information to sign you in."
+msgstr "ქსელურ realmს (%s) შესაშვებად დამატებით ინფორმაცია სჭირდება."
+
+#: src/goaidentity/goakerberosidentity.c:293
+#: src/goaidentity/goakerberosidentity.c:301
+#: src/goaidentity/goakerberosidentity.c:695
+msgid "Could not find identity in credential cache: "
+msgstr "მომხმარებელი/პაროლის ქეშში იდენტურობა ნაპოვნი არაა: "
+
+#: src/goaidentity/goakerberosidentity.c:707
+msgid "Could not find identity credentials in cache: "
+msgstr "მომხმარებელი/პაროლის ქეშში იდენტურობა ნაპოვნი არაა: "
+
+#: src/goaidentity/goakerberosidentity.c:751
+msgid "Could not sift through identity credentials in cache: "
+msgstr "დაქეშილი მომხმარებელი/პაროლების გაფილტვრის შეცდომა: "
+
+#: src/goaidentity/goakerberosidentity.c:763
+msgid "Could not finish up sifting through identity credentials in cache: "
+msgstr "დაქეშილი მომხმარებელი/პაროლების გაფილტვრის დამთავრების შეცდომა: "
+
+#: src/goaidentity/goakerberosidentity.c:1406
+msgid "No associated identification found"
+msgstr "დაკავშირებული იდენტიფიკაცია ნაპოვნი არაა"
+
+#: src/goaidentity/goakerberosidentity.c:1535
+msgid "Could not create credential cache: "
+msgstr "მომხმარებლის/პაროლის ქეშის შექმნის სეცდომა: "
+
+#: src/goaidentity/goakerberosidentity.c:1575
+msgid "Could not initialize credentials cache: "
+msgstr "მომხმარებლის/პაროლის ქეშის ინიციალიცაზიის შეცდომა: "
+
+#: src/goaidentity/goakerberosidentity.c:1588
+msgid "Could not store new credentials in credentials cache: "
+msgstr "მომხმარებლის/პაროლის ქეშში დამახსოვრების შეცდომა: "
+
+#: src/goaidentity/goakerberosidentity.c:1824
+msgid "Not signed in"
+msgstr "შესული არ ბრძანდებით"
+
+#: src/goaidentity/goakerberosidentity.c:1837
+msgid "Could not get the default principal: "
+msgstr "ნაგულისხმები პრინციპალის მიღების შეცდომა: "
+
+#: src/goaidentity/goakerberosidentity.c:1850
+#, c-format
+msgid "Could not get renewed credentials from the KDC for identity %s: "
+msgstr ""
+"%s-ის იდენტიფიცირებისთვის KDC-დან განახლებული ავტორიზაციის დეტალების მიღება "
+"შეუძლებელია: "
+
+#: src/goaidentity/goakerberosidentity.c:1898
+msgid "Could not erase identity: "
+msgstr "იდენტურობის წაშლის შეცდომა: "
+
+#: src/goaidentity/goakerberosidentitymanager.c:854
+msgid "Could not find identity"
+msgstr "იდენტურობის პოვნის შეცდომა"
+
+#: src/goaidentity/goakerberosidentitymanager.c:937
+msgid "Could not create credential cache for identity"
+msgstr "იდენტურობისთვის მომხმარებლის/პაროლის ქეშის შექმნის შეცდომა"
+
+#~ msgid "Common"
+#~ msgstr "ჩვეულებრივი"
+
+#~ msgid "Custom"
+#~ msgstr "მორგებული"
+
+#~ msgid "Advanced"
+#~ msgstr "დამატებით"
+
+#~ msgid "_Issuer"
+#~ msgstr "გამომცემელ_ი"
+
+#~ msgid "C_ustom Issuer"
+#~ msgstr "გამომცემლის ხელით მითითება"
+
+#~ msgid "Example provider: example.com"
+#~ msgstr "მომწოდებელი მაგალითისთვის: example.com"
+
+#~ msgid "Microsoft Personal"
+#~ msgstr "Microsoft Personal"
+
+#~ msgid "Endpoint Settings"
+#~ msgstr "ბოლოწერტილის მორგება"
+
+#~ msgid "Files Endpoint"
+#~ msgstr "ფაილების ბოლოწერტილი"
+
+#~ msgid "CalDAV Endpoint"
+#~ msgstr "CalDAV ბოლოწერტილი"
+
+#~ msgid "CardDAV Endpoint"
+#~ msgstr "CardDAV ბოლოწერტილი"
+
+#~ msgid "C_onnect"
+#~ msgstr "_კავშირი"
+
+#~ msgid "Connecting…"
+#~ msgstr "დაკავშირება…"
+
+#, c-format
+#~ msgid "Dialog was dismissed (%s, %d): "
+#~ msgstr "ფანჯარა დახურულია (%s, %d): "
+
+#~ msgid "Error connecting to Microsoft Exchange server"
+#~ msgstr "Microsoft Exchange-ის სერვერთან კავშირის შეცდომა"
+
+#~ msgid "Error connecting to Fedora"
+#~ msgstr "Fedora-თან კავშირის შეცდომა"
+
+#~ msgid "_Forward"
+#~ msgstr "_გადაგზავნა"
+
+#~ msgid "Error connecting to IMAP server"
+#~ msgstr "IMAP სერვერთან დაკავშირების შეცდომა"
+
+#~ msgid "Error connecting to SMTP server"
+#~ msgstr "SMTP სერვერთან დაკავშირების შეცდომა"
+
+#~ msgid "Enterprise Login (Kerberos)"
+#~ msgstr "კომპანიის სერვერზე შესვლა (Kerberos)"
+
+#~ msgid "Error connecting to enterprise identity server"
+#~ msgstr "კომპანიის იდენტურობის სერვერთან დაკავშირების შეცდომა"
+
+#~ msgid "Last.fm"
+#~ msgstr "Last.fm"
+
+#~ msgid "Error connecting to Last.fm"
+#~ msgstr "Last.fm-თან დაკავშირების შეცდომა"
+
+#~ msgid "Media Server"
+#~ msgstr "მედია სერვერი"
+
+#~ msgid ""
+#~ "Personal content can be added to your applications through a media server "
+#~ "account."
+#~ msgstr ""
+#~ "მედია სერვერის ანგარიშით თქვენს აპლიკაციებს თქვენი პირადი შემცველობაც "
+#~ "შეიძლება დაემატოს."
+
+#~ msgid "Available Media Servers"
+#~ msgstr "ხელმისაწვდომი მედია სერვერები"
+
+#~ msgid "No media servers found"
+#~ msgstr "მედია სერვერი ვერ ვიპოვე"
+
+#~ msgid "Continue"
+#~ msgstr "გაგრძელება"
+
+#~ msgid "Use for"
+#~ msgstr "გამოყენება"
+
+#~ msgid "Error logging into the account"
+#~ msgstr "ანგარიშში შესვლის შედომა"
+
+#~ msgid "Credentials have expired"
+#~ msgstr "მომხარებელ/პაროლს ვადა გაუვიდა"
+
+#~ msgid "Cannot find WebDAV endpoint"
+#~ msgstr "WebDAV-ის საბოლოო წერტილის პოვნა შეუძლებელია"
+
+#~ msgid "_URL"
+#~ msgstr "_URL"
+
+#~ msgid "Error connecting to server"
+#~ msgstr "სერვერთან დაკავშირების შეცდომა"
+
+#~ msgid "Error connecting to Files endpoint"
+#~ msgstr "ფაილების ბოლოწერტილთან მიერთების შეცდომა"
+
+#~ msgid "Error connecting to CalDAV endpoint"
+#~ msgstr "CalDAV ბოლოწერტილთან მიერთების შეცდომა"
+
+#~ msgid "Error connecting to CardDAV endpoint"
+#~ msgstr "CardDAV ბოლოწერტილთან მიერთების შეცდომა"
+
+#~ msgid "Error connecting to WebDAV server"
+#~ msgstr "WebDAV სერვერთან დაკავშირების შეცდომა"
+
+#~ msgid "Error connecting to Nextcloud server"
+#~ msgstr "Nextcloud-ის სერვერთან დაკავშირების პრობლემა"
+
+#~ msgid "Server does not support PLAIN"
+#~ msgstr "სერვერს არ აქვს PLAIN-ის მხარდაჭერა"
+
+#, c-format
+#~ msgid "Loading “%s”…"
+#~ msgstr "%s-ის ჩატვირთვა…"
+
+#~ msgid "Facebook"
+#~ msgstr "Facebook"
+
+#~ msgid "Flickr"
+#~ msgstr "Flickr"
+
+#~ msgid "Your system time is invalid. Check your date and time settings."
+#~ msgstr ""
+#~ "თქვენი სისტემის დრო არასწორია. შეამოწმეთ დროისა და თარიღის პარამეტრები."
+
+#~ msgid "Foursquare"
+#~ msgstr "Foursquare"
+
+#~ msgid "Missing access_token or access_token_secret headers in response"
+#~ msgstr "პასუხში access_token ან access_token_secret_headers თავსართები არაა"
+
+#~ msgid "Error getting a Request Token: "
+#~ msgstr "წვდომის კოდის მიღების შეცდომა: "
+
+#, c-format
+#~ msgid ""
+#~ "Expected status 200 for getting a Request Token, instead got status %d "
+#~ "(%s)"
+#~ msgstr ""
+#~ "წვდომის კოდის გამოთხოვნისას მოსალოდნელი 200-ე პასუხის მაგიერ მიღებული "
+#~ "პასუხია %d (%s)"
+
+#~ msgid "Missing request_token or request_token_secret headers in response"
+#~ msgstr "პასუხში access_token ან access_token_secret_headers თავსართები არაა"
+
+#~ msgid "Credentials do not contain access_token or access_token_secret"
+#~ msgstr ""
+#~ "მომხმარებელი და პაროლი არ შეიცავენ access_token-ს ანaccess_token_secret-ს"
+
+#~ msgid "Cannot resolve hostname"
+#~ msgstr "ჰოსტის სახელის გადაწყვეტის პრობლემა"
+
+#~ msgid "Cannot resolve proxy hostname"
+#~ msgstr "პროქსის ჰოსტის სახელის გადაწყვეტის პრობლემა"
+
+#~ msgid "Could not renew identity: Not signed in"
+#~ msgstr "მომხმარებლის/პაროლის განახლების შეცდომა: შესული არ ხართ"
+
+#~ msgid "Could not renew identity: "
+#~ msgstr "მომხმარებლის/პაროლის განახლების შეცდომა: "

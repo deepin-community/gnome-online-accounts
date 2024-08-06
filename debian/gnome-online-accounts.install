@@ -1,6 +1,7 @@
-/usr/lib/*/goa-1.0/web-extensions/libgoawebextension.so
 usr/libexec/goa-daemon
 usr/libexec/goa-identity-service
+usr/libexec/goa-oauth2-handler
+usr/share/applications/org.gnome.OnlineAccounts.OAuth2.desktop
 usr/share/dbus-1/services/org.gnome.Identity.service
 usr/share/dbus-1/services/org.gnome.OnlineAccounts.service
 usr/share/icons

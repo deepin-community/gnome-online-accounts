@@ -1,19 +1,148 @@
-Overview of changes in 3.40.1
+Overview of changes in 3.50.2
+=============================
+* Setup Dialog
+  - fix provider icon style
+  - fix dialog not closing when cancelled
+* Exchange
+  - fix account setup field verification
+* Microsoft 365
+  - fix account storage
+  - fix identity retrieval
+  - fix email retrieval
+* WebDAV
+  - fix Fastmail and mailbox.org endpoints
+  - fix for content-restricted app passwords
+* Translations
+  - Mark a user-visible string as translatable
+  - Translation updates
+
+Overview of changes in 3.50.1
+=============================
+* Fix translation domain in account dialogs
+* Fix OAuth 2.0 URI handler for some users
+* Fix crash in Kerberos/Fedora provider
+* Improved WebDAV support for Fastmail and mailbox.org
+* Fixes for WebDAV discovery
+* OAuth 2.0 PKCE support
+* Fix issues caught by static analysis
+* Update Microsoft Client ID
+* Translation updates
+
+Overview of changes in 3.50.0
+=============================
+* Updated project link
+* Translation updates
+
+Overview of changes in 3.49.4
+=============================
+* Update dependencies in the GoaBackend pkgconfig
+
+Overview of changes in 3.49.3
+=============================
+* Bump GoaBacked soname to 2.0.0
+* Fix nested modal windows
+* Simplified account setup UX
+* Updates to user visible labels and descriptions
+* Translation updates
+
+Overview of changes in 3.49.2
+=============================
+* Fix a use-after-free error
+* Set a minimum height for dialogs
+* Translation updates
+
+Overview of changes in 3.49.1
+=============================
+
+* Add Microsoft 365 provider
+* Port to GTK4/Adwaita and an async API
+* Remove nautilus-floating-bar
+* Derive the Fedora provider from Kerberos
+* Migrate existing WebDAV accounts
+* Update provider icons
+* Translation updates
+
+Overview of changes in 3.49.0
+=============================
+
+* Depend on GCR4
+* Remove the media server provider
+* Remove the Last.fm provider
+* Add WebDAV base provider
+* Remove the webview and WebKit dependency
+* Translation updates
+
+Overview of changes in 3.48.0
+=============================
+
+* Translation updates
+
+Overview of changes in 3.47.1
+=============================
+
+* Build fixes [#226]
+* Expired Kerberos tickets not re-acquired on resume from suspend [#160]
+* Update CalDAV/CardDAV OwnCloud endpoints [#67]
+* Attempt to cope with multiple credential caches per identity [#79]
+* Error in solving Nextcloud account address [#243]
+* Translation updates
+
+Overview of changes in 3.46.0
+=============================
+
+* Build system fixes with recent Meson
+* Updated translations
+  - Catalan
+
+Overview of changes in 3.45.2
+=============================
+
+* Use debugging messages instead of warnings
+* Fix documentation build
+* Updated translations
+  - Abkhazian
+
+Overview of changes in 3.45.1
+=============================
+
+* Removed providers
+  - Foursquare [#184]
+  - Facebook [#184]
+  - Flickr [!86]
+
+* Port to libsoup3 [!73]
+* Port to librest-1.0 [#186]
+* Drop the Autotools build [!89]
+* Update the Google OAuth2 provider [!79]
+
+Overview of changes in 3.44.0
 =============================
 
 * Bugs fixed:
+ !69 Add .gitlab-ci.yml
+ !70 Update Fedora logo
+ !78 Silence -Wincompatible-pointer-types with GCC 11
+
+* Updated translations:
+ Icelandic
+
+
+Overview of changes in 3.43.1
+=============================
+
+* Remove Documents support (!66)
+
+* Bugs fixed:
+ !67 doc: Update
  !68 dbus: Add missing since tag for IsSupportedProvider
 
 * Updated translations:
+ Bulgarian
+ Catalan
  Nepali
  Occitan
  Portuguese
-
-
-Overview of changes in 3.40.0
-=============================
-
-* None
+ Vietnamese
 
 
 Overview of changes in 3.39.92

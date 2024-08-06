@@ -26,8 +26,6 @@
 #include <gio/gio.h>
 #include <goabackend/goaoauth2provider.h>
 #include <goabackend/goaprovider-priv.h>
-#include <webkit2/webkit2.h>
-#include <webkitdom/webkitdom.h>
 
 G_BEGIN_DECLS
 
@@ -51,11 +49,7 @@ G_BEGIN_DECLS
  * @build_authorization_uri: Virtual function for goa_oauth2_provider_build_authorization_uri().
  * @get_use_mobile_browser: Virtual function for goa_oauth2_provider_get_use_mobile_browser().
  * @add_account_key_values: Virtual function for goa_oauth2_provider_add_account_key_values().
- * @decide_navigation_policy: Virtual function for goa_oauth2_provider_decide_navigation_policy().
  * @process_redirect_url: Virtual function for goa_oauth2_provider_process_redirect_url().
- * @is_deny_node: Virtual function for goa_oauth2_provider_is_deny_node().
- * @is_identity_node: Virtual function for goa_oauth2_provider_is_identity_node().
- * @is_password_node: Virtual function for goa_oauth2_provider_is_password_node().
  *
  * Class structure for #GoaOAuth2Provider.
  */
@@ -79,25 +73,17 @@ struct _GoaOAuth2ProviderClass
                                                 const gchar                  *authorization_uri,
                                                 const gchar                  *escaped_redirect_uri,
                                                 const gchar                  *escaped_client_id,
-                                                const gchar                  *escaped_scope);
+                                                const gchar                  *escaped_scope,
+                                                const gchar                  *code_challenge_method,
+                                                const gchar                  *code_challenge);
   const gchar *(*get_token_uri)                (GoaOAuth2Provider            *provider);
   const gchar *(*get_scope)                    (GoaOAuth2Provider            *provider);
+  gboolean     (*get_use_pkce)                 (GoaOAuth2Provider            *provider);
   gboolean     (*get_use_mobile_browser)       (GoaOAuth2Provider            *provider);
   void         (*add_account_key_values)       (GoaOAuth2Provider            *provider,
                                                 GVariantBuilder              *builder);
 
-  /* pure virtual */
-  gboolean     (*is_identity_node)             (GoaOAuth2Provider            *provider,
-                                                WebKitDOMHTMLInputElement    *element);
-
   /* virtual but with default implementation */
-  gboolean     (*is_deny_node)                 (GoaOAuth2Provider            *provider,
-                                                WebKitDOMNode                *node);
-  gboolean     (*is_password_node)             (GoaOAuth2Provider            *provider,
-                                                WebKitDOMHTMLInputElement    *element);
-  gboolean     (*decide_navigation_policy)     (GoaOAuth2Provider              *provider,
-                                                WebKitWebView                  *web_view,
-                                                WebKitNavigationPolicyDecision *decision);
   gboolean     (*process_redirect_url)         (GoaOAuth2Provider            *provider,
                                                 const gchar                  *redirect_url,
                                                 gchar                       **access_token,

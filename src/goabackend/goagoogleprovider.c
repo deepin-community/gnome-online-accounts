@@ -19,7 +19,7 @@
 #include "config.h"
 #include <glib/gi18n-lib.h>
 
-#include <rest/oauth-proxy.h>
+#include <rest/rest.h>
 #include <json-glib/json-glib.h>
 
 #include "goaprovider.h"
@@ -32,6 +32,7 @@
 struct _GoaGoogleProvider
 {
   GoaOAuth2Provider parent_instance;
+  gchar *redirect_uri;
 };
 
 G_DEFINE_TYPE_WITH_CODE (GoaGoogleProvider, goa_google_provider, GOA_TYPE_OAUTH2_PROVIDER,
@@ -69,28 +70,56 @@ get_provider_features (GoaProvider *provider)
          GOA_PROVIDER_FEATURE_MAIL |
          GOA_PROVIDER_FEATURE_CALENDAR |
          GOA_PROVIDER_FEATURE_CONTACTS |
-         GOA_PROVIDER_FEATURE_DOCUMENTS |
-         GOA_PROVIDER_FEATURE_PHOTOS |
-         GOA_PROVIDER_FEATURE_FILES |
-         GOA_PROVIDER_FEATURE_PRINTERS;
+         GOA_PROVIDER_FEATURE_FILES;
 }
 
 static const gchar *
 get_authorization_uri (GoaOAuth2Provider *oauth2_provider)
 {
-  return "https://accounts.google.com/o/oauth2/auth";
+  return "https://accounts.google.com/o/oauth2/v2/auth";
 }
 
 static const gchar *
 get_token_uri (GoaOAuth2Provider *oauth2_provider)
 {
-  return "https://accounts.google.com/o/oauth2/token";
+  return "https://oauth2.googleapis.com/token";
 }
 
 static const gchar *
 get_redirect_uri (GoaOAuth2Provider *oauth2_provider)
 {
-  return "http://localhost";
+  G_LOCK_DEFINE_STATIC (redirect_uri);
+  GoaGoogleProvider *self = GOA_GOOGLE_PROVIDER (oauth2_provider);
+
+  G_LOCK (redirect_uri);
+
+  if (!self->redirect_uri) {
+    GPtrArray *array;
+    gchar **strv;
+    gchar *joinstr;
+    guint ii;
+
+    strv = g_strsplit (GOA_GOOGLE_CLIENT_ID, ".", -1);
+    array = g_ptr_array_new ();
+
+    for (ii = 0; strv[ii]; ii++) {
+      g_ptr_array_insert (array, 0, strv[ii]);
+    }
+
+    g_ptr_array_add (array, NULL);
+
+    joinstr = g_strjoinv (".", (gchar **) array->pdata);
+    /* Use reverse-DNS of the client ID with the below path */
+    self->redirect_uri = g_strconcat (joinstr, ":/oauth2redirect", NULL);
+
+    g_ptr_array_free (array, TRUE);
+    g_strfreev (strv);
+    g_free (joinstr);
+  }
+
+  G_UNLOCK (redirect_uri);
+
+  return self->redirect_uri;
 }
 
 static const gchar *
@@ -118,14 +147,8 @@ get_scope (GoaOAuth2Provider *oauth2_provider)
          "https://docs.googleusercontent.com/ "
          "https://spreadsheets.google.com/feeds/ "
 
-         /* Google PicasaWeb API (GData) */
-         "https://picasaweb.google.com/data/ "
-
          /* GMail IMAP and SMTP access */
          "https://mail.google.com/ "
-
-         /* Google Cloud Print */
-         "https://www.googleapis.com/auth/cloudprint "
 
          /* Google Tasks - undocumented */
          "https://www.googleapis.com/auth/tasks";
@@ -134,7 +157,7 @@ get_scope (GoaOAuth2Provider *oauth2_provider)
 static guint
 get_credentials_generation (GoaProvider *provider)
 {
-  return 10;
+  return 12;
 }
 
 static const gchar *
@@ -147,6 +170,12 @@ static const gchar *
 get_client_secret (GoaOAuth2Provider *oauth2_provider)
 {
   return GOA_GOOGLE_CLIENT_SECRET;
+}
+
+static gboolean
+get_use_pkce (GoaOAuth2Provider *oauth2_provider)
+{
+  return TRUE;
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -234,37 +263,6 @@ get_identity_sync (GoaOAuth2Provider  *oauth2_provider,
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gboolean
-is_identity_node (GoaOAuth2Provider *oauth2_provider, WebKitDOMHTMLInputElement *element)
-{
-  gboolean ret = FALSE;
-  gchar *element_type = NULL;
-  gchar *id = NULL;
-  gchar *name = NULL;
-
-  g_object_get (element, "type", &element_type, NULL);
-  if (g_strcmp0 (element_type, "email") != 0)
-    goto out;
-
-  id = webkit_dom_element_get_id (WEBKIT_DOM_ELEMENT (element));
-  if (g_strcmp0 (id, "identifierId") != 0)
-    goto out;
-
-  name = webkit_dom_html_input_element_get_name (element);
-  if (g_strcmp0 (name, "identifier") != 0)
-    goto out;
-
-  ret = TRUE;
-
- out:
-  g_free (element_type);
-  g_free (id);
-  g_free (name);
-  return ret;
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-
-static gboolean
 build_object (GoaProvider         *provider,
               GoaObjectSkeleton   *object,
               GKeyFile            *key_file,
@@ -281,10 +279,7 @@ build_object (GoaProvider         *provider,
   gboolean mail_enabled;
   gboolean calendar_enabled;
   gboolean contacts_enabled;
-  gboolean documents_enabled;
   gboolean files_enabled;
-  gboolean photos_enabled;
-  gboolean printers_enabled;
   const gchar *email_address;
 
   /* Chain up */
@@ -344,33 +339,18 @@ build_object (GoaProvider         *provider,
                                        contacts_enabled,
                                        FALSE);
 
-  /* Documents */
-  documents_enabled = g_key_file_get_boolean (key_file, group, "DocumentsEnabled", NULL);
-  goa_object_skeleton_attach_documents (object, documents_enabled);
-
-  /* Photos */
-  photos_enabled = g_key_file_get_boolean (key_file, group, "PhotosEnabled", NULL);
-  goa_object_skeleton_attach_photos (object, photos_enabled);
-
   /* Files */
   files_enabled = g_key_file_get_boolean (key_file, group, "FilesEnabled", NULL);
   uri_drive = g_strconcat ("google-drive://", email_address, "/", NULL);
   goa_object_skeleton_attach_files (object, uri_drive, files_enabled, FALSE);
   g_free (uri_drive);
 
-  /* Printers */
-  printers_enabled = g_key_file_get_boolean (key_file, group, "PrintersEnabled", NULL);
-  goa_object_skeleton_attach_printers (object, printers_enabled);
-
   if (just_added)
     {
       goa_account_set_mail_disabled (account, !mail_enabled);
       goa_account_set_calendar_disabled (account, !calendar_enabled);
       goa_account_set_contacts_disabled (account, !contacts_enabled);
-      goa_account_set_documents_disabled (account, !documents_enabled);
-      goa_account_set_photos_disabled (account, !photos_enabled);
       goa_account_set_files_disabled (account, !files_enabled);
-      goa_account_set_printers_disabled (account, !printers_enabled);
 
       g_signal_connect (account,
                         "notify::mail-disabled",
@@ -385,21 +365,9 @@ build_object (GoaProvider         *provider,
                         G_CALLBACK (goa_util_account_notify_property_cb),
                         (gpointer) "ContactsEnabled");
       g_signal_connect (account,
-                        "notify::documents-disabled",
-                        G_CALLBACK (goa_util_account_notify_property_cb),
-                        (gpointer) "DocumentsEnabled");
-      g_signal_connect (account,
-                        "notify::photos-disabled",
-                        G_CALLBACK (goa_util_account_notify_property_cb),
-                        (gpointer) "PhotosEnabled");
-      g_signal_connect (account,
                         "notify::files-disabled",
                         G_CALLBACK (goa_util_account_notify_property_cb),
                         (gpointer) "FilesEnabled");
-      g_signal_connect (account,
-                        "notify::printers-disabled",
-                        G_CALLBACK (goa_util_account_notify_property_cb),
-                        (gpointer) "PrintersEnabled");
     }
 
   ret = TRUE;
@@ -419,13 +387,20 @@ add_account_key_values (GoaOAuth2Provider  *oauth2_provider,
   g_variant_builder_add (builder, "{ss}", "MailEnabled", "true");
   g_variant_builder_add (builder, "{ss}", "CalendarEnabled", "true");
   g_variant_builder_add (builder, "{ss}", "ContactsEnabled", "true");
-  g_variant_builder_add (builder, "{ss}", "DocumentsEnabled", "true");
-  g_variant_builder_add (builder, "{ss}", "PhotosEnabled", "true");
   g_variant_builder_add (builder, "{ss}", "FilesEnabled", "true");
-  g_variant_builder_add (builder, "{ss}", "PrintersEnabled", "true");
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
+
+static void
+goa_google_finalize (GObject *object)
+{
+  GoaGoogleProvider *self = GOA_GOOGLE_PROVIDER (object);
+
+  g_free (self->redirect_uri);
+
+  G_OBJECT_CLASS (goa_google_provider_parent_class)->finalize (object);
+}
 
 static void
 goa_google_provider_init (GoaGoogleProvider *self)
@@ -437,6 +412,10 @@ goa_google_provider_class_init (GoaGoogleProviderClass *klass)
 {
   GoaProviderClass *provider_class;
   GoaOAuth2ProviderClass *oauth2_class;
+  GObjectClass *object_class;
+
+  object_class = G_OBJECT_CLASS (klass);
+  object_class->finalize = goa_google_finalize;
 
   provider_class = GOA_PROVIDER_CLASS (klass);
   provider_class->get_provider_type          = get_provider_type;
@@ -453,7 +432,7 @@ goa_google_provider_class_init (GoaGoogleProviderClass *klass)
   oauth2_class->get_identity_sync         = get_identity_sync;
   oauth2_class->get_redirect_uri          = get_redirect_uri;
   oauth2_class->get_scope                 = get_scope;
-  oauth2_class->is_identity_node          = is_identity_node;
   oauth2_class->get_token_uri             = get_token_uri;
+  oauth2_class->get_use_pkce              = get_use_pkce;
   oauth2_class->add_account_key_values    = add_account_key_values;
 }

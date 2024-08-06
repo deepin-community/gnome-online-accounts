@@ -20,7 +20,9 @@
 #include <glib/gi18n-lib.h>
 
 #include "goaprovider.h"
+#include "goaproviderdialog.h"
 #include "goakerberosprovider.h"
+#include "goakerberosprovider-priv.h"
 #include "goautils.h"
 #include "goaidentity.h"
 #include "goaidentitymanagererror.h"
@@ -29,10 +31,6 @@
 
 #include "org.gnome.Identity.h"
 
-struct _GoaKerberosProvider
-{
-  GoaProvider parent_instance;
-};
 
 static GoaIdentityServiceManager *identity_manager;
 static GMutex identity_manager_mutex;
@@ -45,16 +43,6 @@ static GCond object_manager_condition;
 static void ensure_identity_manager (void);
 static void ensure_object_manager (void);
 
-static char *sign_in_identity_sync (GoaKerberosProvider  *self,
-                                    const char           *identifier,
-                                    const char           *password,
-                                    const char           *preauth_source,
-                                    GCancellable         *cancellable,
-                                    GError              **error);
-static void sign_in_thread (GTask               *result,
-                            GoaKerberosProvider *self,
-                            gpointer             task_data,
-                            GCancellable        *cancellable);
 static GoaIdentityServiceIdentity *get_identity_from_object_manager (GoaKerberosProvider *self,
                                                                      const char          *identifier);
 static gboolean dbus_proxy_reload_properties_sync (GDBusProxy    *proxy,
@@ -89,7 +77,7 @@ get_provider_type (GoaProvider *provider)
 static gchar *
 get_provider_name (GoaProvider *provider, GoaObject *object)
 {
-  return g_strdup(_("Enterprise Login (Kerberos)"));
+  return g_strdup(_("Kerberos"));
 }
 
 static GoaProviderGroup
@@ -108,201 +96,6 @@ static GIcon *
 get_provider_icon (GoaProvider *provider, GoaObject *object)
 {
   return g_themed_icon_new_with_default_fallbacks ("dialog-password-symbolic");
-}
-
-typedef struct
-{
-  GCancellable *cancellable;
-
-  GtkDialog *dialog;
-  GMainLoop *loop;
-
-  GtkWidget *cluebar;
-  GtkWidget *cluebar_label;
-  GtkWidget *connect_button;
-  GtkWidget *progress_grid;
-
-  GtkWidget *principal;
-
-  gchar *account_object_path;
-
-  GError *error;
-} SignInRequest;
-
-static void
-translate_error (GError **error)
-{
-  if (!g_dbus_error_is_remote_error (*error))
-    return;
-
-  g_dbus_error_strip_remote_error (*error);
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-
-typedef struct
-{
-  gchar *identifier;
-  gchar *password;
-  gchar *preauth_source;
-} SignInIdentityData;
-
-static SignInIdentityData *
-sign_in_identity_data_new (const gchar *identifier, const gchar *password, const gchar *preauth_source)
-{
-  SignInIdentityData *data;
-
-  data = g_slice_new0 (SignInIdentityData);
-  data->identifier = g_strdup (identifier);
-  data->password = g_strdup (password);
-  data->preauth_source = g_strdup (preauth_source);
-
-  return data;
-}
-
-static void
-sign_in_identity_data_free (SignInIdentityData *data)
-{
-  g_free (data->identifier);
-  g_free (data->password);
-  g_free (data->preauth_source);
-
-  g_slice_free (SignInIdentityData, data);
-}
-
-static void
-sign_in_identity (GoaKerberosProvider  *self,
-                  const char           *identifier,
-                  const char           *password,
-                  const char           *preauth_source,
-                  GCancellable         *cancellable,
-                  GAsyncReadyCallback   callback,
-                  gpointer              user_data)
-{
-  GTask *task;
-  SignInIdentityData *data = NULL;
-
-  data = sign_in_identity_data_new (identifier, password, preauth_source);
-
-  task = g_task_new (self, cancellable, callback, user_data);
-  g_task_set_task_data (task, data, (GDestroyNotify) sign_in_identity_data_free);
-  g_task_run_in_thread (task, (GTaskThreadFunc) sign_in_thread);
-
-  g_object_unref (task);
-}
-
-static gchar *
-sign_in_identity_finish (GoaKerberosProvider  *self,
-                         GAsyncResult         *result,
-                         GError              **error)
-{
-  GTask *task;
-
-  g_return_val_if_fail (GOA_IS_KERBEROS_PROVIDER (self), NULL);
-  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
-
-  g_return_val_if_fail (g_task_is_valid (result, self), NULL);
-  task = G_TASK (result);
-
-  return g_task_propagate_pointer (task, error);
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-
-static gboolean
-get_ticket_sync (GoaKerberosProvider *self,
-                 GoaObject           *object,
-                 gboolean             is_interactive,
-                 GCancellable        *cancellable,
-                 GError             **error)
-{
-  GVariant            *credentials = NULL;
-  GError              *lookup_error;
-  GError              *sign_in_error;
-  GoaAccount          *account;
-  GoaTicketing        *ticketing;
-  GVariant            *details;
-  const char          *identifier;
-  const char          *password;
-  const char          *preauth_source;
-  char                *object_path = NULL;
-  gboolean             ret = FALSE;
-
-  account = goa_object_get_account (object);
-  identifier = goa_account_get_identity (account);
-
-  ticketing = goa_object_get_ticketing (object);
-  if (ticketing == NULL)
-    {
-      g_set_error (error,
-                   GOA_ERROR,
-                   GOA_ERROR_NOT_SUPPORTED,
-                   _("Ticketing is disabled for account"));
-      goto out;
-    }
-
-  details = goa_ticketing_get_details (ticketing);
-
-  preauth_source = NULL;
-  g_variant_lookup (details, "preauthentication-source", "&s", &preauth_source);
-
-  password = NULL;
-
-  lookup_error = NULL;
-  credentials = goa_utils_lookup_credentials_sync (GOA_PROVIDER (self),
-                                                   object,
-                                                   cancellable,
-                                                   &lookup_error);
-
-  if (credentials == NULL && !is_interactive)
-    {
-      if (lookup_error != NULL)
-          g_propagate_error (error, lookup_error);
-      else
-          g_set_error (error,
-                       GOA_ERROR,
-                       GOA_ERROR_NOT_AUTHORIZED,
-                       _("Could not find saved credentials for principal “%s” in keyring"), identifier);
-      goto out;
-    }
-  else if (credentials != NULL)
-    {
-      gboolean has_password;
-
-      has_password = g_variant_lookup (credentials, "password", "&s", &password);
-      if (!has_password && !is_interactive)
-        {
-          g_set_error (error,
-                       GOA_ERROR,
-                       GOA_ERROR_NOT_AUTHORIZED,
-                       _("Did not find password for principal “%s” in credentials"),
-                       identifier);
-          goto out;
-        }
-    }
-
-  sign_in_error = NULL;
-  object_path = sign_in_identity_sync (self,
-                                       identifier,
-                                       password,
-                                       preauth_source,
-                                       cancellable,
-                                       &sign_in_error);
-
-  if (sign_in_error != NULL)
-    {
-      g_propagate_error (error, sign_in_error);
-      goto out;
-    }
-
-  ret = TRUE;
-
- out:
-  g_clear_object (&account);
-  g_clear_object (&ticketing);
-  g_free (object_path);
-  g_clear_pointer (&credentials, g_variant_unref);
-  return ret;
 }
 
 static void
@@ -354,11 +147,11 @@ on_handle_get_ticket (GoaTicketing          *interface,
 
   provider = goa_provider_get_for_provider_type (provider_type);
   error = NULL;
-  got_ticket = get_ticket_sync (GOA_KERBEROS_PROVIDER (provider),
-                                object,
-                                TRUE /* Allow interaction */,
-                                NULL,
-                                &error);
+  got_ticket = goa_kerberos_provider_get_ticket_sync (GOA_KERBEROS_PROVIDER (provider),
+                                                      object,
+                                                      TRUE /* Allow interaction */,
+                                                      NULL,
+                                                      &error);
 
   if (!got_ticket)
     g_dbus_method_invocation_take_error (invocation, error);
@@ -450,217 +243,49 @@ build_object (GoaProvider         *provider,
   return ret;
 }
 
+/* ---------------------------------------------------------------------------------------------------- */
+
 static void
-add_entry (GtkWidget     *grid,
-           gint           row,
-           const gchar   *text,
-           GtkWidget    **out_entry)
+refresh_account_ticket_cb (GoaKerberosProvider *self,
+                           GAsyncResult        *result,
+                           gpointer             user_data)
 {
-  GtkStyleContext *context;
-  GtkWidget *label;
-  GtkWidget *entry;
+  g_autoptr(GTask) task = G_TASK (g_steal_pointer (&user_data));
+  GError *error = NULL;
 
-  label = gtk_label_new_with_mnemonic (text);
-  context = gtk_widget_get_style_context (label);
-  gtk_style_context_add_class (context, GTK_STYLE_CLASS_DIM_LABEL);
-  gtk_widget_set_halign (label, GTK_ALIGN_END);
-  gtk_widget_set_hexpand (label, TRUE);
-  gtk_grid_attach (GTK_GRID (grid), label, 0, row, 1, 1);
-
-  entry = gtk_entry_new ();
-  gtk_widget_set_hexpand (entry, TRUE);
-  gtk_entry_set_activates_default (GTK_ENTRY (entry), TRUE);
-  gtk_grid_attach (GTK_GRID (grid), entry, 1, row, 3, 1);
-
-  gtk_label_set_mnemonic_widget (GTK_LABEL (label), entry);
-  if (out_entry != NULL)
-    *out_entry = entry;
-}
-
-static gchar *
-normalize_principal (const gchar *principal, gchar **out_realm)
-{
-  gchar *domain = NULL;
-  gchar *realm = NULL;
-  gchar *ret = NULL;
-  gchar *username = NULL;
-
-  if (!goa_utils_parse_email_address (principal, &username, &domain))
-    goto out;
-
-  realm = g_utf8_strup (domain, -1);
-  ret = g_strconcat (username, "@", realm, NULL);
-
-  if (out_realm != NULL)
-    {
-      *out_realm = realm;
-      realm = NULL;
-    }
-
- out:
-  g_free (domain);
-  g_free (realm);
-  g_free (username);
-  return ret;
+  if (!goa_kerberos_provider_get_ticket_finish (self, result, &error))
+    g_task_return_error (task, error);
+  else
+    g_task_return_boolean (task, TRUE);
 }
 
 static void
-on_principal_changed (GtkEditable *editable, gpointer user_data)
-{
-  SignInRequest *request = user_data;
-  gboolean can_add;
-  const gchar *principal;
-
-  principal = gtk_entry_get_text (GTK_ENTRY (request->principal));
-  can_add = goa_utils_parse_email_address (principal, NULL, NULL);
-  gtk_dialog_set_response_sensitive (request->dialog, GTK_RESPONSE_OK, can_add);
-}
-
-static void
-show_progress_ui (GtkContainer *container, gboolean progress)
-{
-  GList *children;
-  GList *l;
-
-  children = gtk_container_get_children (container);
-  for (l = children; l != NULL; l = l->next)
-    {
-      GtkWidget *widget = GTK_WIDGET (l->data);
-      gdouble opacity;
-
-      opacity = progress ? 1.0 : 0.0;
-      gtk_widget_set_opacity (widget, opacity);
-    }
-
-  g_list_free (children);
-}
-
-static void
-create_account_details_ui (GoaKerberosProvider *self,
-                           GtkDialog           *dialog,
-                           GtkWidget           *vbox,
-                           gboolean             new_account,
-                           SignInRequest       *request)
-{
-  GtkWidget *grid0;
-  GtkWidget *grid1;
-  GtkWidget *label;
-  GtkWidget *spinner;
-  gint row;
-  gint width;
-
-  goa_utils_set_dialog_title (GOA_PROVIDER (self), dialog, new_account);
-
-  grid0 = gtk_grid_new ();
-  gtk_container_set_border_width (GTK_CONTAINER (grid0), 5);
-  gtk_widget_set_margin_bottom (grid0, 6);
-  gtk_orientable_set_orientation (GTK_ORIENTABLE (grid0), GTK_ORIENTATION_VERTICAL);
-  gtk_grid_set_row_spacing (GTK_GRID (grid0), 12);
-  gtk_container_add (GTK_CONTAINER (vbox), grid0);
-
-  request->cluebar = gtk_info_bar_new ();
-  gtk_info_bar_set_message_type (GTK_INFO_BAR (request->cluebar), GTK_MESSAGE_ERROR);
-  gtk_widget_set_hexpand (request->cluebar, TRUE);
-  gtk_widget_set_no_show_all (request->cluebar, TRUE);
-  gtk_container_add (GTK_CONTAINER (grid0), request->cluebar);
-
-  request->cluebar_label = gtk_label_new ("");
-  gtk_label_set_line_wrap (GTK_LABEL (request->cluebar_label), TRUE);
-  gtk_container_add (GTK_CONTAINER (gtk_info_bar_get_content_area (GTK_INFO_BAR (request->cluebar))),
-                     request->cluebar_label);
-
-  grid1 = gtk_grid_new ();
-  gtk_grid_set_column_spacing (GTK_GRID (grid1), 12);
-  gtk_grid_set_row_spacing (GTK_GRID (grid1), 12);
-  gtk_container_add (GTK_CONTAINER (grid0), grid1);
-
-  row = 0;
-  add_entry (grid1, row++, _("_Principal"), &request->principal);
-
-  gtk_widget_grab_focus (request->principal);
-  g_signal_connect (request->principal, "changed", G_CALLBACK (on_principal_changed), request);
-
-  gtk_dialog_add_button (request->dialog, _("_Cancel"), GTK_RESPONSE_CANCEL);
-  request->connect_button = gtk_dialog_add_button (request->dialog, _("C_onnect"), GTK_RESPONSE_OK);
-  gtk_dialog_set_default_response (request->dialog, GTK_RESPONSE_OK);
-  gtk_dialog_set_response_sensitive (request->dialog, GTK_RESPONSE_OK, FALSE);
-
-  request->progress_grid = gtk_grid_new ();
-  gtk_orientable_set_orientation (GTK_ORIENTABLE (request->progress_grid), GTK_ORIENTATION_HORIZONTAL);
-  gtk_grid_set_column_spacing (GTK_GRID (request->progress_grid), 3);
-  gtk_container_add (GTK_CONTAINER (grid0), request->progress_grid);
-
-  spinner = gtk_spinner_new ();
-  gtk_widget_set_opacity (spinner, 0.0);
-  gtk_widget_set_size_request (spinner, 20, 20);
-  gtk_spinner_start (GTK_SPINNER (spinner));
-  gtk_container_add (GTK_CONTAINER (request->progress_grid), spinner);
-
-  label = gtk_label_new (_("Connecting…"));
-  gtk_widget_set_opacity (label, 0.0);
-  gtk_container_add (GTK_CONTAINER (request->progress_grid), label);
-
-  gtk_window_get_size (GTK_WINDOW (request->dialog), &width, NULL);
-  gtk_window_set_default_size (GTK_WINDOW (request->dialog), width, -1);
-}
-
-static void
-add_account_cb (GoaManager   *manager,
-                GAsyncResult *result,
-                gpointer      user_data)
-{
-  SignInRequest *request = user_data;
-  goa_manager_call_add_account_finish (manager,
-                                       &request->account_object_path,
-                                       result,
-                                       &request->error);
-  if (request->error != NULL)
-    translate_error (&request->error);
-  g_main_loop_quit (request->loop);
-  gtk_widget_set_sensitive (request->connect_button, TRUE);
-  gtk_widget_set_sensitive (request->principal, TRUE);
-  show_progress_ui (GTK_CONTAINER (request->progress_grid), FALSE);
-}
-
-static void
-remove_account_cb (GoaAccount   *account,
-                   GAsyncResult *result,
-                   GMainLoop    *loop)
-{
-  goa_account_call_remove_finish (account, result, NULL);
-  g_main_loop_quit (loop);
-}
-
-static gboolean
-refresh_account (GoaProvider    *provider,
-                 GoaClient      *client,
-                 GoaObject      *object,
-                 GtkWindow      *parent,
-                 GError        **error)
+refresh_account (GoaProvider         *provider,
+                 GoaClient           *client,
+                 GoaObject           *object,
+                 GtkWindow           *parent,
+                 GCancellable        *cancellable,
+                 GAsyncReadyCallback  callback,
+                 gpointer             user_data)
 {
   GoaKerberosProvider *self = GOA_KERBEROS_PROVIDER (provider);
-  gboolean             got_ticket;
-  GError              *ticket_error = NULL;
+  g_autoptr(GTask) task = NULL;
 
-  g_return_val_if_fail (GOA_IS_KERBEROS_PROVIDER (provider), FALSE);
-  g_return_val_if_fail (GOA_IS_CLIENT (client), FALSE);
-  g_return_val_if_fail (GOA_IS_OBJECT (object), FALSE);
-  g_return_val_if_fail (parent == NULL || GTK_IS_WINDOW (parent), FALSE);
-  g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
+  g_assert (GOA_IS_KERBEROS_PROVIDER (provider));
+  g_assert (GOA_IS_CLIENT (client));
+  g_assert (GOA_IS_OBJECT (object));
+  g_assert (parent == NULL || GTK_IS_WINDOW (parent));
+  g_assert (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
 
-  got_ticket = get_ticket_sync (self,
-                                object,
-                                TRUE /* Allow interaction */,
-                                NULL,
-                                &ticket_error);
+  task = g_task_new (provider, cancellable, callback, user_data);
+  g_task_set_source_tag (task, refresh_account);
 
-  if (ticket_error != NULL)
-    {
-      translate_error (&ticket_error);
-      g_propagate_error (error, ticket_error);
-    }
-
-  return got_ticket;
+  goa_kerberos_provider_get_ticket (self,
+                                    object,
+                                    TRUE, /* Allow interaction */
+                                    cancellable,
+                                    (GAsyncReadyCallback) refresh_account_ticket_cb,
+                                    g_steal_pointer (&task));
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -710,7 +335,7 @@ on_initial_sign_in_done (GoaKerberosProvider *self,
   data = (InitialSignInData *) g_task_get_task_data (task);
 
   error = NULL;
-  object_path = sign_in_identity_finish (self, result, &error);
+  object_path = goa_kerberos_provider_sign_in_finish (self, result, &error);
   if (error != NULL)
     {
       g_task_return_error (task, error);
@@ -804,14 +429,14 @@ on_system_prompt_answered_for_initial_sign_in (GcrPrompt          *prompt,
 
   gcr_system_prompt_close (GCR_SYSTEM_PROMPT (prompt), NULL, NULL);
 
-  sign_in_identity (self,
-                    data->principal,
-                    password,
-                    preauth_source,
-                    cancellable,
-                    (GAsyncReadyCallback)
-                    on_initial_sign_in_done,
-                    task);
+  goa_kerberos_provider_sign_in (self,
+                                 data->principal,
+                                 password,
+                                 preauth_source,
+                                 cancellable,
+                                 (GAsyncReadyCallback)
+                                 on_initial_sign_in_done,
+                                 task);
 }
 
 static void
@@ -891,82 +516,221 @@ perform_initial_sign_in_finish (GoaKerberosProvider  *self,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-static void
-on_account_signed_in (GoaKerberosProvider  *self,
-                      GAsyncResult         *result,
-                      SignInRequest        *request)
+typedef struct
 {
-  perform_initial_sign_in_finish (self, result, &request->error);
-  g_main_loop_quit (request->loop);
+  GoaProviderDialog *dialog;
+  GoaClient *client;
+  GoaObject *object;
+
+  GtkWidget *principal;
+  GtkWidget *password;
+} AddAccountData;
+
+static void
+add_account_data_free (gpointer user_data)
+{
+  AddAccountData *data = (AddAccountData *)user_data;
+
+  g_clear_object (&data->client);
+  g_clear_object (&data->object);
+  g_free (data);
 }
 
-static GoaObject *
-add_account (GoaProvider    *provider,
-             GoaClient      *client,
-             GtkDialog      *dialog,
-             GtkBox         *vbox,
-             GError        **error)
+/* ---------------------------------------------------------------------------------------------------- */
+
+static gchar *
+normalize_principal (const gchar *principal, gchar **out_realm)
 {
-  GoaKerberosProvider *self = GOA_KERBEROS_PROVIDER (provider);
-  SignInRequest request;
-  GVariantBuilder credentials;
-  GVariantBuilder details;
-  GoaObject   *object = NULL;
-  GoaAccount  *account;
-  char        *realm = NULL;
-  const char *principal_text;
-  const char *provider_type;
-  gchar      *principal = NULL;
-  gint        response;
+  gchar *domain = NULL;
+  gchar *realm = NULL;
+  gchar *ret = NULL;
+  gchar *username = NULL;
 
-  memset (&request, 0, sizeof (SignInRequest));
-  request.cancellable = g_cancellable_new ();
-  request.loop = g_main_loop_new (NULL, FALSE);
-  request.dialog = dialog;
-  request.error = NULL;
+  if (!goa_utils_parse_email_address (principal, &username, &domain))
+    goto out;
 
-  create_account_details_ui (self, dialog, GTK_WIDGET (vbox), TRUE, &request);
-  gtk_widget_show_all (GTK_WIDGET (vbox));
+  realm = g_utf8_strup (domain, -1);
+  ret = g_strconcat (username, "@", realm, NULL);
 
-start_over:
-  response = gtk_dialog_run (dialog);
-
-  if (response != GTK_RESPONSE_OK)
+  if (out_realm != NULL)
     {
-      g_set_error (&request.error,
-                   GOA_ERROR,
-                   GOA_ERROR_DIALOG_DISMISSED,
-                   _("Dialog was dismissed"));
-      goto out;
+      *out_realm = realm;
+      realm = NULL;
     }
 
-  principal_text = gtk_entry_get_text (GTK_ENTRY (request.principal));
+ out:
+  g_free (domain);
+  g_free (realm);
+  g_free (username);
+  return ret;
+}
+
+static void
+on_principal_changed (GtkEditable    *editable,
+                      AddAccountData *data)
+{
+  const char *principal;
+
+  principal = gtk_editable_get_text (GTK_EDITABLE (data->principal));
+  if (goa_utils_parse_email_address (principal, NULL, NULL))
+    goa_provider_dialog_set_state (data->dialog, GOA_DIALOG_READY);
+  else
+    goa_provider_dialog_set_state (data->dialog, GOA_DIALOG_IDLE);
+}
+
+static void
+create_account_details_ui (GoaProvider    *self,
+                           AddAccountData *data,
+                           gboolean        new_account)
+{
+  GoaProviderDialog *dialog = GOA_PROVIDER_DIALOG (data->dialog);
+  GtkWidget *group;
+  GtkWidget *button;
+
+  goa_provider_dialog_add_page (dialog,
+                                NULL,
+                                _("Access restricted web and network resources for your organization"));
+
+  group = goa_provider_dialog_add_group (dialog, NULL);
+  data->principal = goa_provider_dialog_add_entry (dialog, group, _("_Principal"));
+  goa_provider_dialog_add_description (dialog, data->principal, _("Example principal: user@EXAMPLE.COM"));
+
+  button = gtk_window_get_default_widget (GTK_WINDOW (dialog));
+  gtk_button_set_label (GTK_BUTTON (button), _("_Sign in…"));
+
+  gtk_widget_grab_focus (data->principal);
+  g_signal_connect (data->principal, "changed", G_CALLBACK (on_principal_changed), data);
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+
+static void
+add_account_remove_cb (GoaAccount   *account,
+                       GAsyncResult *result,
+                       gpointer      user_data)
+{
+  g_autoptr(GTask) task = G_TASK (g_steal_pointer (&user_data));
+  g_autoptr(GError) error = NULL;
+
+  /* Failure to remove the temporary account is fatal */
+  if (!goa_account_call_remove_finish (account, result, &error))
+    {
+      goa_provider_task_return_error (task, g_steal_pointer (&error));
+      return;
+    }
+}
+
+static void
+add_account_signin_cb (GoaKerberosProvider *self,
+                       GAsyncResult        *result,
+                       gpointer             user_data)
+{
+  g_autoptr(GTask) task = G_TASK (g_steal_pointer (&user_data));
+  AddAccountData *data = g_task_get_task_data (task);
+  GoaAccount *account = NULL;
+  g_autoptr(GError) error = NULL;
+
+  account = goa_object_peek_account (data->object);
+
+  /* If sign in fails, remove the temporary account before restarting */
+  if (!perform_initial_sign_in_finish (self, result, &error))
+    {
+      goa_provider_dialog_report_error (data->dialog, error);
+      goa_account_call_remove (account,
+                               NULL, /* Cancellable */
+                               (GAsyncReadyCallback) add_account_remove_cb,
+                               g_steal_pointer (&task));
+      return;
+    }
+
+  goa_account_set_is_temporary (account, FALSE);
+  goa_provider_task_return_account (task, g_object_ref (data->object));
+}
+
+static void
+add_account_temporary_cb (GoaManager   *manager,
+                          GAsyncResult *res,
+                          gpointer      user_data)
+{
+  g_autoptr(GTask) task = G_TASK (g_steal_pointer (&user_data));
+  GoaProvider *provider = g_task_get_source_object (task);
+  AddAccountData *data = g_task_get_task_data (task);
+  GCancellable *cancellable = g_task_get_cancellable (task);
+  g_autofree char *object_path = NULL;
+  g_autoptr(GDBusObject) object = NULL;
+  const char *principal = NULL;
+  g_autoptr(GError) error = NULL;
+
+  if (!goa_manager_call_add_account_finish (manager, &object_path, res, &error))
+    {
+      goa_provider_dialog_report_error (data->dialog, error);
+      return;
+    }
+
+  object = g_dbus_object_manager_get_object (goa_client_get_object_manager (data->client),
+                                             object_path);
+  g_set_object (&data->object, GOA_OBJECT (object));
+  principal = gtk_editable_get_text (GTK_EDITABLE (data->principal));
+
+  /* Sign in the temporary account */
+  perform_initial_sign_in (GOA_KERBEROS_PROVIDER (provider),
+                           GOA_OBJECT (object),
+                           principal,
+                           cancellable,
+                           (GAsyncReadyCallback) add_account_signin_cb,
+                           g_steal_pointer (&task));
+}
+
+static void
+add_account_action_cb (GoaProviderDialog *dialog,
+                       GParamSpec        *pspec,
+                       GTask             *task)
+{
+  GoaProvider *provider = g_task_get_source_object (task);
+  AddAccountData *data = g_task_get_task_data (task);
+  GCancellable *cancellable = g_task_get_cancellable (task);
+  GVariantBuilder credentials;
+  GVariantBuilder details;
+  const char *principal_text;
+  const char *provider_type;
+  g_autofree char *principal = NULL;
+  g_autofree char *realm = NULL;
+  g_autoptr(GError) error = NULL;
+
+  if (goa_provider_dialog_get_state (data->dialog) != GOA_DIALOG_BUSY)
+    return;
+
+  g_signal_handlers_block_by_func (data->principal, on_principal_changed, data);
+  principal_text = gtk_editable_get_text (GTK_EDITABLE (data->principal));
   principal = normalize_principal (principal_text, &realm);
-  gtk_entry_set_text (GTK_ENTRY (request.principal), principal);
+  gtk_editable_set_text (GTK_EDITABLE (data->principal), principal);
+  g_signal_handlers_unblock_by_func (data->principal, on_principal_changed, data);
 
-  /* See if there's already an account of this type with the
-   * given identity
-   */
+  /* If this is duplicate account we're finished */
   provider_type = goa_provider_get_provider_type (provider);
-
-  if (!goa_utils_check_duplicate (client,
+  if (!goa_utils_check_duplicate (data->client,
                                   principal,
                                   principal,
                                   provider_type,
                                   (GoaPeekInterfaceFunc) goa_object_peek_account,
-                                  &request.error))
-    goto out;
+                                  &error))
+    {
+      goa_provider_task_return_error (task, g_steal_pointer (&error));
+      return;
+    }
 
-  if (!goa_utils_check_duplicate (client,
+  if (!goa_utils_check_duplicate (data->client,
                                   principal,
                                   principal,
                                   GOA_FEDORA_NAME,
                                   (GoaPeekInterfaceFunc) goa_object_peek_account,
-                                  &request.error))
-    goto out;
+                                  &error))
+    {
+      goa_provider_task_return_error (task, g_steal_pointer (&error));
+      return;
+    }
 
-  /* If there isn't an account, then go ahead and create one
-   */
+  /* Create a temporary account */
   g_variant_builder_init (&credentials, G_VARIANT_TYPE_VARDICT);
 
   g_variant_builder_init (&details, G_VARIANT_TYPE ("a{ss}"));
@@ -974,105 +738,46 @@ start_over:
   g_variant_builder_add (&details, "{ss}", "IsTemporary", "true");
   g_variant_builder_add (&details, "{ss}", "TicketingEnabled", "true");
 
-  goa_manager_call_add_account (goa_client_get_manager (client),
+  goa_manager_call_add_account (goa_client_get_manager (data->client),
                                 provider_type,
                                 principal,
                                 principal,
                                 g_variant_builder_end (&credentials),
                                 g_variant_builder_end (&details),
-                                NULL, /* GCancellable* */
-                                (GAsyncReadyCallback) add_account_cb,
-                                &request);
-  gtk_widget_set_sensitive (request.connect_button, FALSE);
-  gtk_widget_set_sensitive (request.principal, FALSE);
-  show_progress_ui (GTK_CONTAINER (request.progress_grid), TRUE);
-  g_main_loop_run (request.loop);
-  if (request.error != NULL)
-    goto out;
+                                cancellable,
+                                (GAsyncReadyCallback) add_account_temporary_cb,
+                                g_object_ref (task));
+}
 
-  object = GOA_OBJECT (g_dbus_object_manager_get_object (goa_client_get_object_manager (client),
-                                                         request.account_object_path));
-  account = goa_object_peek_account (object);
+/* ---------------------------------------------------------------------------------------------------- */
 
-  /* After the account is created, try to sign it in
-   */
-  perform_initial_sign_in (self,
-                           object,
-                           principal,
-                           request.cancellable,
-                           (GAsyncReadyCallback) on_account_signed_in,
-                           &request);
+static void
+add_account (GoaProvider         *provider,
+             GoaClient           *client,
+             GtkWindow           *parent,
+             GCancellable        *cancellable,
+             GAsyncReadyCallback  callback,
+             gpointer             user_data)
+{
+  AddAccountData *data;
+  g_autoptr(GTask) task = NULL;
 
-  gtk_widget_set_sensitive (request.connect_button, FALSE);
-  gtk_widget_set_sensitive (request.principal, FALSE);
-  show_progress_ui (GTK_CONTAINER (request.progress_grid), TRUE);
+  data = g_new0 (AddAccountData, 1);
+  data->dialog = goa_provider_dialog_new (provider, client, parent);
+  data->client = g_object_ref (client);
 
-  g_main_loop_run (request.loop);
+  task = g_task_new (provider, cancellable, callback, user_data);
+  g_task_set_check_cancellable (task, FALSE);
+  g_task_set_source_tag (task, add_account);
+  g_task_set_task_data (task, data, add_account_data_free);
 
-  gtk_widget_set_sensitive (request.connect_button, TRUE);
-  gtk_widget_set_sensitive (request.principal, TRUE);
-  show_progress_ui (GTK_CONTAINER (request.progress_grid), FALSE);
-
-  if (request.error != NULL)
-    {
-      gchar *markup;
-
-      translate_error (&request.error);
-
-      if (!g_error_matches (request.error,
-                            G_IO_ERROR,
-                            G_IO_ERROR_CANCELLED))
-        {
-          markup = g_strdup_printf ("<b>%s:</b>\n%s",
-                                    _("Error connecting to enterprise identity server"),
-                                    request.error->message);
-          gtk_label_set_markup (GTK_LABEL (request.cluebar_label), markup);
-          g_free (markup);
-
-          gtk_button_set_label (GTK_BUTTON (request.connect_button), _("_Try Again"));
-          gtk_widget_set_no_show_all (request.cluebar, FALSE);
-          gtk_widget_show_all (request.cluebar);
-        }
-      g_clear_error (&request.error);
-
-      /* If it couldn't be signed in, then delete it and start over
-       */
-      goa_account_call_remove (account,
-                               NULL,
-                               (GAsyncReadyCallback)
-                               remove_account_cb,
-                               request.loop);
-      g_main_loop_run (request.loop);
-
-      g_clear_object (&object);
-      g_clear_pointer (&principal, g_free);
-      g_clear_pointer (&realm, g_free);
-      g_clear_pointer (&request.account_object_path, g_free);
-      goto start_over;
-    }
-
-  goa_account_set_is_temporary (account, FALSE);
-
-  gtk_widget_hide (GTK_WIDGET (dialog));
-
- out:
-  /* We might have an object even when request.error is set.
-   * eg., if we failed to store the credentials in the keyring.
-   */
-  if (request.error != NULL)
-    {
-      translate_error (&request.error);
-      g_propagate_error (error, request.error);
-    }
-  else
-    g_assert (object != NULL);
-
-  g_free (request.account_object_path);
-  g_free (principal);
-  g_free (realm);
-  g_clear_pointer (&request.loop, g_main_loop_unref);
-  g_clear_object (&request.cancellable);
-  return object;
+  create_account_details_ui (provider, data, FALSE);
+  g_signal_connect_object (data->dialog,
+                           "notify::state",
+                           G_CALLBACK (add_account_action_cb),
+                           task,
+                           0 /* G_CONNECT_DEFAULT */);
+  goa_provider_task_run_in_dialog (task, data->dialog);
 }
 
 static gboolean
@@ -1157,16 +862,16 @@ ensure_credentials_sync (GoaProvider    *provider,
       lookup_error = NULL;
 
       g_mutex_unlock (&identity_manager_mutex);
-      ticket_synced = get_ticket_sync (GOA_KERBEROS_PROVIDER (provider),
-                                       object,
-                                       FALSE /* Don't allow interaction */,
-                                       cancellable,
-                                       &lookup_error);
+      ticket_synced = goa_kerberos_provider_get_ticket_sync (GOA_KERBEROS_PROVIDER (provider),
+                                                             object,
+                                                             FALSE /* Don't allow interaction */,
+                                                             cancellable,
+                                                             &lookup_error);
       g_mutex_lock (&identity_manager_mutex);
 
       if (!ticket_synced)
         {
-          translate_error (&lookup_error);
+          g_dbus_error_strip_remote_error (lookup_error);
           g_set_error_literal (error,
                                GOA_ERROR,
                                GOA_ERROR_NOT_AUTHORIZED,
@@ -1323,115 +1028,6 @@ get_identity_from_object_manager (GoaKerberosProvider *self,
   return identity;
 }
 
-static char *
-sign_in_identity_sync (GoaKerberosProvider  *self,
-                       const char           *identifier,
-                       const char           *password,
-                       const char           *preauth_source,
-                       GCancellable         *cancellable,
-                       GError              **error)
-{
-  GcrSecretExchange  *secret_exchange;
-  char               *secret_key;
-  char               *return_key = NULL;
-  char               *concealed_secret;
-  char               *identity_object_path = NULL;
-  gboolean            keys_exchanged;
-  GError             *local_error;
-  GVariantBuilder     details;
-
-  secret_exchange = gcr_secret_exchange_new (NULL);
-
-  secret_key = gcr_secret_exchange_begin (secret_exchange);
-  ensure_identity_manager ();
-
-  g_mutex_lock (&identity_manager_mutex);
-  keys_exchanged = goa_identity_service_manager_call_exchange_secret_keys_sync (identity_manager,
-                                                                                identifier,
-                                                                                secret_key,
-                                                                                &return_key,
-                                                                                cancellable,
-                                                                                error);
-  g_mutex_unlock (&identity_manager_mutex);
-  g_free (secret_key);
-
-  if (!keys_exchanged)
-    goto out;
-
-  if (!gcr_secret_exchange_receive (secret_exchange, return_key))
-    {
-      g_set_error (error,
-                   GCR_ERROR,
-                   GCR_ERROR_UNRECOGNIZED,
-                   _("Identity service returned invalid key"));
-      goto out;
-    }
-
-  g_variant_builder_init (&details, G_VARIANT_TYPE ("a{ss}"));
-
-  concealed_secret = gcr_secret_exchange_send (secret_exchange, password, -1);
-  g_variant_builder_add (&details, "{ss}", "initial-password", concealed_secret);
-  g_free (concealed_secret);
-
-  if (preauth_source != NULL)
-    {
-      g_variant_builder_add (&details, "{ss}", "preauthentication-source", preauth_source);
-    }
-
-  g_mutex_lock (&identity_manager_mutex);
-
-  local_error = NULL;
-  goa_identity_service_manager_call_sign_in_sync (identity_manager,
-                                                  identifier,
-                                                  g_variant_builder_end (&details),
-                                                  &identity_object_path,
-                                                  cancellable,
-                                                  &local_error);
-
-  if (local_error != NULL)
-    {
-      if (g_error_matches (local_error,
-                           GOA_IDENTITY_MANAGER_ERROR,
-                           GOA_IDENTITY_MANAGER_ERROR_ACCESSING_CREDENTIALS))
-        {
-          g_assert_not_reached ();
-        }
-
-      g_propagate_error (error, local_error);
-    }
-
-  g_mutex_unlock (&identity_manager_mutex);
-
- out:
-  g_free (return_key);
-  g_object_unref (secret_exchange);
-  return identity_object_path;
-}
-
-static void
-sign_in_thread (GTask               *task,
-                GoaKerberosProvider *self,
-                gpointer             task_data,
-                GCancellable        *cancellable)
-{
-  SignInIdentityData *data = (SignInIdentityData *) task_data;
-  char *object_path;
-  GError *error;
-
-  error = NULL;
-  object_path = sign_in_identity_sync (self,
-                                       data->identifier,
-                                       data->password,
-                                       data->preauth_source,
-                                       cancellable,
-                                       &error);
-  if (object_path == NULL)
-    g_task_return_error (task, error);
-  else
-    g_task_return_pointer (task, object_path, g_free);
-}
-
-
 static void
 on_object_manager_created (gpointer             object,
                            GAsyncResult        *result,
@@ -1530,7 +1126,6 @@ goa_kerberos_provider_init (GoaKerberosProvider *provider)
 static void
 goa_kerberos_provider_class_init (GoaKerberosProviderClass *kerberos_class)
 {
-  static volatile GQuark goa_identity_manager_error_domain = 0;
   GoaProviderClass *provider_class;
 
   provider_class = GOA_PROVIDER_CLASS (kerberos_class);
@@ -1551,6 +1146,412 @@ goa_kerberos_provider_class_init (GoaKerberosProviderClass *kerberos_class)
    * org.gnome.Identity.Manager.Error.* errors via
    * g_dbus_error_register_error_domain().
    */
-  goa_identity_manager_error_domain = GOA_IDENTITY_MANAGER_ERROR;
-  goa_identity_manager_error_domain; /* shut up -Wunused-but-set-variable */
+  goa_identity_manager_error_quark ();
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+
+typedef struct
+{
+  GoaObject *object;
+  gboolean is_interactive;
+} GetTicketData;
+
+static void
+get_ticket_data_free (gpointer user_data)
+{
+  GetTicketData *data = (GetTicketData *)user_data;
+
+  g_clear_object (&data->object);
+  g_free (data);
+}
+
+static void
+get_ticket_thread (GTask *task,
+                   gpointer source_object,
+                   gpointer task_data,
+                   GCancellable *cancellable)
+{
+  GoaKerberosProvider *self = GOA_KERBEROS_PROVIDER (source_object);
+  GetTicketData *data = (GetTicketData *)task_data;
+  GError *error = NULL;
+
+  if (!goa_kerberos_provider_get_ticket_sync (self,
+                                              data->object,
+                                              data->is_interactive,
+                                              cancellable, &error))
+    {
+      g_task_return_error (task, error);
+      return;
+    }
+
+  g_task_return_boolean (task, TRUE);
+}
+
+/*< private >
+ * goa_kerberos_provider_get_ticket:
+ * @self: a `GoaKerberosProvider`
+ * @object: a `GoaObject`
+ * @is_interactive: whether the authentication is interactive
+ * @cancellable: (nullable): a `GCancellable`
+ * @callback: (scope async): a `GAsyncReadyCallback`
+ * @user_data: (closure): user supplied data
+ *
+ * Returns: %TRUE on success, or %FALSE with @error set
+ */
+void
+goa_kerberos_provider_get_ticket (GoaKerberosProvider *self,
+                                  GoaObject           *object,
+                                  gboolean             is_interactive,
+                                  GCancellable        *cancellable,
+                                  GAsyncReadyCallback  callback,
+                                  gpointer             user_data)
+{
+  g_autoptr(GTask) task = NULL;
+  GetTicketData *data;
+
+  g_return_if_fail (GOA_IS_KERBEROS_PROVIDER (self));
+  g_return_if_fail (GOA_IS_OBJECT (object));
+  g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
+
+  data = g_new0 (GetTicketData, 1);
+  data->object = g_object_ref (object);
+  data->is_interactive = is_interactive;
+
+  task = g_task_new (self, cancellable, callback, user_data);
+  g_task_set_source_tag (task, goa_kerberos_provider_get_ticket);
+  g_task_set_task_data (task, data, get_ticket_data_free);
+  g_task_run_in_thread (task, get_ticket_thread);
+
+}
+
+/*< private >
+ * goa_kerberos_provider_get_ticket_finish:
+ * @self: a `GoaKerberosProvider`
+ * @result: a `GAsyncResult`
+ * @error: (nullable): a `GError`
+ *
+ * Finish an operation started with [method@Goa.KerberosProvider.get_ticket].
+ *
+ * Returns: %TRUE on success, or %FALSE with @error set
+ */
+gboolean
+goa_kerberos_provider_get_ticket_finish (GoaKerberosProvider  *self,
+                                         GAsyncResult         *result,
+                                         GError              **error)
+{
+  g_return_val_if_fail (GOA_IS_KERBEROS_PROVIDER (self), FALSE);
+  g_return_val_if_fail (g_task_is_valid (result, self), FALSE);
+  g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
+
+  return g_task_propagate_boolean (G_TASK (result), error);
+}
+
+/*< private >
+ * goa_kerberos_provider_get_ticket_sync:
+ * @self: a `GoaKerberosProvider`
+ * @object: a `GoaObject`
+ * @is_interactive: whether the authentication is interactive
+ * @cancellable: (nullable): a `GCancellable`
+ * @error: (nullable): a `GError`
+ *
+ * Returns: %TRUE on success, or %FALSE with @error set
+ */
+gboolean
+goa_kerberos_provider_get_ticket_sync (GoaKerberosProvider  *self,
+                                       GoaObject            *object,
+                                       gboolean              is_interactive,
+                                       GCancellable         *cancellable,
+                                       GError              **error)
+{
+  g_autoptr(GoaAccount) account = NULL;
+  g_autoptr(GoaTicketing) ticketing = NULL;
+  g_autoptr(GVariant) credentials = NULL;
+  GVariant *details = NULL;
+  const char *identifier = NULL;
+  const char *password = NULL;
+  const char *preauth_source = NULL;
+  gboolean has_password = FALSE;
+  g_autofree char *object_path = NULL;
+  g_autoptr(GError) lookup_error = NULL;
+  GError *sign_in_error = NULL;
+
+  g_return_val_if_fail (GOA_IS_KERBEROS_PROVIDER (self), FALSE);
+  g_return_val_if_fail (GOA_IS_OBJECT (object), FALSE);
+  g_return_val_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable), FALSE);
+  g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
+
+  ticketing = goa_object_get_ticketing (object);
+  if (ticketing == NULL)
+    {
+      g_set_error (error,
+                   GOA_ERROR,
+                   GOA_ERROR_NOT_SUPPORTED,
+                   _("Ticketing is disabled for account"));
+      return FALSE;
+    }
+
+  account = goa_object_get_account (object);
+  identifier = goa_account_get_identity (account);
+
+  details = goa_ticketing_get_details (ticketing);
+  g_variant_lookup (details, "preauthentication-source", "&s", &preauth_source);
+
+  credentials = goa_utils_lookup_credentials_sync (GOA_PROVIDER (self),
+                                                   object,
+                                                   cancellable,
+                                                   &lookup_error);
+
+  if (credentials == NULL && !is_interactive)
+    {
+      if (lookup_error != NULL)
+        {
+          g_propagate_error (error, lookup_error);
+          lookup_error = NULL;
+        }
+      else
+        {
+          g_set_error (error,
+                       GOA_ERROR,
+                       GOA_ERROR_NOT_AUTHORIZED,
+                       _("Could not find saved credentials for principal “%s” in keyring"),
+                       identifier);
+        }
+
+      return FALSE;
+    }
+
+  if (credentials != NULL)
+    has_password = g_variant_lookup (credentials, "password", "&s", &password);
+
+  if (!has_password && !is_interactive)
+    {
+      g_set_error (error,
+                   GOA_ERROR,
+                   GOA_ERROR_NOT_AUTHORIZED,
+                   _("Did not find password for principal “%s” in credentials"),
+                   identifier);
+      return FALSE;
+    }
+
+  object_path = goa_kerberos_provider_sign_in_sync (self,
+                                                    identifier,
+                                                    password,
+                                                    preauth_source,
+                                                    cancellable,
+                                                    &sign_in_error);
+
+  if (sign_in_error != NULL)
+    {
+      g_propagate_error (error, sign_in_error);
+      return FALSE;
+    }
+
+  return TRUE;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+
+typedef struct
+{
+  char *identifier;
+  char *password;
+  char *preauth_source;
+} SignInData;
+
+static void
+sign_in_data_free (gpointer user_data)
+{
+  SignInData *data = (SignInData *)user_data;
+
+  g_clear_pointer (&data->identifier, g_free);
+  g_clear_pointer (&data->password, g_free);
+  g_clear_pointer (&data->preauth_source, g_free);
+  g_free (data);
+}
+
+static void
+sign_in_thread (GTask        *task,
+                gpointer      source_object,
+                gpointer      task_data,
+                GCancellable *cancellable)
+{
+  GoaKerberosProvider *self = GOA_KERBEROS_PROVIDER (source_object);
+  SignInData *data = (SignInData *) task_data;
+  char *object_path;
+  GError *error = NULL;
+
+  object_path = goa_kerberos_provider_sign_in_sync (self,
+                                                    data->identifier,
+                                                    data->password,
+                                                    data->preauth_source,
+                                                    cancellable,
+                                                    &error);
+  if (object_path == NULL)
+    g_task_return_error (task, error);
+  else
+    g_task_return_pointer (task, object_path, g_free);
+}
+
+/*< private >
+ * goa_kerberos_provider_sign_in:
+ * @self: a `GoaKerberosProvider`
+ * @identity: the identity
+ * @password: the password
+ * @preauth_source: (nullable): a pre-auth source
+ * @cancellable: (nullable): a `GCancellable`
+ * @callback: (scope async): a `GAsyncReadyCallback`
+ * @user_data: (closure): user supplied data
+ *
+ * Sign in a kerberos identity.
+ *
+ * Returns: %TRUE on success, or %FALSE with @error set
+ */
+void
+goa_kerberos_provider_sign_in (GoaKerberosProvider *self,
+                               const char          *identifier,
+                               const char          *password,
+                               const char          *preauth_source,
+                               GCancellable        *cancellable,
+                               GAsyncReadyCallback  callback,
+                               gpointer             user_data)
+{
+  g_autoptr(GTask) task = NULL;
+  SignInData *data;
+
+  g_return_if_fail (GOA_IS_PROVIDER (self));
+  g_return_if_fail (identifier != NULL && *identifier != '\0');
+  g_return_if_fail (password != NULL && *password != '\0');
+  g_return_if_fail (preauth_source == NULL || *preauth_source != '\0');
+  g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
+
+  data = g_new0 (SignInData, 1);
+  data->identifier = g_strdup (identifier);
+  data->password = g_strdup (password);
+  data->preauth_source = g_strdup (preauth_source);
+
+  task = g_task_new (self, cancellable, callback, user_data);
+  g_task_set_source_tag (task, goa_kerberos_provider_sign_in);
+  g_task_set_task_data (task, data, sign_in_data_free);
+  g_task_run_in_thread (task, sign_in_thread);
+}
+
+/*< private >
+ * goa_kerberos_provider_sign_in_finish:
+ * @self: a `GoaKerberosProvider`
+ * @result: a `GAsyncResult`
+ * @error: (nullable): a `GError`
+ *
+ * Finish an operation started with [method@Goa.KerberosProvider.sign_in].
+ *
+ * Returns: an object path, or %NULL with @error set
+ */
+char *
+goa_kerberos_provider_sign_in_finish (GoaKerberosProvider  *self,
+                                      GAsyncResult         *result,
+                                      GError              **error)
+{
+  g_return_val_if_fail (GOA_IS_KERBEROS_PROVIDER (self), NULL);
+  g_return_val_if_fail (g_task_is_valid (result, self), NULL);
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+
+  return g_task_propagate_pointer (G_TASK (result), error);
+}
+
+/*< private >
+ * goa_kerberos_provider_sign_in_sync:
+ * @self: a `GoaKerberosProvider`
+ * @identity: the identity
+ * @password: the password
+ * @preauth_source: (nullable): a pre-auth source
+ * @cancellable: (nullable): a `GCancellable`
+ * @error: (nullable): a `GError`
+ *
+ * Sign in a kerberos identity.
+ *
+ * Returns: %TRUE on success, or %FALSE with @error set
+ */
+char *
+goa_kerberos_provider_sign_in_sync (GoaKerberosProvider  *self,
+                                    const char           *identifier,
+                                    const char           *password,
+                                    const char           *preauth_source,
+                                    GCancellable         *cancellable,
+                                    GError              **error)
+{
+  GcrSecretExchange  *secret_exchange;
+  char               *secret_key;
+  char               *return_key = NULL;
+  char               *concealed_secret;
+  char               *identity_object_path = NULL;
+  gboolean            keys_exchanged;
+  GError             *local_error;
+  GVariantBuilder     details;
+
+  secret_exchange = gcr_secret_exchange_new (NULL);
+
+  secret_key = gcr_secret_exchange_begin (secret_exchange);
+  ensure_identity_manager ();
+
+  g_mutex_lock (&identity_manager_mutex);
+  keys_exchanged = goa_identity_service_manager_call_exchange_secret_keys_sync (identity_manager,
+                                                                                identifier,
+                                                                                secret_key,
+                                                                                &return_key,
+                                                                                cancellable,
+                                                                                error);
+  g_mutex_unlock (&identity_manager_mutex);
+  g_free (secret_key);
+
+  if (!keys_exchanged)
+    goto out;
+
+  if (!gcr_secret_exchange_receive (secret_exchange, return_key))
+    {
+      g_set_error (error,
+                   GCR_DATA_ERROR,
+                   GCR_ERROR_UNRECOGNIZED,
+                   _("Identity service returned invalid key"));
+      goto out;
+    }
+
+  g_variant_builder_init (&details, G_VARIANT_TYPE ("a{ss}"));
+
+  concealed_secret = gcr_secret_exchange_send (secret_exchange, password, -1);
+  g_variant_builder_add (&details, "{ss}", "initial-password", concealed_secret);
+  g_free (concealed_secret);
+
+  if (preauth_source != NULL)
+    {
+      g_variant_builder_add (&details, "{ss}", "preauthentication-source", preauth_source);
+    }
+
+  g_mutex_lock (&identity_manager_mutex);
+
+  local_error = NULL;
+  goa_identity_service_manager_call_sign_in_sync (identity_manager,
+                                                  identifier,
+                                                  g_variant_builder_end (&details),
+                                                  &identity_object_path,
+                                                  cancellable,
+                                                  &local_error);
+
+  if (local_error != NULL)
+    {
+      if (g_error_matches (local_error,
+                           GOA_IDENTITY_MANAGER_ERROR,
+                           GOA_IDENTITY_MANAGER_ERROR_ACCESSING_CREDENTIALS))
+        {
+          g_assert_not_reached ();
+        }
+
+      g_propagate_error (error, local_error);
+    }
+
+  g_mutex_unlock (&identity_manager_mutex);
+
+ out:
+  g_free (return_key);
+  g_object_unref (secret_exchange);
+  return identity_object_path;
 }
