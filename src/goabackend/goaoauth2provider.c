@@ -20,7 +20,7 @@
 #include <glib/gi18n-lib.h>
 #include <stdlib.h>
 
-#include <rest/oauth2-proxy.h>
+#include <rest/rest.h>
 #include <libsoup/soup.h>
 #include <json-glib/json-glib.h>
 #include <webkit2/webkit2.h>
@@ -95,10 +95,14 @@ is_authorization_error (GError *error)
   g_return_val_if_fail (error != NULL, FALSE);
 
   ret = FALSE;
-  if (error->domain == REST_PROXY_ERROR || error->domain == SOUP_HTTP_ERROR)
+  if (error->domain == REST_PROXY_ERROR)
     {
       if (SOUP_STATUS_IS_CLIENT_ERROR (error->code))
         ret = TRUE;
+    }
+  else if (g_error_matches (error, GOA_ERROR, GOA_ERROR_NOT_AUTHORIZED))
+    {
+      ret = TRUE;
     }
   return ret;
 }
@@ -763,7 +767,7 @@ on_web_view_decide_policy (WebKitWebView            *web_view,
   GHashTable *key_value_pairs;
   WebKitNavigationAction *action;
   WebKitURIRequest *request;
-  SoupURI *uri;
+  GUri *uri = NULL;
   const gchar *fragment;
   const gchar *oauth2_error;
   const gchar *query;
@@ -793,9 +797,9 @@ on_web_view_decide_policy (WebKitWebView            *web_view,
   if (!g_str_has_prefix (requested_uri, redirect_uri))
     goto default_behaviour;
 
-  uri = soup_uri_new (requested_uri);
-  fragment = soup_uri_get_fragment (uri);
-  query = soup_uri_get_query (uri);
+  uri = g_uri_parse (requested_uri, G_URI_FLAGS_ENCODED, NULL);
+  fragment = g_uri_get_fragment (uri);
+  query = g_uri_get_query (uri);
 
   /* Three cases:
    * 1) we can either have the backend handle the URI for us, or
@@ -808,7 +812,7 @@ on_web_view_decide_policy (WebKitWebView            *web_view,
     {
       gchar *url;
 
-      url = soup_uri_to_string (uri, FALSE);
+      url = g_uri_to_string (uri);
       if (!goa_oauth2_provider_process_redirect_url (self, url, &priv->access_token, &priv->error))
         {
           g_prefix_error (&priv->error, _("Authorization response: "));
@@ -889,6 +893,8 @@ on_web_view_decide_policy (WebKitWebView            *web_view,
   goto ignore_request;
 
  ignore_request:
+  if (uri)
+    g_uri_unref (uri);
   g_assert (response_id != GTK_RESPONSE_NONE);
   if (response_id < 0)
     gtk_dialog_response (priv->dialog, response_id);

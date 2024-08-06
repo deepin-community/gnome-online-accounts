@@ -4,10 +4,7 @@ data/org.gnome.online-accounts.gschema.xml
 src/daemon/goadaemon.c
 src/goabackend/goaewsclient.c
 src/goabackend/goaexchangeprovider.c
-src/goabackend/goafacebookprovider.c
 src/goabackend/goafedoraprovider.c
-src/goabackend/goaflickrprovider.c
-src/goabackend/goafoursquareprovider.c
 src/goabackend/goagoogleprovider.c
 src/goabackend/goaimapauthlogin.c
 src/goabackend/goaimapsmtpprovider.c
@@ -15,7 +12,6 @@ src/goabackend/goakerberosprovider.c
 src/goabackend/goalastfmprovider.c
 src/goabackend/goamediaserverprovider.c
 src/goabackend/goaoauth2provider.c
-src/goabackend/goaoauthprovider.c
 src/goabackend/goaowncloudprovider.c
 src/goabackend/goaprovider.c
 src/goabackend/goasmtpauth.c

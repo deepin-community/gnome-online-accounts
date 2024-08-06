@@ -24,11 +24,8 @@
 #include "goaprovider-priv.h"
 #include "goaexchangeprovider.h"
 #include "goagoogleprovider.h"
-#include "goafacebookprovider.h"
 #include "goaimapsmtpprovider.h"
 #include "goaowncloudprovider.h"
-#include "goaflickrprovider.h"
-#include "goafoursquareprovider.h"
 #include "goawindowsliveprovider.h"
 #include "goamediaserverprovider.h"
 #include "goalastfmprovider.h"
@@ -941,17 +938,8 @@ static struct
 #ifdef GOA_OWNCLOUD_ENABLED
   { GOA_OWNCLOUD_NAME, goa_owncloud_provider_get_type },
 #endif
-#ifdef GOA_FACEBOOK_ENABLED
-  { GOA_FACEBOOK_NAME, goa_facebook_provider_get_type },
-#endif
 #ifdef GOA_WINDOWS_LIVE_ENABLED
   { GOA_WINDOWS_LIVE_NAME, goa_windows_live_provider_get_type },
-#endif
-#ifdef GOA_FLICKR_ENABLED
-  { GOA_FLICKR_NAME, goa_flickr_provider_get_type },
-#endif
-#ifdef GOA_FOURSQUARE_ENABLED
-  { GOA_FOURSQUARE_NAME, goa_foursquare_provider_get_type },
 #endif
 #ifdef GOA_EXCHANGE_ENABLED
   { GOA_EXCHANGE_NAME, goa_exchange_provider_get_type },
