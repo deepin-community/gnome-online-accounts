@@ -8,55 +8,96 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gnome-online-accounts master\n"
-"Report-Msgid-Bugs-To: http://bugzilla.gnome.org/enter_bug.cgi?product=gnome-"
-"online-accounts&keywords=I18N+L10N&component=general\n"
-"POT-Creation-Date: 2016-09-01 14:53+0000\n"
-"PO-Revision-Date: 2016-09-10 10:40+0700\n"
+"Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/gnome-online-accounts/issues\n"
+"POT-Creation-Date: 2024-09-15 02:13+0000\n"
+"PO-Revision-Date: 2024-10-01 11:39+0700\n"
 "Last-Translator: Akom Chotiphantawanon <knight2000@gmail.com>\n"
 "Language-Team: Thai <thai-l10n@googlegroups.com>\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Gtranslator 2.91.6\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.5\n"
+
+#: data/org.gnome.online-accounts.gschema.xml:6
+msgid "List of providers that are allowed to be loaded"
+msgstr ""
+
+#: data/org.gnome.online-accounts.gschema.xml:7
+msgid ""
+"A list of strings representing the providers that are allowed to be loaded "
+"(default: 'all'). This is only evaluated on startup. Deprecated: use goa.conf in "
+"the system config directory instead, with a key [providers] enable=all instead. "
+"The key is comma-separated list of the provider names."
+msgstr ""
 
 #. TODO: more specific
-#: ../src/daemon/goadaemon.c:922 ../src/daemon/goadaemon.c:1209
+#: src/daemon/goadaemon.c:1160 src/daemon/goadaemon.c:1480
 #, c-format
 msgid "Failed to find a provider for: %s"
 msgstr "ไม่สามารถหาผู้ให้บริการสำหรับ: %s"
 
-#: ../src/daemon/goadaemon.c:1151
+#: src/daemon/goadaemon.c:1423
 msgid "IsLocked property is set for account"
 msgstr "มีการตั้งค่า IsLocked ไว้สำหรับบัญชี"
 
 #. TODO: more specific
-#: ../src/daemon/goadaemon.c:1197
+#: src/daemon/goadaemon.c:1468
 msgid "ProviderType property is not set for account"
 msgstr "ไม่ได้กำหนดคุณสมบัติ ProviderType สำหรับบัญชี"
 
-#. TODO: more specific
-#: ../src/goabackend/goaewsclient.c:250
+#: src/daemon/goadaemon.c:1630
 #, c-format
+msgid "Failed to sign in to “%s”"
+msgstr "ไม่สามารถลงชื่อเข้าระบบ “%s”"
+
+#: src/daemon/goadaemon.c:1635
+msgid "Failed to sign in to multiple accounts"
+msgstr "ไม่สามารถลงชื่อเข้าระบบหลายบัญชี"
+
+#: src/daemon/goadaemon.c:1644
+msgid "Online Accounts"
+msgstr "บัญชีออนไลน์"
+
+#: src/daemon/goadaemon.c:1647
+msgid "Account Action Required"
+msgstr "ต้องดำเนินการกับบัญชี"
+
+#. TODO: more specific
+#: src/goabackend/goadavclient.c:1187 src/goabackend/goaimapauthlogin.c:104
+#: src/goabackend/goasmtpauth.c:102 src/goabackend/goautils.c:799
+msgid "Authentication failed"
+msgstr "ยืนยันตัวบุคคลไม่สำเร็จ"
+
+#: src/goabackend/goadavclient.c:1194
+msgid "Cannot find WebDAV endpoint"
+msgstr "ไม่สามารถหาจุดปลายของ WebDAV"
+
+#: src/goabackend/goadavclient.c:1295 src/goabackend/goawebdavprovider.c:648
+#, c-format
+msgid "Invalid URI: %s"
+msgstr "URI ไม่ถูกต้อง: %s"
+
+#. TODO: more specific
+#: src/goabackend/goaewsclient.c:276
 msgid "Failed to parse autodiscover response XML"
 msgstr "ไม่สามารถแจงข้อมูล XML ของการตอบ autodiscover"
 
 #. TODO: more specific
 #. Translators: the parameter is an XML element name.
-#: ../src/goabackend/goaewsclient.c:261 ../src/goabackend/goaewsclient.c:276
-#: ../src/goabackend/goaewsclient.c:291
+#: src/goabackend/goaewsclient.c:287 src/goabackend/goaewsclient.c:302
+#: src/goabackend/goaewsclient.c:317
 #, c-format
-msgid "Failed to find ‘%s’ element"
-msgstr "ไม่สามารถหาอิลิเมนต์ ‘%s’"
+msgid "Failed to find “%s” element"
+msgstr "ไม่สามารถหาอิลิเมนต์ “%s”"
 
 #. TODO: more specific
-#: ../src/goabackend/goaewsclient.c:312
-#, c-format
-msgid "Failed to find ASUrl and OABUrl in autodiscover response"
-msgstr "ไม่สามารถหา ASUrl และ OABUrl ในคำตอบของ autodiscover "
+#: src/goabackend/goaewsclient.c:338
+msgid "Failed to find ASUrl in autodiscover response"
+msgstr "ไม่สามารถหา ASUrl ในคำตอบของ autodiscover"
 
-#: ../src/goabackend/goaexchangeprovider.c:74
+#: src/goabackend/goaexchangeprovider.c:52
 msgid "Microsoft Exchange"
 msgstr "Microsoft Exchange"
 
@@ -64,221 +105,97 @@ msgstr "Microsoft Exchange"
 #. * (eg., debarshi.ray@gmail.com or rishi), and the
 #. * (%s, %d) is the error domain and code.
 #.
-#: ../src/goabackend/goaexchangeprovider.c:283
-#: ../src/goabackend/goalastfmprovider.c:281
-#: ../src/goabackend/goaowncloudprovider.c:314
+#: src/goabackend/goaexchangeprovider.c:258 src/goabackend/goawebdavprovider.c:304
 #, c-format
-msgid "Invalid password with username ‘%s’ (%s, %d): "
-msgstr "รหัสผ่านไม่ถูกต้องสำหรับชื่อผู้ใช้ ‘%s’ (%s, %d): "
+msgid "Invalid password with username “%s” (%s, %d): "
+msgstr "รหัสผ่านไม่ถูกต้องสำหรับชื่อผู้ใช้ “%s” (%s, %d): "
 
-#: ../src/goabackend/goaexchangeprovider.c:436
-#: ../src/goabackend/goaimapsmtpprovider.c:686
-msgid "_E-mail"
+#. provider name
+#: src/goabackend/goaexchangeprovider.c:389
+msgid ""
+"Connect to a Microsoft Exchange provider to access calendars, contacts and files"
+msgstr "เชื่อมต่อกับผู้ให้บริการ Microsoft Exchange เพื่อเข้าถึงปฏิทิน ที่อยู่ติดต่อ และไฟล์ต่างๆ"
+
+#: src/goabackend/goaexchangeprovider.c:392 src/goabackend/goaimapsmtpprovider.c:696
+msgid "_Email"
 msgstr "_อีเมล"
 
-#: ../src/goabackend/goaexchangeprovider.c:437
-#: ../src/goabackend/goaimapsmtpprovider.c:706
-#: ../src/goabackend/goaimapsmtpprovider.c:726
-#: ../src/goabackend/goalastfmprovider.c:423
-#: ../src/goabackend/goaowncloudprovider.c:560
+#: src/goabackend/goaexchangeprovider.c:393 src/goabackend/goafedoraprovider.c:171
+#: src/goabackend/goaimapsmtpprovider.c:697 src/goabackend/goaimapsmtpprovider.c:740
+#: src/goabackend/goaimapsmtpprovider.c:784 src/goabackend/goawebdavprovider.c:408
 msgid "_Password"
 msgstr "_รหัสผ่าน"
 
-#: ../src/goabackend/goaexchangeprovider.c:440
-msgid "_Custom"
-msgstr "_กำหนดเอง"
+#: src/goabackend/goaexchangeprovider.c:394
+msgid ""
+"Exchange account details will be auto-detected from your email address when "
+"possible"
+msgstr "รายละเอียดของบัญชี Exchange จะถูกตรวจหาอัตโนมัติจากที่อยู่อีเมลของคุณเมื่อเป็นไปได้"
 
-#: ../src/goabackend/goaexchangeprovider.c:451
-#: ../src/goabackend/goaimapsmtpprovider.c:705
-#: ../src/goabackend/goaimapsmtpprovider.c:725
-#: ../src/goabackend/goakerberosprovider.c:738
-#: ../src/goabackend/goalastfmprovider.c:422
-#: ../src/goabackend/goaowncloudprovider.c:559
+#: src/goabackend/goaexchangeprovider.c:405
+msgid "Account Details"
+msgstr "รายละเอียดบัญชี"
+
+#: src/goabackend/goaexchangeprovider.c:406 src/goabackend/goafedoraprovider.c:170
+#: src/goabackend/goaimapsmtpprovider.c:739 src/goabackend/goaimapsmtpprovider.c:783
+#: src/goabackend/goawebdavprovider.c:407
 msgid "User_name"
 msgstr "_ชื่อผู้ใช้"
 
-#: ../src/goabackend/goaexchangeprovider.c:452
-#: ../src/goabackend/goaowncloudprovider.c:558
-msgid "_Server"
-msgstr "เซิร์ฟเ_วอร์"
+#: src/goabackend/goaexchangeprovider.c:407
+msgid "_Domain"
+msgstr "โ_ดเมน"
 
-#. --
-#: ../src/goabackend/goaexchangeprovider.c:462
-#: ../src/goabackend/goaimapsmtpprovider.c:738
-#: ../src/goabackend/goakerberosprovider.c:743
-#: ../src/goabackend/goalastfmprovider.c:431
-#: ../src/goabackend/goaowncloudprovider.c:569
-#: ../src/goabackend/goatelepathyprovider.c:666
-msgid "_Cancel"
-msgstr "_ยกเลิก"
+#: src/goabackend/goaexchangeprovider.c:408
+msgid "Example domain: example.com"
+msgstr "ตัวอย่างโดเมน: example.com"
 
-#: ../src/goabackend/goaexchangeprovider.c:463
-#: ../src/goabackend/goakerberosprovider.c:744
-#: ../src/goabackend/goalastfmprovider.c:432
-#: ../src/goabackend/goaowncloudprovider.c:570
-msgid "C_onnect"
-msgstr "เ_ชื่อมต่อ"
+#: src/goabackend/goafedoraprovider.c:51
+msgid "Fedora"
+msgstr "Fedora"
 
-#: ../src/goabackend/goaexchangeprovider.c:479
-#: ../src/goabackend/goaimapsmtpprovider.c:754
-#: ../src/goabackend/goakerberosprovider.c:760
-#: ../src/goabackend/goalastfmprovider.c:448
-#: ../src/goabackend/goaowncloudprovider.c:585
-msgid "Connecting…"
-msgstr "กำลังเชื่อมต่อ…"
+#: src/goabackend/goafedoraprovider.c:167 src/goabackend/goakerberosprovider.c:598
+msgid "Access restricted web and network resources for your organization"
+msgstr "จำกัดการเข้าถึงทรัพยากรเว็บและเครือข่ายสำหรับองค์กรของคุณ"
 
-#: ../src/goabackend/goaexchangeprovider.c:584
-#: ../src/goabackend/goaexchangeprovider.c:779
-#: ../src/goabackend/goaimapsmtpprovider.c:916
-#: ../src/goabackend/goaimapsmtpprovider.c:951
-#: ../src/goabackend/goaimapsmtpprovider.c:1043
-#: ../src/goabackend/goaimapsmtpprovider.c:1310
-#: ../src/goabackend/goaimapsmtpprovider.c:1386
-#: ../src/goabackend/goakerberosprovider.c:1157
-#: ../src/goabackend/goalastfmprovider.c:643
-#: ../src/goabackend/goalastfmprovider.c:809
-#: ../src/goabackend/goamediaserverprovider.c:434
-#: ../src/goabackend/goaoauth2provider.c:1086
-#: ../src/goabackend/goaoauthprovider.c:862
-#: ../src/goabackend/goaowncloudprovider.c:696
-#: ../src/goabackend/goaowncloudprovider.c:910
-#: ../src/goabackend/goatelepathyprovider.c:490
-#: ../src/goabackend/goatelepathyprovider.c:529
-#: ../src/goabackend/goatelepathyprovider.c:697
+#: src/goabackend/goafedoraprovider.c:338
 #, c-format
-msgid "Dialog was dismissed"
-msgstr "กล่องโต้ตอบถูกยกเลิก"
+msgid "Failed to get principal from user name “%s”"
+msgstr "ไม่สามารถอ่าน principal จากชื่อผู้ใช้ “%s”"
 
-#: ../src/goabackend/goaexchangeprovider.c:622
-#: ../src/goabackend/goaexchangeprovider.c:807
-#: ../src/goabackend/goaimapsmtpprovider.c:984
-#: ../src/goabackend/goaimapsmtpprovider.c:1081
-#: ../src/goabackend/goaimapsmtpprovider.c:1337
-#: ../src/goabackend/goaimapsmtpprovider.c:1414
-#: ../src/goabackend/goalastfmprovider.c:677
-#: ../src/goabackend/goalastfmprovider.c:828
-#: ../src/goabackend/goaowncloudprovider.c:738
-#: ../src/goabackend/goaowncloudprovider.c:931
-#, c-format
-msgid "Dialog was dismissed (%s, %d): "
-msgstr "กล่องโต้ตอบถูกยกเลิก (%s, %d): "
-
-#: ../src/goabackend/goaexchangeprovider.c:635
-#: ../src/goabackend/goaimapsmtpprovider.c:997
-#: ../src/goabackend/goaimapsmtpprovider.c:1094
-#: ../src/goabackend/goaowncloudprovider.c:751
-msgid "_Ignore"
-msgstr "เ_พิกเฉย"
-
-#: ../src/goabackend/goaexchangeprovider.c:640
-#: ../src/goabackend/goaexchangeprovider.c:826
-#: ../src/goabackend/goaimapsmtpprovider.c:1002
-#: ../src/goabackend/goaimapsmtpprovider.c:1099
-#: ../src/goabackend/goaimapsmtpprovider.c:1356
-#: ../src/goabackend/goaimapsmtpprovider.c:1433
-#: ../src/goabackend/goakerberosprovider.c:1264
-#: ../src/goabackend/goalastfmprovider.c:689
-#: ../src/goabackend/goalastfmprovider.c:845
-#: ../src/goabackend/goaowncloudprovider.c:756
-#: ../src/goabackend/goaowncloudprovider.c:950
-msgid "_Try Again"
-msgstr "_ลองอีกครั้ง"
-
-#: ../src/goabackend/goaexchangeprovider.c:645
-#: ../src/goabackend/goaexchangeprovider.c:819
-msgid "Error connecting to Microsoft Exchange server"
-msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ Microsoft Exchange"
-
-#: ../src/goabackend/goafacebookprovider.c:78
-msgid "Facebook"
-msgstr "Facebook"
-
-#: ../src/goabackend/goafacebookprovider.c:208
-#: ../src/goabackend/goaflickrprovider.c:184
-#: ../src/goabackend/goafoursquareprovider.c:191
-#: ../src/goabackend/goagoogleprovider.c:219
-#: ../src/goabackend/goawindowsliveprovider.c:188
-#, c-format
-msgid ""
-"Expected status 200 when requesting your identity, instead got status %d (%s)"
-msgstr "ต้องการสถานะ 200 เมื่อร้องขอเอกลักษณ์ของคุณ แต่กลับได้รับสถานะ %d (%s)"
-
-#. TODO: more specific
-#: ../src/goabackend/goafacebookprovider.c:227
-#: ../src/goabackend/goafacebookprovider.c:239
-#: ../src/goabackend/goafacebookprovider.c:252
-#: ../src/goabackend/goaflickrprovider.c:203
-#: ../src/goabackend/goaflickrprovider.c:215
-#: ../src/goabackend/goaflickrprovider.c:225
-#: ../src/goabackend/goaflickrprovider.c:235
-#: ../src/goabackend/goaflickrprovider.c:245
-#: ../src/goabackend/goafoursquareprovider.c:210
-#: ../src/goabackend/goafoursquareprovider.c:222
-#: ../src/goabackend/goafoursquareprovider.c:233
-#: ../src/goabackend/goafoursquareprovider.c:244
-#: ../src/goabackend/goafoursquareprovider.c:255
-#: ../src/goabackend/goafoursquareprovider.c:266
-#: ../src/goabackend/goagoogleprovider.c:238
-#: ../src/goabackend/goagoogleprovider.c:250
-#: ../src/goabackend/goalastfmprovider.c:212
-#: ../src/goabackend/goalastfmprovider.c:221
-#: ../src/goabackend/goalastfmprovider.c:231
-#: ../src/goabackend/goalastfmprovider.c:238
-#: ../src/goabackend/goalastfmprovider.c:506
-#: ../src/goabackend/goalastfmprovider.c:515
-#: ../src/goabackend/goalastfmprovider.c:530
-#: ../src/goabackend/goalastfmprovider.c:537
-#: ../src/goabackend/goaoauth2provider.c:743
-#: ../src/goabackend/goaoauth2provider.c:773
-#: ../src/goabackend/goaoauth2provider.c:785 ../src/goabackend/goautils.c:311
-#: ../src/goabackend/goawindowsliveprovider.c:207
-#: ../src/goabackend/goawindowsliveprovider.c:219
-#: ../src/goabackend/goawindowsliveprovider.c:231
-#, c-format
-msgid "Could not parse response"
-msgstr "ไม่สามารถแจงคำตอบ"
-
-#: ../src/goabackend/goaflickrprovider.c:78
-msgid "Flickr"
-msgstr "Flickr"
-
-#: ../src/goabackend/goaflickrprovider.c:322
-msgid "Your system time is invalid. Check your date and time settings."
-msgstr "เวลาของระบบคุณไม่ถูกต้อง กรุณาตรวจสอบการติดตั้งวันและเวลาของคุณ"
-
-#: ../src/goabackend/goafoursquareprovider.c:79
-msgid "Foursquare"
-msgstr "Foursquare"
-
-#: ../src/goabackend/goagoogleprovider.c:78
+#: src/goabackend/goagoogleprovider.c:57
 msgid "Google"
 msgstr "Google"
 
-#. TODO: more specific
-#: ../src/goabackend/goaimapauthlogin.c:94 ../src/goabackend/goasmtpauth.c:160
+#: src/goabackend/goagoogleprovider.c:213 src/goabackend/goamsgraphprovider.c:184
+#: src/goabackend/goawindowsliveprovider.c:165
 #, c-format
+msgid "Expected status 200 when requesting your identity, instead got status %d (%s)"
+msgstr "ต้องการสถานะ 200 เมื่อร้องขอเอกลักษณ์ของคุณ แต่กลับได้รับสถานะ %d (%s)"
+
+#. TODO: more specific
+#: src/goabackend/goagoogleprovider.c:232 src/goabackend/goagoogleprovider.c:243
+#: src/goabackend/goamsgraphprovider.c:203 src/goabackend/goamsgraphprovider.c:214
+#: src/goabackend/goamsgraphprovider.c:227 src/goabackend/goamsgraphprovider.c:252
+#: src/goabackend/goaoauth2provider.c:677 src/goabackend/goaoauth2provider.c:707
+#: src/goabackend/goaoauth2provider.c:718 src/goabackend/goautils.c:133
+#: src/goabackend/goawindowsliveprovider.c:184
+#: src/goabackend/goawindowsliveprovider.c:195
+#: src/goabackend/goawindowsliveprovider.c:204
+#: src/goabackend/goawindowsliveprovider.c:217
+msgid "Could not parse response"
+msgstr "ไม่สามารถแจงคำตอบ"
+
+#. TODO: more specific
+#: src/goabackend/goaimapauthlogin.c:84 src/goabackend/goasmtpauth.c:149
 msgid "Service not available"
 msgstr "ไม่มีบริการ"
 
-#. TODO: more specific
-#: ../src/goabackend/goaimapauthlogin.c:115
-#: ../src/goabackend/goalastfmprovider.c:523
-#: ../src/goabackend/goasmtpauth.c:113 ../src/goabackend/goautils.c:786
-#, c-format
-msgid "Authentication failed"
-msgstr "ยืนยันตัวบุคคลไม่สำเร็จ"
-
-#: ../src/goabackend/goaimapauthlogin.c:140
-#, c-format
-msgid "Server does not support PLAIN"
-msgstr "เซิร์ฟเวอร์ไม่รองรับ PLAIN"
-
-#: ../src/goabackend/goaimapauthlogin.c:194 ../src/goabackend/goasmtpauth.c:818
-#, c-format
+#: src/goabackend/goaimapauthlogin.c:166 src/goabackend/goasmtpauth.c:600
 msgid "Server does not support STARTTLS"
 msgstr "เซิร์ฟเวอร์ไม่รองรับ STARTTLS"
 
-#: ../src/goabackend/goaimapsmtpprovider.c:61
+#: src/goabackend/goaimapsmtpprovider.c:55
 msgid "IMAP and SMTP"
 msgstr "IMAP และ SMTP"
 
@@ -292,594 +209,789 @@ msgstr "IMAP และ SMTP"
 #. * username (eg., rishi), and the (%s, %d)
 #. * is the error domain and code.
 #.
-#: ../src/goabackend/goaimapsmtpprovider.c:364
-#: ../src/goabackend/goaimapsmtpprovider.c:415
+#: src/goabackend/goaimapsmtpprovider.c:320 src/goabackend/goaimapsmtpprovider.c:369
 #, c-format
-msgid "Invalid %s with username ‘%s’ (%s, %d): "
-msgstr "%s ไม่ถูกต้องสำหรับชื่อผู้ใช้ ‘%s’ (%s, %d): "
+msgid "Invalid %s with username “%s” (%s, %d): "
+msgstr "%s ไม่ถูกต้องสำหรับชื่อผู้ใช้ “%s” (%s, %d): "
 
-#. Translators: the following four strings are used to show a
-#. * combo box similar to the one in the evolution module.
-#. * Encryption: None
-#. *             STARTTLS after connecting
-#. *             SSL on a dedicated port
-#.
-#: ../src/goabackend/goaimapsmtpprovider.c:603
-msgid "_Encryption"
-msgstr "การเ_ข้ารหัสลับ"
+#: src/goabackend/goaimapsmtpprovider.c:562 src/goabackend/goaimapsmtpprovider.c:583
+#: src/goabackend/goaimapsmtpprovider.c:719 src/goabackend/goaimapsmtpprovider.c:760
+#: src/goabackend/goaimapsmtpprovider.c:804
+msgid "Auto-detected"
+msgstr "ตรวจหาอัตโนมัติ"
 
-#: ../src/goabackend/goaimapsmtpprovider.c:606
+#: src/goabackend/goaimapsmtpprovider.c:612
+msgid "Unable to auto-detect IMAP and SMTP settings"
+msgstr "ไม่สามารถตรวจหาการตั้งค่า IMAP และ SMTP แบบอัตโนมัติ"
+
+#. Keep in sync with GoaTlsType
+#: src/goabackend/goaimapsmtpprovider.c:683
 msgid "None"
 msgstr "ไม่มี"
 
-#: ../src/goabackend/goaimapsmtpprovider.c:609
+#. GOA_TLS_TYPE_NONE
+#: src/goabackend/goaimapsmtpprovider.c:684
 msgid "STARTTLS after connecting"
 msgstr "STARTTLS หลังจากการเชื่อมต่อ"
 
-#: ../src/goabackend/goaimapsmtpprovider.c:612
+#. GOA_TLS_TYPE_STARTTLS
+#: src/goabackend/goaimapsmtpprovider.c:685
 msgid "SSL on a dedicated port"
 msgstr "SSL ในพอร์ตเฉพาะ"
 
-#: ../src/goabackend/goaimapsmtpprovider.c:687
+#: src/goabackend/goaimapsmtpprovider.c:690 src/goabackend/goaimapsmtpprovider.c:1424
+msgid "Email"
+msgstr "อีเมล"
+
+#: src/goabackend/goaimapsmtpprovider.c:691
+msgid "Connect to an email account"
+msgstr "เชื่อมต่อกับบัญชีอีเมล"
+
+#: src/goabackend/goaimapsmtpprovider.c:695
 msgid "_Name"
 msgstr "_ชื่อ"
 
-#: ../src/goabackend/goaimapsmtpprovider.c:704
+#: src/goabackend/goaimapsmtpprovider.c:698
+msgid ""
+"IMAP and SMTP details will be auto-detected from your service provider when "
+"possible"
+msgstr "รายละเอียดเกี่ยวกับ IMAP และ SMTP จะถูกตรวจหาอัตโนมัติจากผู้ให้บริการของคุณเมื่อเป็นไปได้"
+
+#. IMAP
+#: src/goabackend/goaimapsmtpprovider.c:737
+msgid "IMAP Settings"
+msgstr "การตั้งค่า IMAP"
+
+#: src/goabackend/goaimapsmtpprovider.c:738
 msgid "IMAP _Server"
 msgstr "เซิร์ฟเ_วอร์ IMAP"
 
-#: ../src/goabackend/goaimapsmtpprovider.c:724
+#: src/goabackend/goaimapsmtpprovider.c:749 src/goabackend/goaimapsmtpprovider.c:793
+msgid "Encryption"
+msgstr "การเข้ารหัสลับ"
+
+#: src/goabackend/goaimapsmtpprovider.c:774
+msgid "Example server: imap.example.com"
+msgstr "ตัวอย่างเซิร์ฟเวอร์: imap.example.com"
+
+#. SMTP
+#: src/goabackend/goaimapsmtpprovider.c:781
+msgid "SMTP Settings"
+msgstr "การตั้งค่า SMTP"
+
+#: src/goabackend/goaimapsmtpprovider.c:782
 msgid "SMTP _Server"
 msgstr "เซิร์ฟเ_วอร์ SMTP"
 
-#: ../src/goabackend/goaimapsmtpprovider.c:739
-#: ../src/goabackend/goaimapsmtpprovider.c:1023
-#: ../src/goabackend/goaimapsmtpprovider.c:1366
-msgid "_Forward"
-msgstr "_ส่งต่อ"
+#: src/goabackend/goaimapsmtpprovider.c:818
+msgid "Example server: smtp.example.com"
+msgstr "ตัวอย่างเซิร์ฟเวอร์: smtp.example.com"
 
-#: ../src/goabackend/goaimapsmtpprovider.c:1007
-#: ../src/goabackend/goaimapsmtpprovider.c:1349
-msgid "Error connecting to IMAP server"
-msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ IMAP"
-
-#: ../src/goabackend/goaimapsmtpprovider.c:1104
-#: ../src/goabackend/goaimapsmtpprovider.c:1426
-msgid "Error connecting to SMTP server"
-msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ SMTP"
-
-#: ../src/goabackend/goaimapsmtpprovider.c:1534
-msgid "E-mail"
-msgstr "อีเมล"
-
-#: ../src/goabackend/goaimapsmtpprovider.c:1538
+#: src/goabackend/goaimapsmtpprovider.c:1415
 msgid "Name"
 msgstr "ชื่อ"
 
-#: ../src/goabackend/goaimapsmtpprovider.c:1548
-#: ../src/goabackend/goaimapsmtpprovider.c:1552
+#: src/goabackend/goaimapsmtpprovider.c:1441
 msgid "IMAP"
 msgstr "IMAP"
 
-#: ../src/goabackend/goaimapsmtpprovider.c:1563
-#: ../src/goabackend/goaimapsmtpprovider.c:1567
+#: src/goabackend/goaimapsmtpprovider.c:1459
 msgid "SMTP"
 msgstr "SMTP"
 
-#: ../src/goabackend/goakerberosprovider.c:101
-msgid "Enterprise Login (Kerberos)"
-msgstr "เข้าระบบองค์กร (Kerberos)"
+#: src/goabackend/goakerberosprovider.c:80
+msgid "Kerberos"
+msgstr "Kerberos"
 
-#: ../src/goabackend/goakerberosprovider.c:296
-#, c-format
-msgid "Ticketing is disabled for account"
-msgstr "การจองตั๋วถูกปิดใช้สำหรับบัญชี"
+#: src/goabackend/goakerberosprovider.c:425
+msgid "Operation was cancelled"
+msgstr "ปฏิบัติการถูกยกเลิก"
 
-#: ../src/goabackend/goakerberosprovider.c:321
-#, c-format
-msgid "Could not find saved credentials for principal ‘%s’ in keyring"
-msgstr "ไม่สามารถหาข้อมูลลับที่บันทึกไว้สำหรับ principal ‘%s’ ในพวงกุญแจ"
-
-#: ../src/goabackend/goakerberosprovider.c:334
-#, c-format
-msgid "Did not find password for principal ‘%s’ in credentials"
-msgstr "ไม่พบรหัสผ่านสำหรับ principal ‘%s’ ในข้อมูลลับ"
-
-#: ../src/goabackend/goakerberosprovider.c:730
-msgid "_Domain"
-msgstr "โ_ดเมน"
-
-#: ../src/goabackend/goakerberosprovider.c:731
-msgid "Enterprise domain or realm name"
-msgstr "โดเมนขององค์กรหรือชื่อ realm"
-
-#: ../src/goabackend/goakerberosprovider.c:973
-#: ../src/goaidentity/goaidentityservice.c:1127
+#: src/goabackend/goakerberosprovider.c:469 src/goaidentity/goaidentityservice.c:1114
 msgid "Log In to Realm"
 msgstr "เข้าระบบใน Realm"
 
-#: ../src/goabackend/goakerberosprovider.c:974
+#: src/goabackend/goakerberosprovider.c:470
 msgid "Please enter your password below."
 msgstr "กรุณาป้อนรหัสผ่านของคุณด้านล่าง"
 
-#: ../src/goabackend/goakerberosprovider.c:975
+#: src/goabackend/goakerberosprovider.c:471
 msgid "Remember this password"
 msgstr "จำรหัสผ่านนี้"
 
-#: ../src/goabackend/goakerberosprovider.c:1109
-#, c-format
-msgid "The domain is not valid"
-msgstr "โดเมนไม่ถูกต้อง"
+#: src/goabackend/goakerberosprovider.c:601
+msgid "_Principal"
+msgstr "_Principal"
 
-#: ../src/goabackend/goakerberosprovider.c:1259
-msgid "Error connecting to enterprise identity server"
-msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ตรวจสอบเอกลักษณ์ขององค์กร"
+#: src/goabackend/goakerberosprovider.c:602
+msgid "Example principal: user@EXAMPLE.COM"
+msgstr "ตัวอย่าง principal: user@EXAMPLE.COM"
 
-#: ../src/goabackend/goakerberosprovider.c:1596
+#: src/goabackend/goakerberosprovider.c:1293
+msgid "Ticketing is disabled for account"
+msgstr "การจองตั๋วถูกปิดใช้สำหรับบัญชี"
+
+#: src/goabackend/goakerberosprovider.c:1320
 #, c-format
+msgid "Could not find saved credentials for principal “%s” in keyring"
+msgstr "ไม่สามารถหาข้อมูลลับที่บันทึกไว้สำหรับ principal “%s” ในพวงกุญแจ"
+
+#: src/goabackend/goakerberosprovider.c:1335
+#, c-format
+msgid "Did not find password for principal “%s” in credentials"
+msgstr "ไม่พบรหัสผ่านสำหรับ principal “%s” ในข้อมูลลับ"
+
+#: src/goabackend/goakerberosprovider.c:1517
 msgid "Identity service returned invalid key"
 msgstr "บริการตรวจสอบเอกลักษณ์คืนกุญแจที่ไม่ถูกต้อง"
 
-#: ../src/goabackend/goalastfmprovider.c:65
-msgid "Last.fm"
-msgstr "Last.fm"
-
-#: ../src/goabackend/goalastfmprovider.c:691
-#: ../src/goabackend/goalastfmprovider.c:839
-msgid "Error connecting to Last.fm"
-msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยัง Last.fm"
-
-#: ../src/goabackend/goamediaserverprovider.c:77
-msgid "Media Server"
-msgstr "เซิร์ฟเวอร์สื่อ"
-
-#: ../src/goabackend/goamediaserverprovider.c:330
-msgid ""
-"Personal content can be added to your applications through a media server "
-"account."
-msgstr "เนื้อหาส่วนบุคคลสามารถเพิ่มเข้าในโปรแกรมของคุณได้ผ่านบัญชีเซิร์ฟเวอร์สื่อ"
-
-#: ../src/goabackend/goamediaserverprovider.c:343
-msgid "Available Media Servers"
-msgstr "เซิร์ฟเวอร์สื่อที่มี"
-
-#: ../src/goabackend/goamediaserverprovider.c:374
-msgid "No media servers found"
-msgstr "ไม่พบเซิร์ฟเวอร์สื่อ"
-
-#. Translators: the %d is a HTTP status code and the %s is a textual description of it
-#: ../src/goabackend/goaoauth2provider.c:719
-#: ../src/goabackend/goaoauthprovider.c:559
+#: src/goabackend/goamailclient.c:851
 #, c-format
-msgid ""
-"Expected status 200 when requesting access token, instead got status %d (%s)"
+msgid "Invalid email address “%s”"
+msgstr "ที่อยู่อีเมล “%s” ไม่ถูกต้อง"
+
+#: src/goabackend/goamsgraphprovider.c:64
+#, fuzzy
+#| msgid "Microsoft"
+msgid "Microsoft 365"
+msgstr "Microsoft"
+
+#. provider name
+#: src/goabackend/goamsgraphprovider.c:476
+msgid "Connect to Microsoft 365 to access email, calendars, contacts and files"
+msgstr ""
+
+#: src/goabackend/goamsgraphprovider.c:480
+#, fuzzy
+#| msgid "Online Accounts"
+msgid "Use Organization Account"
+msgstr "บัญชีออนไลน์"
+
+#: src/goabackend/goamsgraphprovider.c:481
+msgid "Connect using details from an organization or developer account"
+msgstr ""
+
+#. Translators: See https://learn.microsoft.com/globalization/reference/microsoft-terminology
+#: src/goabackend/goamsgraphprovider.c:488
+msgid "Enter the details provided by your organization"
+msgstr ""
+
+#: src/goabackend/goamsgraphprovider.c:490
+msgid "_Client ID (Optional)"
+msgstr ""
+
+#. Translators: See https://learn.microsoft.com/globalization/reference/microsoft-terminology
+#: src/goabackend/goamsgraphprovider.c:492
+msgid "_Tenant ID"
+msgstr ""
+
+#: src/goabackend/goamsgraphprovider.c:493
+msgid "Example ID: 00000000-0000-0000-0000-000000000000"
+msgstr ""
+
+#: src/goabackend/goamsgraphprovider.c:496 src/goabackend/goaoauth2provider.c:943
+#: src/goabackend/goaproviderdialog.c:701
+#, fuzzy
+#| msgid "_Sign In"
+msgid "_Sign In…"
+msgstr "เ_ข้าระบบ"
+
+#: src/goabackend/goaoauth2provider.c:653
+#, c-format
+msgid "Expected status 200 when requesting access token, instead got status %d (%s)"
 msgstr "ต้องการสถานะ 200 เมื่อร้องขอโทเคนสำหรับเข้าถึง แต่กลับได้รับสถานะ %d (%s)"
 
-#: ../src/goabackend/goaoauth2provider.c:893
+#: src/goabackend/goaoauth2provider.c:797
 msgid "Authorization response: "
 msgstr "คำตอบของการตรวจสอบสิทธิ์: "
 
-#: ../src/goabackend/goaoauth2provider.c:963
+#: src/goabackend/goaoauth2provider.c:860
 #, c-format
 msgid "Authorization response: %s"
 msgstr "คำตอบของการตรวจสอบสิทธิ์: %s"
 
-#: ../src/goabackend/goaoauth2provider.c:1112
-#: ../src/goabackend/goaoauthprovider.c:893
+#: src/goabackend/goaoauth2provider.c:868
+msgid "Failed to authenticate"
+msgstr "ไม่สามารถยืนยันตัวบุคคลได้"
+
+#: src/goabackend/goaoauth2provider.c:904
 msgid "Error getting an Access Token: "
 msgstr "เกิดข้อผิดพลาดขณะอ่านโทเคนสำหรับเข้าถึง: "
 
-#: ../src/goabackend/goaoauth2provider.c:1127
-#: ../src/goabackend/goaoauthprovider.c:906
+#: src/goabackend/goaoauth2provider.c:920
 msgid "Error getting identity: "
 msgstr "เกิดข้อผิดพลาดขณะอ่านเอกลักษณ์บุคคล: "
 
-#: ../src/goabackend/goaoauth2provider.c:1344
-#: ../src/goabackend/goaoauthprovider.c:1210
+#: src/goabackend/goaoauth2provider.c:941
+#, c-format
+msgid "Sign in to %s with your browser"
+msgstr "ลงชื่อเข้าระบบ %s ด้วยเบราว์เซอร์ของคุณ"
+
+#: src/goabackend/goaoauth2provider.c:1530
 #, c-format
 msgid "Was asked to log in as %s, but logged in as %s"
 msgstr "ถูกขอให้เข้าระบบในนาม %s แต่กลับเข้าระบบในนาม %s"
 
-#: ../src/goabackend/goaoauth2provider.c:1506
-#, c-format
+#: src/goabackend/goaoauth2provider.c:1758
 msgid "Credentials do not contain access_token"
 msgstr "ข้อมูลลับไม่มี access_token"
 
-#: ../src/goabackend/goaoauth2provider.c:1545
-#: ../src/goabackend/goaoauthprovider.c:1438
+#: src/goabackend/goaoauth2provider.c:1802
 #, c-format
 msgid "Failed to refresh access token (%s, %d): "
 msgstr "ปรับข้อมูลโทเคนสำหรับเข้าถึง (%s, %d) ไม่สำเร็จ: "
 
-#: ../src/goabackend/goaoauthprovider.c:582
-#, c-format
-msgid "Missing access_token or access_token_secret headers in response"
-msgstr "ขาดข้อมูลส่วนหัว access_token หรือ access_token_secret ในคำตอบ"
+#: src/goabackend/goaowncloudprovider.c:55
+msgid "Nextcloud"
+msgstr "Nextcloud"
 
-#: ../src/goabackend/goaoauthprovider.c:774
-msgid "Error getting a Request Token: "
-msgstr "เกิดข้อผิดพลาดขณะอ่านโทเคนคำร้อง: "
-
-#. Translators: the %d is a HTTP status code and the %s is a textual description of it
-#: ../src/goabackend/goaoauthprovider.c:807
-#, c-format
-msgid ""
-"Expected status 200 for getting a Request Token, instead got status %d (%s)"
-msgstr "ต้องการสถานะ 200 สำหรับการอ่านโทเคนคำร้อง แต่กลับได้รับสถานะ %d (%s)"
-
-#: ../src/goabackend/goaoauthprovider.c:824
-#, c-format
-msgid "Missing request_token or request_token_secret headers in response"
-msgstr "ขาดข้อมูลส่วนหัว request_token หรือ request_token_secret ในคำตอบ"
-
-#: ../src/goabackend/goaoauthprovider.c:1394
-#, c-format
-msgid "Credentials do not contain access_token or access_token_secret"
-msgstr "ข้อมูลลับไม่มี access_token หรือ access_token_secret"
-
-#: ../src/goabackend/goaowncloudprovider.c:68
-msgid "ownCloud"
-msgstr "ownCloud"
-
-#: ../src/goabackend/goaowncloudprovider.c:761
-#: ../src/goabackend/goaowncloudprovider.c:943
-msgid "Error connecting to ownCloud server"
-msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ ownCloud"
-
-#: ../src/goabackend/goapocketprovider.c:73
-msgid "Pocket"
-msgstr "พ็อกเกต"
-
-#. TODO: more specific
-#: ../src/goabackend/goapocketprovider.c:248
-#, c-format
-msgid "No username or access_token"
-msgstr "ไม่มีชื่อผู้ใช้หรือ access_token"
-
-#: ../src/goabackend/goaprovider.c:120
+#: src/goabackend/goaprovider.c:118
 msgid "_Mail"
 msgstr "เ_มล"
 
-#: ../src/goabackend/goaprovider.c:125
+#: src/goabackend/goaprovider.c:123
 msgid "Cale_ndar"
 msgstr "_ปฏิทิน"
 
-#: ../src/goabackend/goaprovider.c:130
+#: src/goabackend/goaprovider.c:128
 msgid "_Contacts"
 msgstr "ผู้_ติดต่อ"
 
-#: ../src/goabackend/goaprovider.c:135
-#: ../src/goabackend/goatelepathyprovider.c:961
+#: src/goabackend/goaprovider.c:133
 msgid "C_hat"
 msgstr "การ_สนทนา"
 
-#: ../src/goabackend/goaprovider.c:140
+#: src/goabackend/goaprovider.c:138
 msgid "_Documents"
 msgstr "เ_อกสาร"
 
-#: ../src/goabackend/goaprovider.c:145
+#: src/goabackend/goaprovider.c:143
 msgid "M_usic"
 msgstr "เ_พลง"
 
-#: ../src/goabackend/goaprovider.c:150
+#: src/goabackend/goaprovider.c:148
 msgid "_Photos"
 msgstr "_ภาพถ่าย"
 
-#: ../src/goabackend/goaprovider.c:155
+#: src/goabackend/goaprovider.c:153
 msgid "_Files"
-msgstr "แ_ฟ้ม"
+msgstr "ไ_ฟล์"
 
-#: ../src/goabackend/goaprovider.c:160
+#: src/goabackend/goaprovider.c:158
 msgid "Network _Resources"
 msgstr "_ทรัพยากรเครือข่าย"
 
-#: ../src/goabackend/goaprovider.c:165
+#: src/goabackend/goaprovider.c:163
 msgid "_Read Later"
 msgstr "_อ่านภายหลัง"
 
-#: ../src/goabackend/goaprovider.c:170
+#: src/goabackend/goaprovider.c:168
 msgid "Prin_ters"
 msgstr "เ_ครื่องพิมพ์"
 
-#: ../src/goabackend/goaprovider.c:175
+#: src/goabackend/goaprovider.c:173
 msgid "_Maps"
 msgstr "แ_ผนที่"
 
-#. Translators: This is a label for a series of
-#. * options switches. For example: “Use for Mail”.
-#: ../src/goabackend/goaprovider.c:601
-#: ../src/goabackend/goatelepathyprovider.c:959
-msgid "Use for"
-msgstr "ใช้สำหรับ"
+#: src/goabackend/goaprovider.c:178
+msgid "T_o Do"
+msgstr "สิ่_งที่ต้องทำ"
 
-#: ../src/goabackend/goaprovider.c:858
+#: src/goabackend/goaprovider.c:1066
 msgid "Account is disabled"
 msgstr "บัญชีถูกปิดใช้"
 
-#: ../src/goabackend/goaprovider.c:881
+#: src/goabackend/goaprovider.c:1079
+msgid "Unknown error"
+msgstr "เกิดข้อผิดพลาดไม่ทราบสาเหตุ"
+
+#: src/goabackend/goaprovider.c:1098
 #, c-format
 msgid "ensure_credentials_sync is not implemented on type %s"
 msgstr "ยังไม่รองรับ ensure_credentials_sync ในชนิด %s"
 
-#. TODO: more specific
-#: ../src/goabackend/goasmtpauth.c:175
+#. Translators: this is the title of the "Add Account" and "Refresh
+#. * Account" dialogs. The %s is the name of the provider. eg.,
+#. * 'Google'.
+#.
+#: src/goabackend/goaproviderdialog.c:174
 #, c-format
-msgid "TLS not available"
-msgstr "ไม่มี TLS"
+msgid "%s Account"
+msgstr "บัญชี %s"
 
-#. TODO: more specific
-#: ../src/goabackend/goasmtpauth.c:242
-#, c-format
-msgid "org.gnome.OnlineAccounts.Mail is not available"
-msgstr "ไม่มี org.gnome.OnlineAccounts.Mail"
+#: src/goabackend/goaproviderdialog.c:618
+msgid "Remove this Account?"
+msgstr "ลบบัญชีนี้ออกหรือไม่?"
 
-#. TODO: more specific
-#: ../src/goabackend/goasmtpauth.c:252
-#, c-format
-msgid "Failed to parse email address"
-msgstr "แจงที่อยู่อีเมลไม่สำเร็จ"
+#: src/goabackend/goaproviderdialog.c:619
+msgid ""
+"If you remove this Online Account you will have to connect to it again to use it "
+"with apps and services."
+msgstr ""
+"ถ้าคุณลบบัญชีออนไลน์นี้ออก คุณจะต้องเชื่อมต่อกับบัญชีนี้ใหม่อีกครั้งเมื่อต้องการใช้บัญชีนี้กับแอปและบริการต่างๆ"
 
-#. TODO: more specific
-#: ../src/goabackend/goasmtpauth.c:261
-#, c-format
-msgid "Cannot do SMTP authentication without a domain"
-msgstr "ไม่สามารถยืนยันตัวบุคคล SMTP โดยไม่มีโดเมนได้"
+#: src/goabackend/goaproviderdialog.c:621
+msgid "_Cancel"
+msgstr "_ยกเลิก"
 
-#. TODO: more specific
-#: ../src/goabackend/goasmtpauth.c:301
-#, c-format
-msgid "Did not find smtp-password in credentials"
-msgstr "ไม่พบ smtp-password ในข้อมูลลับ"
+#: src/goabackend/goaproviderdialog.c:622
+msgid "_Remove"
+msgstr "_ลบ"
 
-#. TODO: more specific
-#: ../src/goabackend/goasmtpauth.c:312
-#, c-format
-msgid "Cannot do SMTP authentication without a password"
-msgstr "ไม่สามารถยืนยันตัวบุคคล SMTP โดยไม่มีรหัสผ่านได้"
+#: src/goabackend/goaproviderdialog.c:700
+msgid "Sign in to reconnect to this account"
+msgstr "ลงชื่อเข้าระบบเพื่อเชื่อมต่อกับบัญชีนี้ใหม่"
 
-#: ../src/goabackend/goasmtpauth.c:674
-#, c-format
-msgid "Unknown authentication mechanism"
-msgstr "ไม่รู้จักกลไกยืนยันตัวบุคคล"
+#: src/goabackend/goaproviderdialog.c:754
+msgid "_Remove…"
+msgstr "_ลบ…"
 
-#: ../src/goabackend/goatelepathyprovider.c:187
-#, c-format
-msgid "Telepathy chat account not found"
-msgstr "ไม่พบบัญชีการสนทนา Telepathy"
-
-#: ../src/goabackend/goatelepathyprovider.c:449
-#, c-format
-msgid "Failed to create a user interface for %s"
-msgstr "ไม่สามารถสร้างส่วนติดต่อผู้ใช้สำหรับ %s"
-
-#: ../src/goabackend/goatelepathyprovider.c:555
-msgid "Connection Settings"
-msgstr "ค่าตั้งการเชื่อมต่อ"
-
-#: ../src/goabackend/goatelepathyprovider.c:661
-msgid "Personal Details"
-msgstr "รายละเอียดส่วนบุคคล"
-
-#: ../src/goabackend/goatelepathyprovider.c:667
-msgid "_OK"
-msgstr "_ตกลง"
-
-#: ../src/goabackend/goatelepathyprovider.c:913
-msgid "Cannot save the connection parameters"
-msgstr "ไม่สามารถบันทึกพารามิเตอร์การเชื่อมต่อ"
-
-#: ../src/goabackend/goatelepathyprovider.c:926
-msgid "Cannot save your personal information on the server"
-msgstr "ไม่สามารถบันทึกข้อมูลส่วนบุคคลของคุณในเซิร์ฟเวอร์"
-
-#. Connection Settings button
-#: ../src/goabackend/goatelepathyprovider.c:966
-msgid "_Connection Settings"
-msgstr "ตั้งค่าการเ_ชื่อมต่อ"
-
-#. Edit Personal Information button
-#: ../src/goabackend/goatelepathyprovider.c:970
-msgid "_Personal Details"
-msgstr "รายละเอียด_ส่วนบุคคล"
-
-#: ../src/goabackend/goautils.c:93
-msgid "Error logging into the account"
-msgstr "เกิดข้อผิดพลาดขณะเข้าระบบด้วยบัญชีนี้"
-
-#: ../src/goabackend/goautils.c:137
-msgid "Credentials have expired."
-msgstr "ข้อมูลลับหมดอายุแล้ว"
-
-#: ../src/goabackend/goautils.c:141
-msgid "Sign in to enable this account."
-msgstr "เข้าระบบเพื่อเปิดใช้บัญชีนี้"
-
-#: ../src/goabackend/goautils.c:146
+#: src/goabackend/goaproviderdialog.c:849
 msgid "_Sign In"
 msgstr "เ_ข้าระบบ"
 
-#: ../src/goabackend/goautils.c:278
+#: src/goabackend/goaproviderdialog.c:911
+msgid "_Try Again"
+msgstr "_ลองอีกครั้ง"
+
+#: src/goabackend/goaproviderdialog.c:915
+msgid "_Ignore"
+msgstr "เ_พิกเฉย"
+
+#: src/goabackend/goaproviderdialog.c:1187
+msgid "Dialog was dismissed"
+msgstr "กล่องโต้ตอบถูกยกเลิก"
+
+#. TODO: more specific
+#: src/goabackend/goasmtpauth.c:164
+msgid "TLS not available"
+msgstr "ไม่มี TLS"
+
+#: src/goabackend/goasmtpauth.c:470
+msgid "Unknown authentication mechanism"
+msgstr "ไม่รู้จักกลไกยืนยันตัวบุคคล"
+
+#: src/goabackend/goautils.c:77
 #, c-format
 msgid "A %s account already exists for %s"
 msgstr "มีบัญชี %s สำหรับ %s อยู่ก่อนแล้ว"
 
-#. Translators: the %s is the name of the provider. eg., Google.
-#: ../src/goabackend/goautils.c:328
-#, c-format
-msgid "%s account"
-msgstr "บัญชี %s "
-
 #. TODO: more specific
-#: ../src/goabackend/goautils.c:386
+#: src/goabackend/goautils.c:190
 msgid "Failed to delete credentials from the keyring"
 msgstr "ไม่สามารถลบข้อมูลลับออกจากพวงกุญแจ"
 
 #. TODO: more specific
-#: ../src/goabackend/goautils.c:438
+#: src/goabackend/goautils.c:238
 msgid "Failed to retrieve credentials from the keyring"
 msgstr "ไม่สามารถดึงข้อมูลลับจากพวงกุญแจ"
 
 #. TODO: more specific
-#: ../src/goabackend/goautils.c:448
+#: src/goabackend/goautils.c:248
 msgid "No credentials found in the keyring"
 msgstr "ไม่พบข้อมูลลับในพวงกุญแจ"
 
-#: ../src/goabackend/goautils.c:461
+#: src/goabackend/goautils.c:261
 msgid "Error parsing result obtained from the keyring: "
 msgstr "เกิดข้อผิดพลาดขณะแจงผลที่ได้รับจากพวงกุญแจ: "
 
 #. Translators: The %s is the type of the provider, e.g. 'google' or 'yahoo'
-#: ../src/goabackend/goautils.c:504
+#: src/goabackend/goautils.c:302
 #, c-format
 msgid "GOA %s credentials for identity %s"
 msgstr "ข้อมูลลับ %s ของ GOA สำหรับเอกลักษณ์บุคคล %s"
 
 #. TODO: more specific
-#: ../src/goabackend/goautils.c:521
+#: src/goabackend/goautils.c:319
 msgid "Failed to store credentials in the keyring"
 msgstr "ไม่สามารถเก็บข้อมูลลับลงในพวงกุญแจ"
 
-#: ../src/goabackend/goautils.c:773
-msgid "Cannot resolve hostname"
-msgstr "ไม่สามารถเปิดหาที่อยู่จากชื่อโฮสต์"
+#: src/goabackend/goautils.c:787
+msgid "Not supported"
+msgstr "ไม่รองรับ"
 
-#: ../src/goabackend/goautils.c:777
-msgid "Cannot resolve proxy hostname"
-msgstr "ไม่สามารถเปิดหาที่อยู่จากชื่อโฮสต์ของพร็อกซี"
+#: src/goabackend/goautils.c:791
+msgid "Not found"
+msgstr "ไม่พบ"
 
-#: ../src/goabackend/goautils.c:782
-msgid "Cannot find WebDAV endpoint"
-msgstr "ไม่สามารถหาจุดปลายของ WebDAV"
-
-#: ../src/goabackend/goautils.c:791
+#: src/goabackend/goautils.c:805
 #, c-format
 msgid "Code: %u — Unexpected response from server"
 msgstr "รหัส: %u —  คำตอบที่ไม่ได้คาดหมายจากเซิร์ฟเวอร์"
 
-#: ../src/goabackend/goautils.c:807
+#: src/goabackend/goautils.c:830
 msgid "The signing certificate authority is not known."
 msgstr "ไม่รู้จักองค์กรออกใบรับรองที่เซ็นกำกับ"
 
-#: ../src/goabackend/goautils.c:811
+#: src/goabackend/goautils.c:834
 msgid ""
 "The certificate does not match the expected identity of the site that it was "
 "retrieved from."
 msgstr "ใบรับรองไม่ตรงกับเอกลักษณ์ที่ควรจะเป็นของเว็บไซต์ที่ดึงมา"
 
-#: ../src/goabackend/goautils.c:816
+#: src/goabackend/goautils.c:839
 msgid "The certificate’s activation time is still in the future."
 msgstr "เวลาเปิดใช้ใบรับรองยังมาไม่ถึง"
 
-#: ../src/goabackend/goautils.c:820
+#: src/goabackend/goautils.c:843
 msgid "The certificate has expired."
 msgstr "ใบรับรองหมดอายุแล้ว"
 
-#: ../src/goabackend/goautils.c:824
+#: src/goabackend/goautils.c:847
 msgid "The certificate has been revoked."
 msgstr "ใบรับรองถูกเพิกถอนแล้ว"
 
-#: ../src/goabackend/goautils.c:828
+#: src/goabackend/goautils.c:851
 msgid "The certificate’s algorithm is considered insecure."
 msgstr "อัลกอริทึมของใบรับรองถือว่าไม่ปลอดภัย"
 
-#: ../src/goabackend/goautils.c:832
+#: src/goabackend/goautils.c:857
 msgid "Invalid certificate."
 msgstr "ใบรับรองไม่ถูกต้อง"
 
 #. TODO: more specific
-#: ../src/goabackend/goautils.c:867
+#: src/goabackend/goautils.c:892
 #, c-format
-msgid "Did not find %s with identity ‘%s’ in credentials"
-msgstr "ไม่พบ %s ที่มีเอกลักษณ์ ‘%s’ ในข้อมูลลับ"
+msgid "Did not find %s with identity “%s” in credentials"
+msgstr "ไม่พบ %s ที่มีเอกลักษณ์ “%s” ในข้อมูลลับ"
 
-#. translators: %s here is the address of the web page
-#: ../src/goabackend/goawebview.c:95
-#, c-format
-msgid "Loading “%s”…"
-msgstr "กำลังโหลด “%s”…"
+#: src/goabackend/goawebdavprovider.c:399
+msgid "Calendar, Contacts and Files"
+msgstr "ปฏิทิน ที่อยู่ติดต่อ และไฟล์"
 
-#: ../src/goabackend/goawindowsliveprovider.c:79
-msgid "Microsoft Account"
-msgstr "บัญชีไมโครซอฟท์"
+#: src/goabackend/goawebdavprovider.c:400
+msgid ""
+"Add a calendar, contacts and files account by entering your WebDAV server and "
+"account details"
+msgstr ""
+"เพิ่มบัญชีสำหรับปฏิทิน ที่อยู่ติดต่อ และไฟล์โดยป้อนรายละเอียดเกี่ยวกับเซิร์ฟเวอร์ WebDAV และบัญชีของคุณ"
 
-#: ../src/goaidentity/goaidentityservice.c:370
-msgid "initial secret passed before secret key exchange"
-msgstr "มีการส่งรหัสลับเริ่มต้นก่อนการแลกเปลี่ยนกุญแจลับ"
+#: src/goabackend/goawebdavprovider.c:403
+msgid "_Server Address"
+msgstr "ที่อยู่เซิร์ฟเ_วอร์"
 
-#: ../src/goaidentity/goaidentityservice.c:567
+#: src/goabackend/goawebdavprovider.c:404
+msgid "Examples: example.com, 192.168.0.82"
+msgstr "ตัวอย่าง: example.com, 192.168.0.82"
+
+#: src/goabackend/goawebdavprovider.c:414
+msgid "Server Addresses (Optional)"
+msgstr "ที่อยู่เซิร์ฟเวอร์ (ไม่บังคับ)"
+
+#: src/goabackend/goawebdavprovider.c:415
+msgid "Files"
+msgstr "ไฟล์"
+
+#: src/goabackend/goawebdavprovider.c:416
+msgid "Calendar (CalDAV)"
+msgstr "ปฏิทิน (CalDAV)"
+
+#: src/goabackend/goawebdavprovider.c:417
+msgid "Contacts (CardDAV)"
+msgstr "ที่อยู่ติดต่อ (CardDAV)"
+
+#: src/goabackend/goawindowsliveprovider.c:56
+msgid "Microsoft"
+msgstr "Microsoft"
+
+#: src/goaidentity/goaidentityservice.c:564
 msgid "Initial secret key is invalid"
 msgstr "กุญแจลับเริ่มต้นไม่ถูกต้อง"
 
-#: ../src/goaidentity/goaidentityservice.c:1132
+#. TODO: more specific
+#: src/goaidentity/goaidentityservice.c:786
+#, c-format
+msgid "Couldn't get GoaObject for object path %s"
+msgstr ""
+
+#: src/goaidentity/goaidentityservice.c:1119
 #, c-format
 msgid "The network realm %s needs some information to sign you in."
 msgstr "realm เครือข่าย %s ต้องการข้อมูลบางอย่างในการเข้าระบบของคุณ"
 
-#: ../src/goaidentity/goakerberosidentity.c:276
-#: ../src/goaidentity/goakerberosidentity.c:285
-#: ../src/goaidentity/goakerberosidentity.c:713
-msgid "Could not find identity in credential cache: %k"
-msgstr "ไม่พบเอกลักษณ์ในแคชข้อมูลลับ: %k"
+#: src/goaidentity/goakerberosidentity.c:293
+#: src/goaidentity/goakerberosidentity.c:301
+#: src/goaidentity/goakerberosidentity.c:695
+msgid "Could not find identity in credential cache: "
+msgstr "ไม่พบเอกลักษณ์ในแคชข้อมูลลับ: "
 
-#: ../src/goaidentity/goakerberosidentity.c:727
-msgid "Could not find identity credentials in cache: %k"
-msgstr "ไม่พบข้อมูลลับของเอกลักษณ์ในแคช: %k"
+#: src/goaidentity/goakerberosidentity.c:707
+msgid "Could not find identity credentials in cache: "
+msgstr "ไม่พบข้อมูลลับของเอกลักษณ์ในแคช: "
 
-#: ../src/goaidentity/goakerberosidentity.c:779
-msgid "Could not sift through identity credentials in cache: %k"
-msgstr "ไม่สามารถกลั่นกรองหาข้อมูลลับของเอกลักษณ์ในแคช: %k"
+#: src/goaidentity/goakerberosidentity.c:751
+msgid "Could not sift through identity credentials in cache: "
+msgstr "ไม่สามารถกลั่นกรองหาข้อมูลลับของเอกลักษณ์ในแคช: "
 
-#: ../src/goaidentity/goakerberosidentity.c:797
-msgid "Could not finish up sifting through identity credentials in cache: %k"
-msgstr "ไม่สามารถจบการกลั่นกรองหาข้อมูลลับของเอกลักษณ์ในแคช: %k"
+#: src/goaidentity/goakerberosidentity.c:763
+msgid "Could not finish up sifting through identity credentials in cache: "
+msgstr "ไม่สามารถจบการกลั่นกรองหาข้อมูลลับของเอกลักษณ์ในแคช: "
 
-#: ../src/goaidentity/goakerberosidentity.c:1111
-#, c-format
+#: src/goaidentity/goakerberosidentity.c:1406
 msgid "No associated identification found"
 msgstr "ไม่พบการระบุตัวตนที่เชื่อมโยง"
 
-#: ../src/goaidentity/goakerberosidentity.c:1194
-msgid "Could not create credential cache: %k"
-msgstr "ไม่สามารถสร้างแคชข้อมูลลับ: %k"
+#: src/goaidentity/goakerberosidentity.c:1535
+msgid "Could not create credential cache: "
+msgstr "ไม่สามารถสร้างแคชข้อมูลลับ: "
 
-#: ../src/goaidentity/goakerberosidentity.c:1228
-msgid "Could not initialize credentials cache: %k"
-msgstr "ไม่สามารถตั้งค่าเริ่มต้นแคชข้อมูลลับ: %k"
+#: src/goaidentity/goakerberosidentity.c:1575
+msgid "Could not initialize credentials cache: "
+msgstr "ไม่สามารถตั้งค่าเริ่มต้นแคชข้อมูลลับ: "
 
-#: ../src/goaidentity/goakerberosidentity.c:1245
-msgid "Could not store new credentials in credentials cache: %k"
-msgstr "ไม่สามารถเก็บข้อมูลลับใหม่ในแคชข้อมูลลับ: %k "
+#: src/goaidentity/goakerberosidentity.c:1588
+msgid "Could not store new credentials in credentials cache: "
+msgstr "ไม่สามารถเก็บข้อมูลลับใหม่ในแคชข้อมูลลับ: "
 
-#: ../src/goaidentity/goakerberosidentity.c:1540
+#: src/goaidentity/goakerberosidentity.c:1824
+msgid "Not signed in"
+msgstr "ไม่ได้เข้าระบบ"
+
+#: src/goaidentity/goakerberosidentity.c:1837
+msgid "Could not get the default principal: "
+msgstr "ไม่สามารถดึง principal เริ่มต้น: "
+
+#: src/goaidentity/goakerberosidentity.c:1850
 #, c-format
-msgid "Could not renew identity: Not signed in"
-msgstr "ไม่สามารถต่ออายุเอกลักษณ์: ไม่ได้เข้าระบบ"
+msgid "Could not get renewed credentials from the KDC for identity %s: "
+msgstr "ไม่สามารถดึงข้อมูลลับอันใหม่จาก KDC สำหรับเอกลักษณ์ %s: "
 
-#: ../src/goaidentity/goakerberosidentity.c:1552
-msgid "Could not renew identity: %k"
-msgstr "ไม่สามารถต่ออายุเอกลักษณ์: %k "
+#: src/goaidentity/goakerberosidentity.c:1898
+msgid "Could not erase identity: "
+msgstr "ไม่สามารถลบเอกลักษณ์: "
 
-#: ../src/goaidentity/goakerberosidentity.c:1569
-msgid "Could not get new credentials to renew identity %s: %k"
-msgstr "ไม่สามารถดึงข้อมูลลับอันใหม่เพื่อต่ออายุเอกลักษณ์ %s: %k "
-
-#: ../src/goaidentity/goakerberosidentity.c:1611
-msgid "Could not erase identity: %k"
-msgstr "ไม่สามารถลบเอกลักษณ์: %k"
-
-#: ../src/goaidentity/goakerberosidentitymanager.c:749
+#: src/goaidentity/goakerberosidentitymanager.c:955
 msgid "Could not find identity"
 msgstr "หาเอกลักษณ์ไม่พบ"
 
-#: ../src/goaidentity/goakerberosidentitymanager.c:841
+#: src/goaidentity/goakerberosidentitymanager.c:1038
 msgid "Could not create credential cache for identity"
 msgstr "ไม่สามารถสร้างแคชข้อมูลลับสำหรับเอกลักษณ์"
 
+#: src/goaidentity/goalinuxnotificationstream.c:58
+#, c-format
+msgid "Error closing file descriptor: %s"
+msgstr ""
+
+#~ msgid "_Custom"
+#~ msgstr "_กำหนดเอง"
+
+#~ msgid "C_onnect"
+#~ msgstr "เ_ชื่อมต่อ"
+
+#~ msgid "Connecting…"
+#~ msgstr "กำลังเชื่อมต่อ…"
+
+#, c-format
+#~ msgid "Dialog was dismissed (%s, %d): "
+#~ msgstr "กล่องโต้ตอบถูกยกเลิก (%s, %d): "
+
+#~ msgid "Error connecting to Microsoft Exchange server"
+#~ msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ Microsoft Exchange"
+
+#~ msgid "Error connecting to Fedora"
+#~ msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยัง Fedora"
+
+#~ msgid "_Forward"
+#~ msgstr "_ส่งต่อ"
+
+#~ msgid "Error connecting to IMAP server"
+#~ msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ IMAP"
+
+#~ msgid "Error connecting to SMTP server"
+#~ msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ SMTP"
+
+#~ msgid "Enterprise Login (Kerberos)"
+#~ msgstr "เข้าระบบองค์กร (Kerberos)"
+
+#~ msgid "Error connecting to enterprise identity server"
+#~ msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ตรวจสอบเอกลักษณ์ขององค์กร"
+
+#~ msgid "Use for"
+#~ msgstr "ใช้สำหรับ"
+
+#~ msgid "Error logging into the account"
+#~ msgstr "เกิดข้อผิดพลาดขณะเข้าระบบด้วยบัญชีนี้"
+
+#~ msgid "Credentials have expired"
+#~ msgstr "ข้อมูลลับหมดอายุแล้ว"
+
+#, fuzzy
+#~| msgid "Cannot find WebDAV endpoint"
+#~ msgid "CalDAV Endpoint"
+#~ msgstr "ไม่สามารถหาจุดปลายของ WebDAV"
+
+#, fuzzy
+#~| msgid "Cannot find WebDAV endpoint"
+#~ msgid "CardDAV Endpoint"
+#~ msgstr "ไม่สามารถหาจุดปลายของ WebDAV"
+
+#, fuzzy
+#~| msgid "Error connecting to IMAP server"
+#~ msgid "Error connecting to server"
+#~ msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ IMAP"
+
+#, fuzzy
+#~| msgid "Error connecting to Last.fm"
+#~ msgid "Error connecting to Files endpoint"
+#~ msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยัง Last.fm"
+
+#, fuzzy
+#~| msgid "Error connecting to Last.fm"
+#~ msgid "Error connecting to CalDAV endpoint"
+#~ msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยัง Last.fm"
+
+#, fuzzy
+#~| msgid "Error connecting to Last.fm"
+#~ msgid "Error connecting to CardDAV endpoint"
+#~ msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยัง Last.fm"
+
+#, fuzzy
+#~| msgid "Error connecting to IMAP server"
+#~ msgid "Error connecting to WebDAV server"
+#~ msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ IMAP"
+
+#~ msgid "Facebook"
+#~ msgstr "Facebook"
+
+#~ msgid "Flickr"
+#~ msgstr "Flickr"
+
+#~ msgid "Your system time is invalid. Check your date and time settings."
+#~ msgstr "เวลาของระบบคุณไม่ถูกต้อง กรุณาตรวจสอบการติดตั้งวันและเวลาของคุณ"
+
+#~ msgid "Foursquare"
+#~ msgstr "Foursquare"
+
+#, c-format
+#~ msgid "Server does not support PLAIN"
+#~ msgstr "เซิร์ฟเวอร์ไม่รองรับ PLAIN"
+
+#~ msgid "Enterprise domain or realm name"
+#~ msgstr "โดเมนขององค์กรหรือชื่อ realm"
+
+#, c-format
+#~ msgid "The domain is not valid"
+#~ msgstr "โดเมนไม่ถูกต้อง"
+
+#~ msgid "Last.fm"
+#~ msgstr "Last.fm"
+
+#~ msgid "Media Server"
+#~ msgstr "เซิร์ฟเวอร์สื่อ"
+
+#~ msgid ""
+#~ "Personal content can be added to your applications through a media server "
+#~ "account."
+#~ msgstr "เนื้อหาส่วนบุคคลสามารถเพิ่มเข้าในโปรแกรมของคุณได้ผ่านบัญชีเซิร์ฟเวอร์สื่อ"
+
+#~ msgid "Available Media Servers"
+#~ msgstr "เซิร์ฟเวอร์สื่อที่มี"
+
+#~ msgid "No media servers found"
+#~ msgstr "ไม่พบเซิร์ฟเวอร์สื่อ"
+
+#, c-format
+#~ msgid "Missing access_token or access_token_secret headers in response"
+#~ msgstr "ขาดข้อมูลส่วนหัว access_token หรือ access_token_secret ในคำตอบ"
+
+#~ msgid "Error getting a Request Token: "
+#~ msgstr "เกิดข้อผิดพลาดขณะอ่านโทเคนคำร้อง: "
+
+#, c-format
+#~ msgid ""
+#~ "Expected status 200 for getting a Request Token, instead got status %d (%s)"
+#~ msgstr "ต้องการสถานะ 200 สำหรับการอ่านโทเคนคำร้อง แต่กลับได้รับสถานะ %d (%s)"
+
+#, c-format
+#~ msgid "Missing request_token or request_token_secret headers in response"
+#~ msgstr "ขาดข้อมูลส่วนหัว request_token หรือ request_token_secret ในคำตอบ"
+
+#, c-format
+#~ msgid "Credentials do not contain access_token or access_token_secret"
+#~ msgstr "ข้อมูลลับไม่มี access_token หรือ access_token_secret"
+
+#~ msgid "ownCloud"
+#~ msgstr "ownCloud"
+
+#~ msgid "Error connecting to ownCloud server"
+#~ msgstr "เกิดข้อผิดพลาดขณะเชื่อมต่อไปยังเซิร์ฟเวอร์ ownCloud"
+
+#~ msgid "Pocket"
+#~ msgstr "พ็อกเกต"
+
+#, c-format
+#~ msgid "No username or access_token"
+#~ msgstr "ไม่มีชื่อผู้ใช้หรือ access_token"
+
+#, c-format
+#~ msgid "org.gnome.OnlineAccounts.Mail is not available"
+#~ msgstr "ไม่มี org.gnome.OnlineAccounts.Mail"
+
+#, c-format
+#~ msgid "Failed to parse email address"
+#~ msgstr "แจงที่อยู่อีเมลไม่สำเร็จ"
+
+#, c-format
+#~ msgid "Cannot do SMTP authentication without a domain"
+#~ msgstr "ไม่สามารถยืนยันตัวบุคคล SMTP โดยไม่มีโดเมนได้"
+
+#, c-format
+#~ msgid "Did not find smtp-password in credentials"
+#~ msgstr "ไม่พบ smtp-password ในข้อมูลลับ"
+
+#, c-format
+#~ msgid "Cannot do SMTP authentication without a password"
+#~ msgstr "ไม่สามารถยืนยันตัวบุคคล SMTP โดยไม่มีรหัสผ่านได้"
+
+#, c-format
+#~ msgid "Telepathy chat account not found"
+#~ msgstr "ไม่พบบัญชีการสนทนา Telepathy"
+
+#, c-format
+#~ msgid "Failed to create a user interface for %s"
+#~ msgstr "ไม่สามารถสร้างส่วนติดต่อผู้ใช้สำหรับ %s"
+
+#~ msgid "Connection Settings"
+#~ msgstr "ค่าตั้งการเชื่อมต่อ"
+
+#~ msgid "_OK"
+#~ msgstr "_ตกลง"
+
+#~ msgid "Cannot save the connection parameters"
+#~ msgstr "ไม่สามารถบันทึกพารามิเตอร์การเชื่อมต่อ"
+
+#~ msgid "Cannot save your personal information on the server"
+#~ msgstr "ไม่สามารถบันทึกข้อมูลส่วนบุคคลของคุณในเซิร์ฟเวอร์"
+
+#~ msgid "_Connection Settings"
+#~ msgstr "ตั้งค่าการเ_ชื่อมต่อ"
+
+#~ msgid "_Personal Details"
+#~ msgstr "รายละเอียด_ส่วนบุคคล"
+
+#~ msgid "Cannot resolve hostname"
+#~ msgstr "ไม่สามารถเปิดหาที่อยู่จากชื่อโฮสต์"
+
+#~ msgid "Cannot resolve proxy hostname"
+#~ msgstr "ไม่สามารถเปิดหาที่อยู่จากชื่อโฮสต์ของพร็อกซี"
+
+#, c-format
+#~ msgid "Loading “%s”…"
+#~ msgstr "กำลังโหลด “%s”…"
+
+#~ msgid "initial secret passed before secret key exchange"
+#~ msgstr "มีการส่งรหัสลับเริ่มต้นก่อนการแลกเปลี่ยนกุญแจลับ"
+
+#, c-format
+#~ msgid "Could not renew identity: Not signed in"
+#~ msgstr "ไม่สามารถต่ออายุเอกลักษณ์: ไม่ได้เข้าระบบ"
+
+#~ msgid "Could not renew identity: %k"
+#~ msgstr "ไม่สามารถต่ออายุเอกลักษณ์: %k "
+
 #~ msgid "Did not find password with identity ‘%s’ in credentials"
 #~ msgstr "ไม่พบรหัสผ่านที่มีเอกลักษณ์ ‘%s’ ในข้อมูลลับ"
-
-#~ msgid "Failed to initialize a GOA client"
-#~ msgstr "ไม่สามารถตั้งต้นลูกข่าย GOA"
 
 #~ msgid "Windows Live"
 #~ msgstr "Windows Live"
@@ -889,9 +1001,6 @@ msgstr "ไม่สามารถสร้างแคชข้อมูลล
 
 #~ msgid "Expected status 200 when requesting name, instead got status %d (%s)"
 #~ msgstr "ต้องการสถานะ 200 เมื่อร้องขอชื่อ แต่กลับได้รับสถานะ %d (%s)"
-
-#~ msgid "Online Accounts"
-#~ msgstr "บัญชีออนไลน์"
 
 #~ msgid "An online account needs attention"
 #~ msgstr "มีบัญชีออนไลน์มีเรื่องต้องดู"
@@ -924,8 +1033,8 @@ msgstr "ไม่สามารถสร้างแคชข้อมูลล
 #~ msgstr "ไม่พบ access_token ในข้อมูล JSON"
 
 #~ msgid ""
-#~ "Paste authorization code obtained from the <a href=\"%s\">authorization "
-#~ "page</a>:"
+#~ "Paste authorization code obtained from the <a href=\"%s\">authorization page</"
+#~ "a>:"
 #~ msgstr "แปะรหัสตรวจสอบสิทธิ์ที่ได้รับจาก<a href=\"%s\">หน้าตรวจสอบสิทธิ์</a>:"
 
 #~ msgid "Error storing credentials in keyring (%s, %d): "
@@ -947,17 +1056,17 @@ msgstr "ไม่สามารถสร้างแคชข้อมูลล
 #~ msgstr "การเข้าระบบของผู้ดูแลโดเมน"
 
 #~ msgid ""
-#~ "In order to use this enterprise identity, the computer needs to be "
-#~ "enrolled in the domain. Please have your network administrator type their "
-#~ "domain password here."
+#~ "In order to use this enterprise identity, the computer needs to be enrolled in "
+#~ "the domain. Please have your network administrator type their domain password "
+#~ "here."
 #~ msgstr ""
 #~ "ในการใช้เอกลักษณ์ในระบบองค์กรนี้ จะต้องลงทะเบียนคอมพิวเตอร์ในโดเมนเสียก่อน "
 #~ "กรุณาขอให้ผู้ดูแลระบบเครือข่ายของคุณป้อนรหัสผ่านโดเมนของเขาที่นี่"
 
 #~ msgid ""
-#~ "In order to use this enterprise identity, the computer needs to be "
-#~ "enrolled in the domain. Please have your network administrator type their "
-#~ "domain username here."
+#~ "In order to use this enterprise identity, the computer needs to be enrolled in "
+#~ "the domain. Please have your network administrator type their domain username "
+#~ "here."
 #~ msgstr ""
 #~ "ในการใช้เอกลักษณ์ในระบบองค์กรนี้ จะต้องลงทะเบียนคอมพิวเตอร์ในโดเมนเสียก่อน "
 #~ "กรุณาขอให้ผู้ดูแลระบบเครือข่ายของคุณป้อนชื่อผู้ใช้ในโดเมนของเขาที่นี่"

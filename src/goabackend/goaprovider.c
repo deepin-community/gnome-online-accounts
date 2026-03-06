@@ -21,14 +21,15 @@
 #include <glib/gi18n-lib.h>
 
 #include "goaprovider.h"
+#include "goaproviderdialog.h"
 #include "goaprovider-priv.h"
 #include "goaexchangeprovider.h"
 #include "goagoogleprovider.h"
 #include "goaimapsmtpprovider.h"
 #include "goaowncloudprovider.h"
+#include "goawebdavprovider.h"
 #include "goawindowsliveprovider.h"
-#include "goamediaserverprovider.h"
-#include "goalastfmprovider.h"
+#include "goamsgraphprovider.h"
 
 #ifdef GOA_FEDORA_ENABLED
 #include "goafedoraprovider.h"
@@ -75,6 +76,14 @@ static guint goa_provider_get_credentials_generation_real (GoaProvider *self);
 static GIcon *goa_provider_get_provider_icon_real (GoaProvider *self,
                                                    GoaObject   *object);
 
+static GoaObject *goa_provider_real_add_account_finish (GoaProvider   *self,
+                                                        GAsyncResult  *result,
+                                                        GError       **error);
+
+static gboolean goa_provider_real_refresh_account_finish (GoaProvider   *self,
+                                                          GAsyncResult  *result,
+                                                          GError       **error);
+
 static void goa_provider_remove_account_real (GoaProvider          *self,
                                               GoaObject            *object,
                                               GCancellable         *cancellable,
@@ -85,20 +94,20 @@ static gboolean goa_provider_remove_account_finish_real (GoaProvider   *self,
                                                          GAsyncResult  *res,
                                                          GError       **error);
 
-static void goa_provider_show_account_real (GoaProvider         *provider,
+static void goa_provider_real_show_account (GoaProvider         *provider,
                                             GoaClient           *client,
                                             GoaObject           *object,
-                                            GtkBox              *vbox,
-                                            GtkGrid             *dummy1,
-                                            GtkGrid             *dummy2);
+                                            GtkWidget           *parent,
+                                            GCancellable        *cancellable,
+                                            GAsyncReadyCallback  callback,
+                                            gpointer             user_data);
+static gboolean goa_provider_real_show_account_finish (GoaProvider   *self,
+                                                       GAsyncResult  *result,
+                                                       GError       **error);
 
 G_DEFINE_ABSTRACT_TYPE (GoaProvider, goa_provider, G_TYPE_OBJECT);
 
-static struct {
-  GoaProviderFeatures feature;
-  const gchar *property;
-  const gchar *blurb;
-} provider_features_info[] = {
+static GoaProviderFeaturesInfo provider_features_info[] = {
   /* The order in which the features are listed is
    * important because it affects the order in which they are
    * displayed in the show_account() UI
@@ -219,13 +228,16 @@ goa_provider_class_init (GoaProviderClass *klass)
   object_class->set_property = goa_provider_set_property;
   object_class->get_property = goa_provider_get_property;
 
+  klass->add_account_finish = goa_provider_real_add_account_finish;
   klass->build_object = goa_provider_build_object_real;
   klass->ensure_credentials_sync = goa_provider_ensure_credentials_sync_real;
   klass->get_credentials_generation = goa_provider_get_credentials_generation_real;
   klass->get_provider_icon = goa_provider_get_provider_icon_real;
+  klass->refresh_account_finish = goa_provider_real_refresh_account_finish;
   klass->remove_account = goa_provider_remove_account_real;
   klass->remove_account_finish = goa_provider_remove_account_finish_real;
-  klass->show_account = goa_provider_show_account_real;
+  klass->show_account = goa_provider_real_show_account;
+  klass->show_account_finish = goa_provider_real_show_account_finish;
 
 /**
  * GoaProvider:preseed-data
@@ -373,6 +385,151 @@ goa_provider_get_provider_group (GoaProvider *self)
   return GOA_PROVIDER_GET_CLASS (self)->get_provider_group (self);
 }
 
+static const gchar *
+goa_get_feature_alias (GoaProviderFeatures feature)
+{
+  switch (feature) {
+  case GOA_PROVIDER_FEATURE_MAIL:
+    return "mail";
+  case GOA_PROVIDER_FEATURE_CALENDAR:
+    return "calendar";
+  case GOA_PROVIDER_FEATURE_CONTACTS:
+    return "contacts";
+  case GOA_PROVIDER_FEATURE_CHAT:
+    return "chat";
+  case GOA_PROVIDER_FEATURE_DOCUMENTS:
+    return "documents";
+  case GOA_PROVIDER_FEATURE_PHOTOS:
+    return "photos";
+  case GOA_PROVIDER_FEATURE_FILES:
+    return "files";
+  case GOA_PROVIDER_FEATURE_TICKETING:
+    return "ticketing";
+  case GOA_PROVIDER_FEATURE_READ_LATER:
+    return "read-later";
+  case GOA_PROVIDER_FEATURE_PRINTERS:
+    return "printers";
+  case GOA_PROVIDER_FEATURE_MAPS:
+    return "maps";
+  case GOA_PROVIDER_FEATURE_MUSIC:
+    return "music";
+  case GOA_PROVIDER_FEATURE_TODO:
+    return "todo";
+  case GOA_PROVIDER_FEATURE_BRANDED:
+  case GOA_PROVIDER_FEATURE_INVALID:
+    break;
+  }
+  return NULL;
+}
+
+/**
+ * goa_util_open_goa_conf:
+ *
+ * Reads goa.conf file from the system config directory and
+ * returns it for use for example by goa_util_provider_feature_is_enabled().
+ * It returns %NULL, when the file cannot be opened.
+ *
+ * Free the returned #GKeyFile with g_key_file_free(), when no longer needed.
+ *
+ * Returns: (nullable) (transfer full): a new #GKeyFile containing goa.conf
+ *    file, or %NULL, when it cannot be opened.
+ *
+ * Since: 3.52
+ */
+GKeyFile *
+goa_util_open_goa_conf (void)
+{
+  GKeyFile *goa_conf;
+  GError *error = NULL;
+
+  goa_conf = g_key_file_new ();
+  if (!g_key_file_load_from_file (goa_conf, GOA_CONF_FILENAME, G_KEY_FILE_NONE, &error))
+    {
+      g_debug ("Failed to load '%s': %s", GOA_CONF_FILENAME, error ? error->message : "Unknown error");
+      g_clear_error (&error);
+      g_key_file_free (goa_conf);
+      goa_conf = NULL;
+    }
+
+  return goa_conf;
+}
+
+/**
+ * goa_util_provider_feature_is_enabled:
+ * @goa_conf: (nullable): a #GKeyFile with loaded goa.conf file, or %NULL
+ * @provider_type: a provider type string
+ * @feature: a feature to check, one of %GoaProviderFeatures
+ *
+ * Checks in the @goa_conf, whether the @provider_type can use
+ * the @feature. The @goa_conf is a %GKeyFile returned by
+ * goa_util_open_goa_conf(), it can be %NULL, in which case
+ * the @feature is considered enabled.
+ *
+ * Returns: %TRUE, when the @feature is enabled, %FALSE otherwise
+ *
+ * Since: 3.52
+ */
+gboolean
+goa_util_provider_feature_is_enabled (GKeyFile *goa_conf,
+				      const gchar *provider_type,
+				      GoaProviderFeatures feature)
+{
+  GError *error = NULL;
+  const gchar *feature_alias;
+  gboolean enabled;
+
+  if (!goa_conf)
+    return TRUE;
+
+  g_return_val_if_fail (provider_type != NULL, TRUE);
+
+  feature_alias = goa_get_feature_alias (feature);
+  g_return_val_if_fail (feature_alias != NULL, TRUE);
+
+  enabled = g_key_file_get_boolean (goa_conf, provider_type, feature_alias, &error);
+  if (error)
+    {
+      g_clear_error (&error);
+      enabled = g_key_file_get_boolean (goa_conf, "all", feature_alias, &error);
+      if (error)
+        {
+          g_clear_error (&error);
+          enabled = TRUE;
+        }
+    }
+
+  return enabled;
+}
+
+static GoaProviderFeatures
+goa_provider_filter_features (GoaProvider *self,
+			      GoaProviderFeatures features)
+{
+  GKeyFile *goa_conf;
+  const gchar *provider_type;
+  guint i;
+
+  goa_conf = goa_util_open_goa_conf ();
+  if (!goa_conf)
+    return features;
+
+  provider_type = goa_provider_get_provider_type (self);
+
+  for (i = 0; provider_features_info[i].property != NULL; i++)
+    {
+      GoaProviderFeatures feature = provider_features_info[i].feature;
+      if ((features & feature) != 0 &&
+	  !goa_util_provider_feature_is_enabled (goa_conf, provider_type, feature))
+        {
+          features = features & (~feature);
+        }
+    }
+
+  g_key_file_free (goa_conf);
+
+  return features;
+}
+
 /**
  * goa_provider_get_provider_features:
  * @self: A #GoaProvider.
@@ -389,28 +546,83 @@ goa_provider_get_provider_features (GoaProvider *self)
 {
   g_return_val_if_fail (GOA_IS_PROVIDER (self), GOA_PROVIDER_FEATURE_INVALID);
   g_return_val_if_fail (GOA_PROVIDER_GET_CLASS (self)->get_provider_features != NULL, GOA_PROVIDER_FEATURE_INVALID);
-  return GOA_PROVIDER_GET_CLASS (self)->get_provider_features (self);
+  return goa_provider_filter_features (self, GOA_PROVIDER_GET_CLASS (self)->get_provider_features (self));
+}
+
+/*< private >
+ * goa_provider_get_provider_features_infos:
+ *
+ * Get the list of `GoaProviderFeaturesInfo` structs.
+ *
+ * The order of features in the array reflects the order that should be used
+ * by user interfaces.
+ *
+ * It ends with an element with `feature` set to `GOA_PROVIDER_FEATURE_INVALID`.
+ *
+ * Returns: (array) (element-type Goa.ProviderFeatureInfo): an array of structs
+ */
+GoaProviderFeaturesInfo *
+goa_provider_get_provider_features_infos (void)
+{
+  return provider_features_info;
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
 
 /**
- * goa_provider_add_account:
- * @self: A #GoaProvider.
- * @client: A #GoaClient.
- * @dialog: A #GtkDialog.
- * @vbox: A vertically oriented #GtkBox to put content in.
- * @error: Return location for error or %NULL.
+ * goa_provider_add_account: (vfunc add_account)
+ * @self: a `GoaProvider`
+ * @client: a `GoaClient`
+ * @parent: (nullable): a `GtkWidget`
+ * @cancellable: (nullable): a `GCancellable`
+ * @callback: (scope async): a `GAsyncReadyCallback`
+ * @user_data: (closure): user supplied data
  *
  * This method brings up the user interface necessary to create a new
  * account on @client of the type for @self, interacts with the
  * user to get all information needed and creates the account.
  *
- * The passed in @dialog widget is guaranteed to be visible with @vbox
- * being empty and the only visible widget in @dialog's content
- * area. The dialog has exactly one action widget, a cancel button
- * with response id GTK_RESPONSE_CANCEL. Implementations are free to
- * add additional action widgets, as needed.
+ * Call [method@Goa.Provider.add_account_finish] to get the result.
+ *
+ * This is a pure virtual method - a subclass must provide an
+ * implementation.
+ */
+void
+goa_provider_add_account (GoaProvider         *self,
+                          GoaClient           *client,
+                          GtkWidget           *parent,
+                          GCancellable        *cancellable,
+                          GAsyncReadyCallback  callback,
+                          gpointer             user_data)
+{
+  g_return_if_fail (GOA_IS_PROVIDER (self));
+  g_return_if_fail (GOA_IS_CLIENT (client));
+  g_return_if_fail (parent == NULL || GTK_IS_WIDGET (parent));
+  g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
+
+  GOA_PROVIDER_GET_CLASS (self)->add_account (self,
+                                              client,
+                                              parent,
+                                              cancellable,
+                                              callback,
+                                              user_data);
+}
+
+static GoaObject *
+goa_provider_real_add_account_finish (GoaProvider   *provider,
+                                      GAsyncResult  *result,
+                                      GError       **error)
+{
+  return g_task_propagate_pointer (G_TASK (result), error);
+}
+
+/**
+ * goa_provider_add_account_finish: (vfunc add_account_finish)
+ * @provider: a `GoaProvider`
+ * @result: a `GAsyncResult`
+ * @error: (nullable): a `GError`
+ *
+ * Finish an operation started with [method@Goa.Provider.add_account].
  *
  * If an account was successfully created, a #GoaObject for the
  * created account is returned. If @dialog is dismissed, %NULL is
@@ -422,161 +634,193 @@ goa_provider_get_provider_features (GoaProvider *self)
  * The caller will always show an error dialog if @error is set unless
  * the error is %GOA_ERROR_DIALOG_DISMISSED.
  *
- * Implementations should run the <link
- * linkend="g_main_context_default">default main loop</link> while
- * interacting with the user and may do so using e.g. gtk_dialog_run()
- * on @dialog.
- *
- * This is a pure virtual method - a subclass must provide an
- * implementation.
- *
- * Returns: The #GoaObject for the created account (must be relased
- *   with g_object_unref()) or %NULL if @error is set.
+ * Returns: (transfer full): a `GoaObject`, or %NULL with @error set
  */
 GoaObject *
-goa_provider_add_account (GoaProvider  *self,
-                          GoaClient    *client,
-                          GtkDialog    *dialog,
-                          GtkBox       *vbox,
-                          GError      **error)
+goa_provider_add_account_finish (GoaProvider   *provider,
+                                 GAsyncResult  *result,
+                                 GError       **error)
 {
-  GoaObject *ret;
-
-  g_return_val_if_fail (GOA_IS_PROVIDER (self), NULL);
-  g_return_val_if_fail (GOA_IS_CLIENT (client), NULL);
-  g_return_val_if_fail (GTK_IS_DIALOG (dialog), NULL);
+  g_return_val_if_fail (GOA_IS_PROVIDER (provider), NULL);
+  g_return_val_if_fail (g_task_is_valid (result, provider), NULL);
   g_return_val_if_fail (error == NULL || *error == NULL, NULL);
 
-  ret = GOA_PROVIDER_GET_CLASS (self)->add_account (self, client, dialog, vbox, error);
-
-  g_warn_if_fail ((ret == NULL && (error == NULL || *error != NULL)) || GOA_IS_OBJECT (ret));
-
-  return ret;
+  return GOA_PROVIDER_GET_CLASS (provider)->add_account_finish (provider,
+                                                                result,
+                                                                error);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
 
 /**
  * goa_provider_refresh_account:
- * @self: A #GoaProvider.
- * @client: A #GoaClient.
- * @object: A #GoaObject with a #GoaAccount interface.
- * @parent: (allow-none): Transient parent of dialogs or %NULL.
- * @error: Return location for error or %NULL.
+ * @self: a `GoaProvider`
+ * @client: a `GoaClient`
+ * @object: A `GoaObject` with a `GoaAccount` interface
+ * @parent: (nullable): a `GtkWidget`
+ * @cancellable: (nullable): a `GCancellable`
+ * @callback: (scope async): a `GAsyncReadyCallback`
+ * @user_data: (closure): user supplied data
  *
  * This method brings up the user interface necessary for refreshing
  * the credentials for the account specified by @object. This
  * typically involves having the user log in to the account again.
  *
- * Implementations should use @parent (unless %NULL) as the transient
- * parent of any created windows/dialogs.
- *
- * Implementations should run the <link
- * linkend="g_main_context_default">default main loop</link> while
- * interacting with the user.
- *
  * This is a pure virtual method - a subclass must provide an
  * implementation.
+ */
+void
+goa_provider_refresh_account (GoaProvider         *self,
+                              GoaClient           *client,
+                              GoaObject           *object,
+                              GtkWidget           *parent,
+                              GCancellable        *cancellable,
+                              GAsyncReadyCallback  callback,
+                              gpointer             user_data)
+{
+  g_return_if_fail (GOA_IS_PROVIDER (self));
+  g_return_if_fail (GOA_IS_CLIENT (client));
+  g_return_if_fail (GOA_IS_OBJECT (object) && goa_object_peek_account (object) != NULL);
+  g_return_if_fail (parent == NULL || GTK_IS_WIDGET (parent));
+  g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
+
+  return GOA_PROVIDER_GET_CLASS (self)->refresh_account (self,
+                                                         client,
+                                                         object,
+                                                         parent,
+                                                         cancellable,
+                                                         callback,
+                                                         user_data);
+}
+
+static gboolean
+goa_provider_real_refresh_account_finish (GoaProvider   *provider,
+                                          GAsyncResult  *result,
+                                          GError       **error)
+{
+  return g_task_propagate_boolean (G_TASK (result), error);
+}
+
+/**
+ * goa_provider_refresh_account_finish: (vfunc refresh_account_finish)
+ * @provider: a `GoaProvider`
+ * @result: a `GAsyncResult`
+ * @error: (nullable): a `GError`
  *
- * Returns: %TRUE if the account has been refreshed, %FALSE if @error
- * is set.
+ * Finish an operation started with [method@Goa.Provider.refresh_account].
+ *
+ * The caller will always show an error dialog if @error is set unless
+ * the error is %GOA_ERROR_DIALOG_DISMISSED.
+ *
+ * Returns: (transfer full): a `GoaObject`, or %NULL with @error set
  */
 gboolean
-goa_provider_refresh_account (GoaProvider  *self,
-                              GoaClient    *client,
-                              GoaObject    *object,
-                              GtkWindow    *parent,
-                              GError      **error)
+goa_provider_refresh_account_finish (GoaProvider   *provider,
+                                     GAsyncResult  *result,
+                                     GError       **error)
 {
-  g_return_val_if_fail (GOA_IS_PROVIDER (self), FALSE);
-  g_return_val_if_fail (GOA_IS_CLIENT (client), FALSE);
-  g_return_val_if_fail (GOA_IS_OBJECT (object) && goa_object_peek_account (object) != NULL, FALSE);
-  g_return_val_if_fail (parent == NULL || GTK_IS_WINDOW (parent), FALSE);
+  g_return_val_if_fail (GOA_IS_PROVIDER (provider), FALSE);
+  g_return_val_if_fail (g_task_is_valid (result, provider), FALSE);
   g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
 
-  return GOA_PROVIDER_GET_CLASS (self)->refresh_account (self, client, object, parent, error);
+
+  return GOA_PROVIDER_GET_CLASS (provider)->refresh_account_finish (provider,
+                                                                    result,
+                                                                    error);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+static void
+goa_provider_real_show_account (GoaProvider         *self,
+                                GoaClient           *client,
+                                GoaObject           *object,
+                                GtkWidget           *parent,
+                                GCancellable        *cancellable,
+                                GAsyncReadyCallback  callback,
+                                gpointer             user_data)
+{
+  GoaProviderDialog *dialog;
+  g_autoptr(GTask) task = NULL;
+
+  dialog = goa_provider_dialog_new (self, client, parent);
+  goa_provider_dialog_push_account (dialog, object, NULL);
+
+  task = g_task_new (self, cancellable, callback, user_data);
+  g_task_set_check_cancellable (task, FALSE);
+  g_task_set_source_tag (task, goa_provider_real_show_account);
+  goa_provider_task_run_in_dialog (task, dialog);
+}
+
 /**
- * goa_provider_show_account:
- * @self: A #GoaProvider.
- * @client: A #GoaClient.
- * @object: A #GoaObject with a #GoaAccount interface.
- * @vbox: A vertically oriented #GtkBox to put content in.
- * @grid: A #GtkGrid to put content in.
- * @dummy: Unused.
+ * goa_provider_show_account: (vfunc show_account)
+ * @self: a `GoaProvider`
+ * @client: a `GoaClient`
+ * @object: A `GoaObject` with a `GoaAccount` interface
+ * @parent: (nullable): a `GtkWidget`
+ * @cancellable: (nullable): a `GCancellable`
+ * @callback: (scope async): a `GAsyncReadyCallback`
+ * @user_data: (closure): user supplied data
  *
- * Method used to add widgets in the control panel for the account
- * represented by @object.
+ * Method to display a dialog for an enrolled account.
  *
- * This is a virtual method where the default implementation adds
- * one GtkSwitch per service supported by the provider (as reported
- * by goa_provider_get_provider_features()).
+ * The default implementation creates a dialog with a branded header and
+ * toggles for each `GoaProviderFeatures` supported by the provider.
  */
 void
 goa_provider_show_account (GoaProvider         *self,
                            GoaClient           *client,
                            GoaObject           *object,
-                           GtkBox              *vbox,
-                           GtkGrid             *dummy1,
-                           GtkGrid             *dummy2)
+                           GtkWidget           *parent,
+                           GCancellable        *cancellable,
+                           GAsyncReadyCallback  callback,
+                           gpointer             user_data)
 {
   g_return_if_fail (GOA_IS_PROVIDER (self));
   g_return_if_fail (GOA_IS_CLIENT (client));
   g_return_if_fail (GOA_IS_OBJECT (object) && goa_object_peek_account (object) != NULL);
-  g_return_if_fail (GTK_IS_BOX (vbox));
+  g_return_if_fail (parent == NULL || GTK_IS_WIDGET (parent));
+  g_return_if_fail (cancellable == NULL || G_IS_CANCELLABLE (cancellable));
 
-  GOA_PROVIDER_GET_CLASS (self)->show_account (self, client, object, vbox, dummy1, dummy2);
+  return GOA_PROVIDER_GET_CLASS (self)->show_account (self,
+                                                      client,
+                                                      object,
+                                                      parent,
+                                                      cancellable,
+                                                      callback,
+                                                      user_data);
 }
 
-static void
-goa_provider_show_account_real (GoaProvider         *provider,
-                                GoaClient           *client,
-                                GoaObject           *object,
-                                GtkBox              *vbox,
-                                GtkGrid             *dummy1,
-                                GtkGrid             *dummy2)
+static gboolean
+goa_provider_real_show_account_finish (GoaProvider   *provider,
+                                       GAsyncResult  *result,
+                                       GError       **error)
 {
-  GoaProviderFeatures features;
-  GtkWidget *grid;
-  gint row;
-  guint i;
-  const char *label;
+  return g_task_propagate_boolean (G_TASK (result), error);
+}
 
-  row = 0;
+/**
+ * goa_provider_show_account_finish: (vfunc show_account_finish)
+ * @provider: a `GoaProvider`
+ * @result: a `GAsyncResult`
+ * @error: (nullable): a `GError`
+ *
+ * Finish an operation started with [method@Goa.Provider.show_account].
+ *
+ * Returns: (transfer full): a `GoaObject`, or %NULL with @error set
+ */
+gboolean
+goa_provider_show_account_finish (GoaProvider   *provider,
+                                  GAsyncResult  *result,
+                                  GError       **error)
+{
+  g_return_val_if_fail (GOA_IS_PROVIDER (provider), FALSE);
+  g_return_val_if_fail (g_task_is_valid (result, provider), FALSE);
+  g_return_val_if_fail (error == NULL || *error == NULL, FALSE);
 
-  goa_utils_account_add_attention_needed (client, object, provider, vbox);
-
-  grid = gtk_grid_new ();
-  gtk_widget_set_halign (grid, GTK_ALIGN_CENTER);
-  gtk_widget_set_hexpand (grid, TRUE);
-  gtk_widget_set_margin_end (grid, 72);
-  gtk_widget_set_margin_start (grid, 72);
-  gtk_widget_set_margin_top (grid, 24);
-  gtk_grid_set_column_spacing (GTK_GRID (grid), 12);
-  gtk_grid_set_row_spacing (GTK_GRID (grid), 6);
-  gtk_container_add (GTK_CONTAINER (vbox), grid);
-
-  goa_utils_account_add_header (object, GTK_GRID (grid), row++);
-
-  features = goa_provider_get_provider_features (provider);
-  /* Translators: This is a label for a series of
-   * options switches. For example: “Use for Mail”. */
-  label = _("Use for");
-
-  for (i = 0; provider_features_info[i].property != NULL; i++)
-    {
-      if ((features & provider_features_info[i].feature) != 0)
-        {
-          goa_util_add_row_switch_from_keyfile_with_blurb (GTK_GRID (grid), row++, object,
-                                                           label,
-                                                           provider_features_info[i].property,
-                                                           _(provider_features_info[i].blurb));
-          label = NULL;
-        }
-    }
+  return GOA_PROVIDER_GET_CLASS (provider)->show_account_finish (provider,
+                                                                 result,
+                                                                 error);
 }
 
 /* ---------------------------------------------------------------------------------------------------- */
@@ -944,20 +1188,20 @@ static struct
 #ifdef GOA_EXCHANGE_ENABLED
   { GOA_EXCHANGE_NAME, goa_exchange_provider_get_type },
 #endif
-#ifdef GOA_LASTFM_ENABLED
-  { GOA_LASTFM_NAME, goa_lastfm_provider_get_type },
-#endif
 #ifdef GOA_FEDORA_ENABLED
   { GOA_FEDORA_NAME, goa_fedora_provider_get_type },
 #endif
 #ifdef GOA_IMAP_SMTP_ENABLED
   { GOA_IMAP_SMTP_NAME, goa_imap_smtp_provider_get_type },
 #endif
+#ifdef GOA_WEBDAV_ENABLED
+  { GOA_WEBDAV_NAME, goa_webdav_provider_get_type },
+#endif
 #ifdef GOA_KERBEROS_ENABLED
   { GOA_KERBEROS_NAME, goa_kerberos_provider_get_type },
 #endif
-#ifdef GOA_MEDIA_SERVER_ENABLED
-  { GOA_MEDIA_SERVER_NAME, goa_media_server_provider_get_type },
+#ifdef GOA_MS_GRAPH_ENABLED
+  { GOA_MS_GRAPH_NAME, goa_ms_graph_provider_get_type },
 #endif
   { NULL, NULL }
 };
@@ -971,14 +1215,35 @@ goa_provider_ensure_builtins_loaded (void)
 
   if (g_once_init_enter (&once_init_value))
     {
-      GSettings *settings;
-      gchar **whitelisted_providers;
+      GKeyFile *goa_conf;
+      gchar **whitelisted_providers = NULL;
       guint i;
       guint j;
       gboolean all = FALSE;
 
-      settings = g_settings_new (GOA_SETTINGS_SCHEMA);
-      whitelisted_providers = g_settings_get_strv (settings, GOA_SETTINGS_WHITELISTED_PROVIDERS);
+      goa_conf = goa_util_open_goa_conf ();
+      if (goa_conf)
+        {
+          whitelisted_providers = g_key_file_get_string_list (goa_conf, "providers", "enable", NULL, NULL);
+          /* Let the empty array be like 'all' */
+          if (whitelisted_providers && !*whitelisted_providers)
+            {
+              g_strfreev (whitelisted_providers);
+              whitelisted_providers = g_new0 (gchar *, 2);
+              whitelisted_providers[0] = g_strdup ("all");
+              whitelisted_providers[1] = NULL;
+            }
+          g_clear_pointer (&goa_conf, g_key_file_free);
+        }
+
+      if (!whitelisted_providers)
+        {
+          GSettings *settings;
+
+          settings = g_settings_new (GOA_SETTINGS_SCHEMA);
+          whitelisted_providers = g_settings_get_strv (settings, GOA_SETTINGS_WHITELISTED_PROVIDERS);
+          g_object_unref (settings);
+        }
 
       /* Enable everything if there is 'all'. */
       for (i = 0; whitelisted_providers[i] != NULL; i++)
@@ -1017,7 +1282,6 @@ goa_provider_ensure_builtins_loaded (void)
 
     cleanup:
       g_strfreev (whitelisted_providers);
-      g_object_unref (settings);
       g_once_init_leave (&once_init_value, 1);
     }
 }
@@ -1106,8 +1370,7 @@ goa_provider_get_all (GAsyncReadyCallback callback,
     }
 
   g_task_return_pointer (task, g_steal_pointer (&providers), free_list_and_unref);
-
-  g_list_free_full (providers, g_object_unref);
+  g_object_unref (task);
 }
 
 /**
@@ -1253,35 +1516,6 @@ goa_provider_get_preseed_data (GoaProvider *self)
 
 /* ---------------------------------------------------------------------------------------------------- */
 
-GtkWidget *
-goa_util_add_row_widget (GtkGrid      *grid,
-                         gint          row,
-                         const gchar  *label_text,
-                         GtkWidget    *widget)
-{
-  GtkWidget *label;
-
-  g_return_val_if_fail (GTK_IS_GRID (grid), NULL);
-  g_return_val_if_fail (GTK_IS_WIDGET (widget), NULL);
-
-  if (label_text != NULL)
-    {
-      GtkStyleContext *context;
-
-      label = gtk_label_new (label_text);
-      context = gtk_widget_get_style_context (label);
-      gtk_style_context_add_class (context, GTK_STYLE_CLASS_DIM_LABEL);
-      gtk_widget_set_halign (label, GTK_ALIGN_END);
-      gtk_widget_set_hexpand (label, TRUE);
-      gtk_grid_attach (grid, label, 0, row, 1, 1);
-    }
-
-  gtk_grid_attach (grid, widget, 1, row, 3, 1);
-  return widget;
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-
 gchar *
 goa_util_lookup_keyfile_string (GoaObject    *object,
                                 const gchar  *key)
@@ -1406,55 +1640,4 @@ goa_util_account_notify_property_cb (GObject *object, GParamSpec *pspec, gpointe
 
   g_object_get (account, name, &value, NULL);
   goa_utils_keyfile_set_boolean (account, key, !value);
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-
-GtkWidget *
-goa_util_add_row_switch_from_keyfile_with_blurb (GtkGrid      *grid,
-                                                 gint          row,
-                                                 GoaObject    *object,
-                                                 const gchar  *label_text,
-                                                 const gchar  *property,
-                                                 const gchar  *blurb)
-{
-  GoaAccount *account;
-  GtkWidget *hbox;
-  GtkWidget *switch_;
-  gboolean value;
-
-  account = goa_object_peek_account (object);
-  g_object_get (account, property, &value, NULL);
-  switch_ = gtk_switch_new ();
-
-  if (goa_account_get_attention_needed (account))
-    {
-      gtk_widget_set_sensitive (switch_, FALSE);
-      gtk_switch_set_active (GTK_SWITCH (switch_), FALSE);
-    }
-  else
-    {
-      gtk_switch_set_active (GTK_SWITCH (switch_), !value);
-      g_object_bind_property (switch_, "active",
-                              account, property,
-                              G_BINDING_BIDIRECTIONAL | G_BINDING_INVERT_BOOLEAN);
-    }
-
-  hbox = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 6);
-  gtk_box_set_homogeneous (GTK_BOX (hbox), FALSE);
-
-  if (blurb != NULL)
-    {
-      GtkWidget *label;
-
-      label = gtk_label_new_with_mnemonic (blurb);
-      gtk_label_set_mnemonic_widget (GTK_LABEL (label), switch_);
-      gtk_label_set_width_chars (GTK_LABEL (label), 18);
-      gtk_label_set_xalign (GTK_LABEL (label), 0.0);
-      gtk_container_add (GTK_CONTAINER (hbox), label);
-    }
-
-  gtk_container_add (GTK_CONTAINER (hbox), switch_);
-  goa_util_add_row_widget (grid, row, label_text, hbox);
-  return switch_;
 }
