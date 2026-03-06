@@ -1,72 +1,107 @@
 # Persian translation for gnome-online-accounts.
 # Copyright (C) 2011 gnome-online-accounts's COPYRIGHT HOLDER
 # This file is distributed under the same license as the gnome-online-accounts package.
-# Arash Mousavi <mousavi.arash@gmail.com>, 2011, 2012, 2013, 2014, 2015.
-# Danial Behzadi <dani.behzi@ubuntu.com>, 2012, 2014.
+# Arash Mousavi <mousavi.arash@gmail.com>, 2011-2015.
+# Danial Behzadi <dani.behzi@ubuntu.com>, 2016-2025.
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: gnome-online-accounts master\n"
 "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/gnome-online-accounts/"
 "issues\n"
-"POT-Creation-Date: 2019-08-21 11:31+0000\n"
-"PO-Revision-Date: 2019-08-21 16:27+0430\n"
+"POT-Creation-Date: 2025-02-12 23:03+0000\n"
+"PO-Revision-Date: 2025-02-23 21:03+0330\n"
 "Last-Translator: Danial Behzadi <dani.behzi@ubuntu.com>\n"
-"Language-Team: Persian <>\n"
+"Language-Team: Persian <dani.behzi@ubuntu.com>\n"
 "Language: fa\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 2.2.1\n"
+"X-Generator: Poedit 3.5\n"
 
 #: data/org.gnome.online-accounts.gschema.xml:6
 msgid "List of providers that are allowed to be loaded"
-msgstr "فهرست خدمات‌دهنده‌های مجاز برای بار شدن"
+msgstr "سیاههٔ فراهم‌کنندگانی که مجازند بار شوند"
 
 #: data/org.gnome.online-accounts.gschema.xml:7
 msgid ""
 "A list of strings representing the providers that are allowed to be loaded "
-"(default: 'all'). This is only evaluated on startup."
+"(default: 'all'). This is only evaluated on startup. Deprecated: use goa.conf in "
+"the system config directory instead, with a key [providers] enable=all instead. "
+"The key is comma-separated list of the provider names."
 msgstr ""
-"فهرستی از رشته‌ها که بیانگر خدمات‌دهنده‌های مجاز برای بار شدن هستند (پیش‌گزیده: "
-"all). تنها در هنگام شروع، ارزیابی می‌شود."
+"سیاهه‌ای از رشته‌ها که بیانگر خدمات‌دهنده‌های مجاز برای بار شدن هستند (پیش‌گزیده: "
+"all). تنها در هنگام شروع، ارزیابی می‌شود. منقضی: به جایش از goa.conf در شاخهٔ "
+"پیکربندی سامانه سامانه استفاده کنید."
 
 #. TODO: more specific
-#: src/daemon/goadaemon.c:1136 src/daemon/goadaemon.c:1433
+#: src/daemon/goadaemon.c:1162 src/daemon/goadaemon.c:1482
 #, c-format
 msgid "Failed to find a provider for: %s"
 msgstr "یافتن فراهم‌کننده شکست خورد: %s"
 
-#: src/daemon/goadaemon.c:1376
+#: src/daemon/goadaemon.c:1425
 msgid "IsLocked property is set for account"
 msgstr "مشخصه IsLocked برای حساب تنظیم شده است"
 
 #. TODO: more specific
-#: src/daemon/goadaemon.c:1421
+#: src/daemon/goadaemon.c:1470
 msgid "ProviderType property is not set for account"
 msgstr "ویژگی «نوع فراهم‌کننده» برای حساب کاربری تنظیم نشده است"
 
+#: src/daemon/goadaemon.c:1632
+#, c-format
+msgid "Failed to sign in to “%s”"
+msgstr "شکست در ورود به «%s»"
+
+#: src/daemon/goadaemon.c:1637
+msgid "Failed to sign in to multiple accounts"
+msgstr "شکست در ورود به چندین حساب"
+
+#: src/daemon/goadaemon.c:1646
+msgid "Online Accounts"
+msgstr "حساب‌های کاربری برخط"
+
+#: src/daemon/goadaemon.c:1649
+msgid "Account Action Required"
+msgstr "نیاز به کنش حساب"
+
 #. TODO: more specific
-#: src/goabackend/goaewsclient.c:258
+#: src/goabackend/goadavclient.c:1190 src/goabackend/goaimapauthlogin.c:104
+#: src/goabackend/goasmtpauth.c:102 src/goabackend/goautils.c:802
+msgid "Authentication failed"
+msgstr "تصدیق‌هویت شکست خورد"
+
+#: src/goabackend/goadavclient.c:1197
+msgid "Cannot find WebDAV endpoint"
+msgstr "امکان یافتن مقصد WebDAV نبود"
+
+#: src/goabackend/goadavclient.c:1298 src/goabackend/goawebdavprovider.c:648
+#, c-format
+msgid "Invalid URI: %s"
+msgstr "نشانی نامعتبر: %s"
+
+#. TODO: more specific
+#: src/goabackend/goaewsclient.c:278
 msgid "Failed to parse autodiscover response XML"
 msgstr "تجزیهٔ XML پاسخ کشف خودکار با شکست مواجه شد"
 
 #. TODO: more specific
 #. Translators: the parameter is an XML element name.
-#: src/goabackend/goaewsclient.c:269 src/goabackend/goaewsclient.c:284
-#: src/goabackend/goaewsclient.c:299
+#: src/goabackend/goaewsclient.c:289 src/goabackend/goaewsclient.c:304
+#: src/goabackend/goaewsclient.c:319
 #, c-format
 msgid "Failed to find “%s” element"
 msgstr "شکست در یافتن عنصر «%s»"
 
 #. TODO: more specific
-#: src/goabackend/goaewsclient.c:320
-msgid "Failed to find ASUrl and OABUrl in autodiscover response"
-msgstr "یافتن ASUrl و OABUrl در پاسخ کشف خودکار با شکست مواجه شد"
+#: src/goabackend/goaewsclient.c:340
+msgid "Failed to find ASUrl in autodiscover response"
+msgstr "شکست در یافتن ASUrl در پاسخ کشف خودکار"
 
-#: src/goabackend/goaexchangeprovider.c:51
+#: src/goabackend/goaexchangeprovider.c:52
 msgid "Microsoft Exchange"
 msgstr "اکسچنج مایکروسافت"
 
@@ -74,219 +109,102 @@ msgstr "اکسچنج مایکروسافت"
 #. * (eg., debarshi.ray@gmail.com or rishi), and the
 #. * (%s, %d) is the error domain and code.
 #.
-#: src/goabackend/goaexchangeprovider.c:248 src/goabackend/goalastfmprovider.c:287
-#: src/goabackend/goaowncloudprovider.c:291
+#: src/goabackend/goaexchangeprovider.c:258 src/goabackend/goawebdavprovider.c:304
 #, c-format
 msgid "Invalid password with username “%s” (%s, %d): "
 msgstr "گذرواژه با نام کاربری «%s» نامعتبر است (%s، %Id): "
 
-#: src/goabackend/goaexchangeprovider.c:394
-#: src/goabackend/goaimapsmtpprovider.c:647
-msgid "_E-mail"
+#. provider name
+#: src/goabackend/goaexchangeprovider.c:389
+msgid ""
+"Connect to a Microsoft Exchange provider to access calendars, contacts and files"
+msgstr ""
+"وصل شدن به فراهم‌کنندهٔ اکسچنج مایکروسافت برای دسترسی به تقویم‌ها، آشنایان و پرونده‌ها"
+
+#: src/goabackend/goaexchangeprovider.c:392 src/goabackend/goaimapsmtpprovider.c:701
+msgid "_Email"
 msgstr "_رایانامه"
 
-#: src/goabackend/goaexchangeprovider.c:395 src/goabackend/goafedoraprovider.c:574
-#: src/goabackend/goaimapsmtpprovider.c:667
-#: src/goabackend/goaimapsmtpprovider.c:687 src/goabackend/goalastfmprovider.c:429
-#: src/goabackend/goaowncloudprovider.c:509
+#: src/goabackend/goaexchangeprovider.c:393 src/goabackend/goafedoraprovider.c:171
+#: src/goabackend/goaimapsmtpprovider.c:702 src/goabackend/goaimapsmtpprovider.c:745
+#: src/goabackend/goaimapsmtpprovider.c:789 src/goabackend/goawebdavprovider.c:408
 msgid "_Password"
 msgstr "_گذرواژه"
 
-#: src/goabackend/goaexchangeprovider.c:398
-msgid "_Custom"
-msgstr "_سفارشی"
+#: src/goabackend/goaexchangeprovider.c:394
+msgid ""
+"Exchange account details will be auto-detected from your email address when "
+"possible"
+msgstr ""
+"جزییات حساب اکسچنج در صورت امکان به طور خودکار از نشانی رایانامه‌تان تشخیص داده "
+"می‌شوند"
 
-#: src/goabackend/goaexchangeprovider.c:409 src/goabackend/goafedoraprovider.c:573
-#: src/goabackend/goaimapsmtpprovider.c:666
-#: src/goabackend/goaimapsmtpprovider.c:686 src/goabackend/goalastfmprovider.c:428
-#: src/goabackend/goaowncloudprovider.c:508
+#: src/goabackend/goaexchangeprovider.c:405
+msgid "Account Details"
+msgstr "جزییات حساب"
+
+#: src/goabackend/goaexchangeprovider.c:406 src/goabackend/goafedoraprovider.c:170
+#: src/goabackend/goaimapsmtpprovider.c:744 src/goabackend/goaimapsmtpprovider.c:788
+#: src/goabackend/goawebdavprovider.c:407
 msgid "User_name"
 msgstr "نام _کاربری"
 
-#: src/goabackend/goaexchangeprovider.c:410
-#: src/goabackend/goaowncloudprovider.c:507
-msgid "_Server"
-msgstr "_کارساز"
+#: src/goabackend/goaexchangeprovider.c:407
+msgid "_Domain"
+msgstr "_دامنه"
 
-#. --
-#: src/goabackend/goaexchangeprovider.c:420 src/goabackend/goafedoraprovider.c:581
-#: src/goabackend/goaimapsmtpprovider.c:699
-#: src/goabackend/goakerberosprovider.c:591 src/goabackend/goalastfmprovider.c:437
-#: src/goabackend/goaowncloudprovider.c:523
-msgid "_Cancel"
-msgstr "_لغو"
+#: src/goabackend/goaexchangeprovider.c:408
+msgid "Example domain: example.com"
+msgstr "دامنهٔ نمونه: example.com"
 
-#: src/goabackend/goaexchangeprovider.c:421 src/goabackend/goafedoraprovider.c:582
-#: src/goabackend/goakerberosprovider.c:592 src/goabackend/goalastfmprovider.c:438
-#: src/goabackend/goaowncloudprovider.c:524
-msgid "C_onnect"
-msgstr "_اتصال"
+#: src/goabackend/goafedoraprovider.c:51
+msgid "Fedora"
+msgstr "فدورا"
 
-#: src/goabackend/goaexchangeprovider.c:437 src/goabackend/goafedoraprovider.c:597
-#: src/goabackend/goaimapsmtpprovider.c:715
-#: src/goabackend/goakerberosprovider.c:607 src/goabackend/goalastfmprovider.c:454
-#: src/goabackend/goaowncloudprovider.c:539
-msgid "Connecting…"
-msgstr "در حال اتصال…"
+#: src/goabackend/goafedoraprovider.c:167 src/goabackend/goakerberosprovider.c:598
+msgid "Access restricted web and network resources for your organization"
+msgstr "دسترسی به منابع شبکه و وب محدود به سازمانتان"
 
-#: src/goabackend/goaexchangeprovider.c:537
-#: src/goabackend/goaexchangeprovider.c:731 src/goabackend/goafedoraprovider.c:746
-#: src/goabackend/goaimapsmtpprovider.c:865
-#: src/goabackend/goaimapsmtpprovider.c:900
-#: src/goabackend/goaimapsmtpprovider.c:992
-#: src/goabackend/goaimapsmtpprovider.c:1249
-#: src/goabackend/goaimapsmtpprovider.c:1325
-#: src/goabackend/goakerberosprovider.c:947 src/goabackend/goalastfmprovider.c:652
-#: src/goabackend/goalastfmprovider.c:820
-#: src/goabackend/goamediaserverprovider.c:420
-#: src/goabackend/goaoauth2provider.c:995 src/goabackend/goaoauthprovider.c:859
-#: src/goabackend/goaowncloudprovider.c:661
-#: src/goabackend/goaowncloudprovider.c:881
-msgid "Dialog was dismissed"
-msgstr "محاوره رد شد"
-
-#: src/goabackend/goaexchangeprovider.c:575
-#: src/goabackend/goaexchangeprovider.c:759 src/goabackend/goafedoraprovider.c:792
-#: src/goabackend/goaimapsmtpprovider.c:933
-#: src/goabackend/goaimapsmtpprovider.c:1030
-#: src/goabackend/goaimapsmtpprovider.c:1276
-#: src/goabackend/goaimapsmtpprovider.c:1353
-#: src/goabackend/goalastfmprovider.c:686 src/goabackend/goalastfmprovider.c:839
-#: src/goabackend/goaowncloudprovider.c:706
-#: src/goabackend/goaowncloudprovider.c:908
+#: src/goabackend/goafedoraprovider.c:339
 #, c-format
-msgid "Dialog was dismissed (%s, %d): "
-msgstr "محاوره رد شد (%s، %Id): "
+msgid "Failed to get principal from user name “%s”"
+msgstr "شکست در گرفتن اصل از کاربر «%s»"
 
-#: src/goabackend/goaexchangeprovider.c:588
-#: src/goabackend/goaimapsmtpprovider.c:946
-#: src/goabackend/goaimapsmtpprovider.c:1043
-#: src/goabackend/goaowncloudprovider.c:719
-msgid "_Ignore"
-msgstr "_نادیده گرفتن"
+#: src/goabackend/goagoogleprovider.c:57
+msgid "Google"
+msgstr "گوگل"
 
-#: src/goabackend/goaexchangeprovider.c:593
-#: src/goabackend/goaexchangeprovider.c:778 src/goabackend/goafedoraprovider.c:803
-#: src/goabackend/goaimapsmtpprovider.c:951
-#: src/goabackend/goaimapsmtpprovider.c:1048
-#: src/goabackend/goaimapsmtpprovider.c:1295
-#: src/goabackend/goaimapsmtpprovider.c:1372
-#: src/goabackend/goakerberosprovider.c:1040
-#: src/goabackend/goalastfmprovider.c:698 src/goabackend/goalastfmprovider.c:856
-#: src/goabackend/goaowncloudprovider.c:724
-#: src/goabackend/goaowncloudprovider.c:927
-msgid "_Try Again"
-msgstr "_تلاش دوباره"
-
-#: src/goabackend/goaexchangeprovider.c:598
-#: src/goabackend/goaexchangeprovider.c:771
-msgid "Error connecting to Microsoft Exchange server"
-msgstr "خطا در اتّصال به کارساز اکسچنج مایکروسافت"
-
-#: src/goabackend/goafacebookprovider.c:56
-msgid "Facebook"
-msgstr "فیس‌بوک"
-
-#: src/goabackend/goafacebookprovider.c:183 src/goabackend/goaflickrprovider.c:155
-#: src/goabackend/goafoursquareprovider.c:154
-#: src/goabackend/goagoogleprovider.c:184
-#: src/goabackend/goawindowsliveprovider.c:159
+#: src/goabackend/goagoogleprovider.c:211 src/goabackend/goamsgraphprovider.c:184
+#: src/goabackend/goawindowsliveprovider.c:163
 #, c-format
 msgid ""
 "Expected status 200 when requesting your identity, instead got status %d (%s)"
 msgstr ""
-"هنگام درخواست هویت شما انتظار وضعیت ۲۰۰ را داشتیم، در عوض وضعیت %Id دریافت شد "
-"(%s)"
+"هنگام درخواست هویت شما انتظار وضعیت ۲۰۰ را داشتیم، در عوض وضعیت %Id دریافت شد (%s)"
 
 #. TODO: more specific
-#: src/goabackend/goafacebookprovider.c:202
-#: src/goabackend/goafacebookprovider.c:213
-#: src/goabackend/goafacebookprovider.c:219 src/goabackend/goaflickrprovider.c:174
-#: src/goabackend/goaflickrprovider.c:185 src/goabackend/goaflickrprovider.c:196
-#: src/goabackend/goaflickrprovider.c:205 src/goabackend/goaflickrprovider.c:218
-#: src/goabackend/goafoursquareprovider.c:173
-#: src/goabackend/goafoursquareprovider.c:184
-#: src/goabackend/goafoursquareprovider.c:195
-#: src/goabackend/goafoursquareprovider.c:206
-#: src/goabackend/goafoursquareprovider.c:215
-#: src/goabackend/goafoursquareprovider.c:228
-#: src/goabackend/goagoogleprovider.c:203 src/goabackend/goagoogleprovider.c:214
-#: src/goabackend/goalastfmprovider.c:212 src/goabackend/goalastfmprovider.c:221
-#: src/goabackend/goalastfmprovider.c:230 src/goabackend/goalastfmprovider.c:238
-#: src/goabackend/goalastfmprovider.c:244 src/goabackend/goalastfmprovider.c:512
-#: src/goabackend/goalastfmprovider.c:521 src/goabackend/goalastfmprovider.c:538
-#: src/goabackend/goalastfmprovider.c:544 src/goabackend/goaoauth2provider.c:656
-#: src/goabackend/goaoauth2provider.c:686 src/goabackend/goaoauth2provider.c:697
-#: src/goabackend/goautils.c:273 src/goabackend/goawindowsliveprovider.c:178
-#: src/goabackend/goawindowsliveprovider.c:189
-#: src/goabackend/goawindowsliveprovider.c:198
-#: src/goabackend/goawindowsliveprovider.c:211
+#: src/goabackend/goagoogleprovider.c:230 src/goabackend/goagoogleprovider.c:241
+#: src/goabackend/goamsgraphprovider.c:203 src/goabackend/goamsgraphprovider.c:214
+#: src/goabackend/goamsgraphprovider.c:227 src/goabackend/goamsgraphprovider.c:252
+#: src/goabackend/goaoauth2provider.c:677 src/goabackend/goaoauth2provider.c:707
+#: src/goabackend/goaoauth2provider.c:718 src/goabackend/goautils.c:136
+#: src/goabackend/goawindowsliveprovider.c:182
+#: src/goabackend/goawindowsliveprovider.c:193
+#: src/goabackend/goawindowsliveprovider.c:202
+#: src/goabackend/goawindowsliveprovider.c:215
 msgid "Could not parse response"
 msgstr "نمی‌توان پاسخ را تجزیه کرد"
 
-#: src/goabackend/goafedoraprovider.c:94
-msgid "Fedora"
-msgstr "فدورا"
-
-#: src/goabackend/goafedoraprovider.c:208 src/goabackend/goakerberosprovider.c:248
-msgid "Ticketing is disabled for account"
-msgstr "مشخصه Ticketing برای حساب غیرفعال شده"
-
-#: src/goabackend/goafedoraprovider.c:233 src/goabackend/goakerberosprovider.c:273
-#, c-format
-msgid "Could not find saved credentials for principal “%s” in keyring"
-msgstr "گواهی‌نامهٔ ذخیره شده برای صفت «%s» در جاکلیدی یافت نشد"
-
-#: src/goabackend/goafedoraprovider.c:246 src/goabackend/goakerberosprovider.c:286
-#, c-format
-msgid "Did not find password for principal “%s” in credentials"
-msgstr "گذرواژه برای صفت «%s» در گواهی‌نامه پیدا نشد"
-
-#: src/goabackend/goafedoraprovider.c:805
-msgid "Error connecting to Fedora"
-msgstr "خطا در اتصال به فدورا"
-
-#: src/goabackend/goafedoraprovider.c:1198
-#: src/goabackend/goakerberosprovider.c:1374
-msgid "Identity service returned invalid key"
-msgstr "خدمت شناسه کلیدی نامعتبر برگرداند"
-
-#: src/goabackend/goaflickrprovider.c:56
-msgid "Flickr"
-msgstr "فلیکر"
-
-#: src/goabackend/goaflickrprovider.c:271
-msgid "Your system time is invalid. Check your date and time settings."
-msgstr "زمان سامانه‌تان نامعنبر است. تنظیمات تاریخ و زمانتان را بررسی کنید."
-
-#: src/goabackend/goafoursquareprovider.c:57
-msgid "Foursquare"
-msgstr "فوراسکور"
-
-#: src/goabackend/goagoogleprovider.c:56
-msgid "Google"
-msgstr "گوگل"
-
 #. TODO: more specific
-#: src/goabackend/goaimapauthlogin.c:84 src/goabackend/goasmtpauth.c:155
+#: src/goabackend/goaimapauthlogin.c:84 src/goabackend/goasmtpauth.c:149
 msgid "Service not available"
 msgstr "خدمت در دسترس نیست"
 
-#. TODO: more specific
-#: src/goabackend/goaimapauthlogin.c:104 src/goabackend/goalastfmprovider.c:529
-#: src/goabackend/goasmtpauth.c:108 src/goabackend/goautils.c:838
-msgid "Authentication failed"
-msgstr "تصدیق‌هویت شکست خورد"
-
-#: src/goabackend/goaimapauthlogin.c:129
-msgid "Server does not support PLAIN"
-msgstr "کارساز از PLAIN پشتیبانی نمی‌کند"
-
-#: src/goabackend/goaimapauthlogin.c:181 src/goabackend/goasmtpauth.c:606
+#: src/goabackend/goaimapauthlogin.c:166 src/goabackend/goasmtpauth.c:600
 msgid "Server does not support STARTTLS"
 msgstr "کارساز از STARTTLS پشتیبانی نمی‌کند"
 
-#: src/goabackend/goaimapsmtpprovider.c:53
+#: src/goabackend/goaimapsmtpprovider.c:55
 msgid "IMAP and SMTP"
 msgstr "رایانامه"
 
@@ -300,499 +218,781 @@ msgstr "رایانامه"
 #. * username (eg., rishi), and the (%s, %d)
 #. * is the error domain and code.
 #.
-#: src/goabackend/goaimapsmtpprovider.c:327
-#: src/goabackend/goaimapsmtpprovider.c:378
+#: src/goabackend/goaimapsmtpprovider.c:320 src/goabackend/goaimapsmtpprovider.c:369
 #, c-format
 msgid "Invalid %s with username “%s” (%s, %d): "
 msgstr "%s با نام کاربری «%s» نامعتبر است (%s، %Id): "
 
-#. Translators: the following four strings are used to show a
-#. * combo box similar to the one in the evolution module.
-#. * Encryption: None
-#. *             STARTTLS after connecting
-#. *             SSL on a dedicated port
-#.
-#: src/goabackend/goaimapsmtpprovider.c:564
-msgid "_Encryption"
-msgstr "_رمزنگاری"
+#: src/goabackend/goaimapsmtpprovider.c:566 src/goabackend/goaimapsmtpprovider.c:589
+#: src/goabackend/goaimapsmtpprovider.c:724 src/goabackend/goaimapsmtpprovider.c:765
+#: src/goabackend/goaimapsmtpprovider.c:809
+msgid "Auto-detected"
+msgstr "تشخیص خودکار"
 
-#: src/goabackend/goaimapsmtpprovider.c:567
-msgid "None"
-msgstr "هیچ‌کدام"
+#: src/goabackend/goaimapsmtpprovider.c:618
+msgid "Unable to auto-detect IMAP and SMTP settings"
+msgstr "ناتوان در تشخیص خودکار تنظیمات IMAP و SMTP"
 
-#: src/goabackend/goaimapsmtpprovider.c:570
+#: src/goabackend/goaimapsmtpprovider.c:689
 msgid "STARTTLS after connecting"
-msgstr "‫STARTTLS پس از اتصال"
+msgstr "‫STARTTLS پس از وصل شدن"
 
-#: src/goabackend/goaimapsmtpprovider.c:573
+#. GOA_TLS_TYPE_STARTTLS
+#: src/goabackend/goaimapsmtpprovider.c:690
 msgid "SSL on a dedicated port"
 msgstr "‫SSL روی درگاه تخصیص داده شده"
 
-#: src/goabackend/goaimapsmtpprovider.c:648
+#: src/goabackend/goaimapsmtpprovider.c:695
+#: src/goabackend/goaimapsmtpprovider.c:1435
+msgid "Email"
+msgstr "رایانامه"
+
+#: src/goabackend/goaimapsmtpprovider.c:696
+msgid "Connect to an email account"
+msgstr "وصل شدن به حساب رایانامه"
+
+#: src/goabackend/goaimapsmtpprovider.c:700
 msgid "_Name"
 msgstr "_نام"
 
-#: src/goabackend/goaimapsmtpprovider.c:665
+#: src/goabackend/goaimapsmtpprovider.c:703
+msgid ""
+"IMAP and SMTP details will be auto-detected from your service provider when "
+"possible"
+msgstr ""
+"جزییات IMAP و SMTP در صورت امکان به طور خودکار از فراهمگر خدمتتان تشخیص داده "
+"می‌شوند"
+
+#. IMAP
+#: src/goabackend/goaimapsmtpprovider.c:742
+msgid "IMAP Settings"
+msgstr "تنظیمات IMAP"
+
+#: src/goabackend/goaimapsmtpprovider.c:743
 msgid "IMAP _Server"
 msgstr "_کارساز IMAP"
 
-#: src/goabackend/goaimapsmtpprovider.c:685
+#: src/goabackend/goaimapsmtpprovider.c:754 src/goabackend/goaimapsmtpprovider.c:798
+msgid "Encryption"
+msgstr "رمزنگاری"
+
+#: src/goabackend/goaimapsmtpprovider.c:779
+msgid "Example server: imap.example.com"
+msgstr "کارساز نمونه: imap.example.com"
+
+#. SMTP
+#: src/goabackend/goaimapsmtpprovider.c:786
+msgid "SMTP Settings"
+msgstr "تنظیمات SMTP"
+
+#: src/goabackend/goaimapsmtpprovider.c:787
 msgid "SMTP _Server"
 msgstr "_کارساز SMTP"
 
-#: src/goabackend/goaimapsmtpprovider.c:700
-#: src/goabackend/goaimapsmtpprovider.c:972
-#: src/goabackend/goaimapsmtpprovider.c:1305
-msgid "_Forward"
-msgstr "_پیشروی"
+#: src/goabackend/goaimapsmtpprovider.c:823
+msgid "Example server: smtp.example.com"
+msgstr "کارساز نمونه: smtp.example.com"
 
-#: src/goabackend/goaimapsmtpprovider.c:956
-#: src/goabackend/goaimapsmtpprovider.c:1288
-msgid "Error connecting to IMAP server"
-msgstr "خطا در اتصال به کارساز IMAP"
-
-#: src/goabackend/goaimapsmtpprovider.c:1053
-#: src/goabackend/goaimapsmtpprovider.c:1365
-msgid "Error connecting to SMTP server"
-msgstr "خطا در اتصال به کارساز SMTP"
-
-#: src/goabackend/goaimapsmtpprovider.c:1476
-msgid "E-mail"
-msgstr "رایانامه"
-
-#: src/goabackend/goaimapsmtpprovider.c:1480
+#: src/goabackend/goaimapsmtpprovider.c:1426
 msgid "Name"
 msgstr "نام"
 
-#: src/goabackend/goaimapsmtpprovider.c:1490
-#: src/goabackend/goaimapsmtpprovider.c:1494
+#: src/goabackend/goaimapsmtpprovider.c:1452
 msgid "IMAP"
 msgstr "IMAP"
 
-#: src/goabackend/goaimapsmtpprovider.c:1505
-#: src/goabackend/goaimapsmtpprovider.c:1509
+#: src/goabackend/goaimapsmtpprovider.c:1470
 msgid "SMTP"
 msgstr "SMTP"
 
-#: src/goabackend/goakerberosprovider.c:100
-msgid "Enterprise Login (Kerberos)"
-msgstr "ورود تجاری ‫(Kerberos)"
+#: src/goabackend/goakerberosprovider.c:80
+msgid "Kerberos"
+msgstr "کربروس"
 
-#: src/goabackend/goakerberosprovider.c:586
-msgid "_Principal"
-msgstr "_مؤسسه"
-
-#: src/goabackend/goakerberosprovider.c:801
+#: src/goabackend/goakerberosprovider.c:425
 msgid "Operation was cancelled"
 msgstr "عملیات لغو شد"
 
-#: src/goabackend/goakerberosprovider.c:845
-#: src/goaidentity/goaidentityservice.c:1287
+#: src/goabackend/goakerberosprovider.c:469
+#: src/goaidentity/goaidentityservice.c:1114
 msgid "Log In to Realm"
 msgstr "ورود به محدوده"
 
-#: src/goabackend/goakerberosprovider.c:846
+#: src/goabackend/goakerberosprovider.c:470
 msgid "Please enter your password below."
 msgstr "لطفاً گذرواژه‌تان را در زیر وارد کنید."
 
-#: src/goabackend/goakerberosprovider.c:847
+#: src/goabackend/goakerberosprovider.c:471
 msgid "Remember this password"
 msgstr "این گذرواژه به‌خاطر سپرده شود"
 
-#: src/goabackend/goakerberosprovider.c:1035
-msgid "Error connecting to enterprise identity server"
-msgstr "خطا در اتصال به کارساز شناسهٔ تجاری"
+#: src/goabackend/goakerberosprovider.c:601
+msgid "_Principal"
+msgstr "_مؤسّسه"
 
-#: src/goabackend/goalastfmprovider.c:65
-msgid "Last.fm"
-msgstr "لست.اف‌ام"
+#: src/goabackend/goakerberosprovider.c:602
+msgid "Example principal: user@EXAMPLE.COM"
+msgstr "مؤسّسهٔ نمونه: user@EXAMPLE.COM"
 
-#: src/goabackend/goalastfmprovider.c:700 src/goabackend/goalastfmprovider.c:850
-msgid "Error connecting to Last.fm"
-msgstr "خطا در اتصال به لست.اف‌ام"
+#: src/goabackend/goakerberosprovider.c:1308
+msgid "Ticketing is disabled for account"
+msgstr "مشخّصهٔ Ticketing برای حساب از کار افتاده"
 
-#: src/goabackend/goamediaserverprovider.c:63
-msgid "Media Server"
-msgstr "کارساز رسانه"
-
-#: src/goabackend/goamediaserverprovider.c:316
-msgid ""
-"Personal content can be added to your applications through a media server "
-"account."
-msgstr ""
-"اطلاعات شخصی می‌توانند از طریق حساب کارساز رسانه به برنامه‌های شما اضافه شوند."
-
-#: src/goabackend/goamediaserverprovider.c:329
-msgid "Available Media Servers"
-msgstr "کارسازهای رسانهٔ موجود"
-
-#: src/goabackend/goamediaserverprovider.c:360
-msgid "No media servers found"
-msgstr "هیچ کارساز رسانه‌ای پیدا نشد"
-
-#. Translators: the %d is a HTTP status code and the %s is a textual description of it
-#: src/goabackend/goaoauth2provider.c:632 src/goabackend/goaoauthprovider.c:542
+#: src/goabackend/goakerberosprovider.c:1331
 #, c-format
-msgid ""
-"Expected status 200 when requesting access token, instead got status %d (%s)"
-msgstr ""
-"هنگام درخواست رمز دسترسی (access token) انتظار وضعیت ۲۰۰ را داشتیم، در عوض "
-"وضعیت %Id دریافت شد (%s)"
+msgid "Could not find saved credentials for principal “%s” in keyring"
+msgstr "گواهی‌نامهٔ ذخیره شده برای صفت «%s» در جاکلیدی یافت نشد"
 
-#: src/goabackend/goaoauth2provider.c:814
+#: src/goabackend/goakerberosprovider.c:1345
+#, c-format
+msgid "Did not find password for principal “%s” in credentials"
+msgstr "گذرواژه برای صفت «%s» در گواهی‌نامه پیدا نشد"
+
+#: src/goabackend/goakerberosprovider.c:1527
+msgid "Identity service returned invalid key"
+msgstr "خدمت شناسه کلیدی نامعتبر برگرداند"
+
+#: src/goabackend/goamailclient.c:851
+#, c-format
+msgid "Invalid email address “%s”"
+msgstr "نشانی رایانامهٔ نامعتبر «%s»"
+
+#: src/goabackend/goamsgraphprovider.c:64
+msgid "Microsoft 365"
+msgstr "۳۶۵ مایکروسافت"
+
+#. provider name
+#: src/goabackend/goamsgraphprovider.c:486
+msgid "Connect to Microsoft 365 to access email, calendars, contacts and files"
+msgstr ""
+"وصل شدن به ۳۶۵ مایکروسافت برای دسترسی به رایانامه، تقویم‌ها، آشنایان و پرونده‌ها"
+
+#: src/goabackend/goamsgraphprovider.c:490
+msgid "Use Organization Account"
+msgstr "استفاده از حساب سازمانی"
+
+#: src/goabackend/goamsgraphprovider.c:491
+msgid "Connect using details from an organization or developer account"
+msgstr "وصل شدن با استفاده از جزییاتی از حساب توسعه‌دهنده یا سازمانی"
+
+#. Translators: See https://learn.microsoft.com/globalization/reference/microsoft-terminology
+#: src/goabackend/goamsgraphprovider.c:498
+msgid "Enter the details provided by your organization"
+msgstr "ورود جزییات فراهم شده به دست سازمانتان"
+
+#: src/goabackend/goamsgraphprovider.c:500
+msgid "_Client ID (Optional)"
+msgstr "شناسهٔ _کارخواه (اختیاری)"
+
+#. Translators: See https://learn.microsoft.com/globalization/reference/microsoft-terminology
+#: src/goabackend/goamsgraphprovider.c:502
+msgid "_Tenant ID"
+msgstr "شناسهٔ _اجاره"
+
+#: src/goabackend/goamsgraphprovider.c:503
+msgid "Example ID: 00000000-0000-0000-0000-000000000000"
+msgstr "شناسهٔ نمونه: 00000000-0000-0000-0000-000000000000"
+
+#: src/goabackend/goamsgraphprovider.c:529 src/goabackend/goaoauth2provider.c:959
+#: src/goabackend/goaproviderdialog.c:840
+msgid "_Sign In…"
+msgstr "_ورود…"
+
+#: src/goabackend/goamsgraphprovider.c:537 src/goabackend/goaoauth2provider.c:967
+msgid "_Copy Link"
+msgstr "_رونوشت از پیوند"
+
+#: src/goabackend/goamsgraphprovider.c:550 src/goabackend/goaoauth2provider.c:977
+msgid "Copy the authorization URL to continue with a specific web browser."
+msgstr "رونوشت از نشانی تأیید برای ادامه با مرورگر وبی خاص."
+
+#: src/goabackend/goaoauth2provider.c:653
+#, c-format
+msgid "Expected status 200 when requesting access token, instead got status %d (%s)"
+msgstr ""
+"هنگام درخواست رمز دسترسی (access token) انتظار وضعیت ۲۰۰ را داشتیم، در عوض وضعیت "
+"%Id دریافت شد (%s)"
+
+#: src/goabackend/goaoauth2provider.c:797
 msgid "Authorization response: "
 msgstr "پاسخ به تصدیق‌هویت: "
 
-#: src/goabackend/goaoauth2provider.c:884
+#: src/goabackend/goaoauth2provider.c:860
 #, c-format
 msgid "Authorization response: %s"
 msgstr "پاسخ به تصدیق‌هویت: %s"
 
-#: src/goabackend/goaoauth2provider.c:1021 src/goabackend/goaoauthprovider.c:890
+#: src/goabackend/goaoauth2provider.c:868
+msgid "Failed to authenticate"
+msgstr "شکست در هویت‌سنجی"
+
+#: src/goabackend/goaoauth2provider.c:904
 msgid "Error getting an Access Token: "
 msgstr "خطا در هنگام دریافت رمز دسترسی: "
 
-#: src/goabackend/goaoauth2provider.c:1036 src/goabackend/goaoauthprovider.c:903
+#: src/goabackend/goaoauth2provider.c:920
 msgid "Error getting identity: "
 msgstr "خطا در هنگام دریافت شناسه: "
 
-#: src/goabackend/goaoauth2provider.c:1254 src/goabackend/goaoauthprovider.c:1192
+#: src/goabackend/goaoauth2provider.c:950
+#, c-format
+msgid "Sign in to %s with your browser"
+msgstr "ورود به %s با مرورگرتان"
+
+#: src/goabackend/goaoauth2provider.c:1182
+msgid "Failed to get session keyring"
+msgstr "شکست در گرفتن دسته‌کلید نشست"
+
+#: src/goabackend/goaoauth2provider.c:1477 src/goabackend/goaoauth2provider.c:1645
+msgid "Copied to clipboard"
+msgstr "در تخته‌گیره رونوشت شد"
+
+#: src/goabackend/goaoauth2provider.c:1596
 #, c-format
 msgid "Was asked to log in as %s, but logged in as %s"
 msgstr "درخواست ورود به عنوان %s شده بود، ولی به عنوان %s وارد شد"
 
-#: src/goabackend/goaoauth2provider.c:1406
+#: src/goabackend/goaoauth2provider.c:1833
 msgid "Credentials do not contain access_token"
 msgstr "گواهینامه‌ها حاوی رمز دسترسی (access_token) نیستند"
 
-#: src/goabackend/goaoauth2provider.c:1445 src/goabackend/goaoauthprovider.c:1407
+#: src/goabackend/goaoauth2provider.c:1877
 #, c-format
 msgid "Failed to refresh access token (%s, %d): "
 msgstr "نوسازی رمز دسترسی شکست خورد (%s، %Id): "
 
-#: src/goabackend/goaoauthprovider.c:565
-msgid "Missing access_token or access_token_secret headers in response"
-msgstr "موارد access_token یا access_token_secret در سرصفحه پاسخ پیدا نشد"
-
-#: src/goabackend/goaoauthprovider.c:773
-msgid "Error getting a Request Token: "
-msgstr "خطا در هنگام دریافت رمز درخواست: "
-
-#. Translators: the %d is a HTTP status code and the %s is a textual description of it
-#: src/goabackend/goaoauthprovider.c:804
-#, c-format
-msgid ""
-"Expected status 200 for getting a Request Token, instead got status %d (%s)"
-msgstr ""
-"در هنگام درخواست رمز درخواست (Request Token) انتظار وضعیت ۲۰۰ را داشتیم، در عوض "
-"وضعیت %Id دریافت شد (%s)"
-
-#: src/goabackend/goaoauthprovider.c:821
-msgid "Missing request_token or request_token_secret headers in response"
-msgstr "موارد request_token یا request_token در سرصفحه پاسخ پیدا نشد"
-
-#: src/goabackend/goaoauthprovider.c:1363
-msgid "Credentials do not contain access_token or access_token_secret"
-msgstr "گواهینامه‌ها حاوی access_token یا access_token_secret نیستند"
-
-#: src/goabackend/goaowncloudprovider.c:60
+#: src/goabackend/goaowncloudprovider.c:55
 msgid "Nextcloud"
 msgstr "نکست‌کلود"
 
-#: src/goabackend/goaowncloudprovider.c:729
-#: src/goabackend/goaowncloudprovider.c:920
-msgid "Error connecting to Nextcloud server"
-msgstr "خطا در اتصال به کارساز نکست‌کلود"
-
-#: src/goabackend/goapocketprovider.c:74
-msgid "Pocket"
-msgstr "پاکت"
-
-#. TODO: more specific
-#: src/goabackend/goapocketprovider.c:249
-msgid "No username or access_token"
-msgstr "نام کاربری یا ژتون دسترسی وجود ندارد"
-
-#: src/goabackend/goaprovider.c:113
+#: src/goabackend/goaprovider.c:118
 msgid "_Mail"
 msgstr "_نامه"
 
-#: src/goabackend/goaprovider.c:118
+#: src/goabackend/goaprovider.c:123
 msgid "Cale_ndar"
 msgstr "_تقویم"
 
-#: src/goabackend/goaprovider.c:123
+#: src/goabackend/goaprovider.c:128
 msgid "_Contacts"
 msgstr "_آشناها"
 
-#: src/goabackend/goaprovider.c:128
+#: src/goabackend/goaprovider.c:133
 msgid "C_hat"
 msgstr "_گپ"
 
-#: src/goabackend/goaprovider.c:133
+#: src/goabackend/goaprovider.c:138
 msgid "_Documents"
 msgstr "اسناد"
 
-#: src/goabackend/goaprovider.c:138
+#: src/goabackend/goaprovider.c:143
 msgid "M_usic"
 msgstr "موز_یک"
 
-#: src/goabackend/goaprovider.c:143
+#: src/goabackend/goaprovider.c:148
 msgid "_Photos"
 msgstr "_عکس‌ها"
 
-#: src/goabackend/goaprovider.c:148
+#: src/goabackend/goaprovider.c:153
 msgid "_Files"
 msgstr "_پرونده‌ها"
 
-#: src/goabackend/goaprovider.c:153
+#: src/goabackend/goaprovider.c:158
 msgid "Network _Resources"
 msgstr "_منابع شبکه‌ای"
 
-#: src/goabackend/goaprovider.c:158
+#: src/goabackend/goaprovider.c:163
 msgid "_Read Later"
 msgstr "_خواندن در آینده"
 
-#: src/goabackend/goaprovider.c:163
+#: src/goabackend/goaprovider.c:168
 msgid "Prin_ters"
 msgstr "_چاپگرها"
 
-#: src/goabackend/goaprovider.c:168
+#: src/goabackend/goaprovider.c:173
 msgid "_Maps"
 msgstr "_نقشه‌ها"
 
-#: src/goabackend/goaprovider.c:173
+#: src/goabackend/goaprovider.c:178
 msgid "T_o Do"
 msgstr "برای انجام"
 
-#. Translators: This is a label for a series of
-#. * options switches. For example: “Use for Mail”.
-#: src/goabackend/goaprovider.c:571
-msgid "Use for"
-msgstr "استفاده برای"
-
-#: src/goabackend/goaprovider.c:826
+#: src/goabackend/goaprovider.c:1066
 msgid "Account is disabled"
 msgstr "حساب غیرفعال شده است"
 
-#: src/goabackend/goaprovider.c:839
+#: src/goabackend/goaprovider.c:1079
 msgid "Unknown error"
 msgstr "خطای ناشناخته"
 
-#: src/goabackend/goaprovider.c:858
+#: src/goabackend/goaprovider.c:1098
 #, c-format
 msgid "ensure_credentials_sync is not implemented on type %s"
 msgstr "مورد ensure_credentials_sync برای انواع %s اجرایی نشده است"
-
-#. TODO: more specific
-#: src/goabackend/goasmtpauth.c:170
-msgid "TLS not available"
-msgstr "‫TLS در دسترس نیست"
-
-#: src/goabackend/goasmtpauth.c:476
-msgid "Unknown authentication mechanism"
-msgstr "ساز و کار تأیید هویت ناشناخته"
-
-#: src/goabackend/goautils.c:92
-msgid "Error logging into the account"
-msgstr "خطا در هنگام ورود به حساب"
-
-#: src/goabackend/goautils.c:136
-msgid "Credentials have expired"
-msgstr "گواهی‌نامه‌ها منقضی شده‌اند"
-
-#: src/goabackend/goautils.c:140
-msgid "Sign in to enable this account."
-msgstr "برای فعال‌سازی حساب، وارد شوید."
-
-#: src/goabackend/goautils.c:144
-msgid "_Sign In"
-msgstr "_ورود"
-
-#: src/goabackend/goautils.c:240
-#, c-format
-msgid "A %s account already exists for %s"
-msgstr "یک حساب کاربری %s از قبل برای %s وجود دارد"
 
 #. Translators: this is the title of the "Add Account" and "Refresh
 #. * Account" dialogs. The %s is the name of the provider. eg.,
 #. * 'Google'.
 #.
-#: src/goabackend/goautils.c:293
+#: src/goabackend/goaproviderdialog.c:183
 #, c-format
 msgid "%s Account"
 msgstr "حساب %s"
 
+#: src/goabackend/goaproviderdialog.c:627
+msgid "Remove this Account?"
+msgstr "برداشتن این حساب؟"
+
+#: src/goabackend/goaproviderdialog.c:628
+msgid ""
+"If you remove this Online Account you will have to connect to it again to use it "
+"with apps and services."
+msgstr ""
+"اگر این حساب برخط را بردارید باید برای استفادهٔ آن با کاره‌ها و خدمت‌ها دوباره وصلش "
+"کنید."
+
+#: src/goabackend/goaproviderdialog.c:630
+msgid "_Cancel"
+msgstr "_لغو"
+
+#: src/goabackend/goaproviderdialog.c:631
+msgid "_Remove"
+msgstr "_برداشتن"
+
+#: src/goabackend/goaproviderdialog.c:767
+msgid "An account with that name already exists"
+msgstr "حسابی با این نام از پیش وجود دارد"
+
+#: src/goabackend/goaproviderdialog.c:839
+msgid "Sign in to reconnect to this account"
+msgstr "ورود برای وصل شدن دوباره به این حساب"
+
+#: src/goabackend/goaproviderdialog.c:868
+msgid "_Account Name"
+msgstr "نام _حساب"
+
+#: src/goabackend/goaproviderdialog.c:940
+msgid "_Remove…"
+msgstr "_برداشتن…"
+
+#: src/goabackend/goaproviderdialog.c:1036
+msgid "_Sign In"
+msgstr "_ورود"
+
+#: src/goabackend/goaproviderdialog.c:1098
+msgid "_Try Again"
+msgstr "_تلاش دوباره"
+
+#: src/goabackend/goaproviderdialog.c:1102
+msgid "_Ignore"
+msgstr "_چشم‌پوشی"
+
+#: src/goabackend/goaproviderdialog.c:1374
+msgid "Dialog was dismissed"
+msgstr "گفت‌وگو رد شد"
+
 #. TODO: more specific
-#: src/goabackend/goautils.c:347
+#: src/goabackend/goasmtpauth.c:164
+msgid "TLS not available"
+msgstr "‫TLS در دسترس نیست"
+
+#: src/goabackend/goasmtpauth.c:470
+msgid "Unknown authentication mechanism"
+msgstr "ساز و کار تأیید هویت ناشناخته"
+
+#: src/goabackend/goautils.c:80
+#, c-format
+msgid "A %s account already exists for %s"
+msgstr "یک حساب کاربری %s از قبل برای %s وجود دارد"
+
+#. TODO: more specific
+#: src/goabackend/goautils.c:193
 msgid "Failed to delete credentials from the keyring"
 msgstr "حذف گواهی‌ها از دسته‌کلید شکست خورد"
 
 #. TODO: more specific
-#: src/goabackend/goautils.c:395
+#: src/goabackend/goautils.c:241
 msgid "Failed to retrieve credentials from the keyring"
 msgstr "دریافت گواهی‌ها از دسته‌کلید شکست خورد"
 
 #. TODO: more specific
-#: src/goabackend/goautils.c:405
+#: src/goabackend/goautils.c:251
 msgid "No credentials found in the keyring"
 msgstr "هیچ گواهی‌نامه‌ای در دسته‌کلید پیدا نشد"
 
-#: src/goabackend/goautils.c:418
+#: src/goabackend/goautils.c:264
 msgid "Error parsing result obtained from the keyring: "
 msgstr "خطا در هنگام تجزیه نتیجه دریافت شده از دسته‌کلید: "
 
 #. Translators: The %s is the type of the provider, e.g. 'google' or 'yahoo'
-#: src/goabackend/goautils.c:459
+#: src/goabackend/goautils.c:305
 #, c-format
 msgid "GOA %s credentials for identity %s"
 msgstr "گواهینامه GOA %s برای شناسه %s"
 
 #. TODO: more specific
-#: src/goabackend/goautils.c:476
+#: src/goabackend/goautils.c:322
 msgid "Failed to store credentials in the keyring"
 msgstr "ذخیره‌سازی گواهی‌نامه در دسته‌کلید شکست خورد: %s"
 
-#: src/goabackend/goautils.c:825
-msgid "Cannot resolve hostname"
-msgstr "امکان برقراری ارتباط با نام کارساز نبود"
+#: src/goabackend/goautils.c:790
+msgid "Not supported"
+msgstr "پشتیبانی نشده"
 
-#: src/goabackend/goautils.c:829
-msgid "Cannot resolve proxy hostname"
-msgstr "امکان برقراری ارتباط با نام کارساز پیشکار نبود"
+#: src/goabackend/goautils.c:794
+msgid "Not found"
+msgstr "پیدا نشد"
 
-#: src/goabackend/goautils.c:834
-msgid "Cannot find WebDAV endpoint"
-msgstr "امکان یافتن مقصد WebDAV نبود"
-
-#: src/goabackend/goautils.c:843
+#: src/goabackend/goautils.c:808
 #, c-format
 msgid "Code: %u — Unexpected response from server"
 msgstr "کد: %Iu - پاسخ غیرمنتظره از کارساز"
 
-#: src/goabackend/goautils.c:859
+#: src/goabackend/goautils.c:833
 msgid "The signing certificate authority is not known."
 msgstr "هویت امضا کنندهٔ گواهینامه شناخته شده نیست."
 
-#: src/goabackend/goautils.c:863
+#: src/goabackend/goautils.c:837
 msgid ""
 "The certificate does not match the expected identity of the site that it was "
 "retrieved from."
 msgstr "گواهینامه با هویت مورد انتظار از پایگاهی که از آن صادر شده هم‌خوانی ندارد."
 
-#: src/goabackend/goautils.c:868
+#: src/goabackend/goautils.c:842
 msgid "The certificate’s activation time is still in the future."
 msgstr "زمان فعّال‌سازی گواهی‌نامه هم‌چنان در آینده است."
 
-#: src/goabackend/goautils.c:872
+#: src/goabackend/goautils.c:846
 msgid "The certificate has expired."
 msgstr "گواهینامه منقضی شده است."
 
-#: src/goabackend/goautils.c:876
+#: src/goabackend/goautils.c:850
 msgid "The certificate has been revoked."
 msgstr "گواهی‌نامه باطل شده است."
 
-#: src/goabackend/goautils.c:880
+#: src/goabackend/goautils.c:854
 msgid "The certificate’s algorithm is considered insecure."
 msgstr "الگوریتم گواهی‌نامه ناامن به‌نظر می‌رسد."
 
-#: src/goabackend/goautils.c:886
+#: src/goabackend/goautils.c:860
 msgid "Invalid certificate."
 msgstr "گواهینامه نامعتبر."
 
 #. TODO: more specific
-#: src/goabackend/goautils.c:921
+#: src/goabackend/goautils.c:895
 #, c-format
 msgid "Did not find %s with identity “%s” in credentials"
 msgstr "%s ای با هویت «%s» در گواهی‌نامه‌ها یافت نشد"
 
-#. translators: %s here is the address of the web page
-#: src/goabackend/goawebview.c:94
-#, c-format
-msgid "Loading “%s”…"
-msgstr "درحال بارگیری «%s»…"
+#: src/goabackend/goawebdavprovider.c:399
+msgid "Calendar, Contacts and Files"
+msgstr "تقویم، آشنایان و پرونده‌ها"
+
+#: src/goabackend/goawebdavprovider.c:400
+msgid ""
+"Add a calendar, contacts and files account by entering your WebDAV server and "
+"account details"
+msgstr ""
+"افزودن حساب تقویم، آشنایان و پرونده‌ها با ورود جزییات حساب و کارساز WebDAVتان"
+
+#: src/goabackend/goawebdavprovider.c:403
+msgid "_Server Address"
+msgstr "نشانی _کارساز"
+
+#: src/goabackend/goawebdavprovider.c:404
+msgid "Examples: example.com, 192.168.0.82"
+msgstr "نمونه: example.com, 192.168.0.82"
+
+#: src/goabackend/goawebdavprovider.c:414
+msgid "Server Addresses (Optional)"
+msgstr "نشانی کارسازها (اختیاری)"
+
+#: src/goabackend/goawebdavprovider.c:415
+msgid "Files"
+msgstr "پرونده‌ها"
+
+#: src/goabackend/goawebdavprovider.c:416
+msgid "Calendar (CalDAV)"
+msgstr "تقویم (CalDAV)"
+
+#: src/goabackend/goawebdavprovider.c:417
+msgid "Contacts (CardDAV)"
+msgstr "آشنایان (CardDAV)"
 
 #: src/goabackend/goawindowsliveprovider.c:56
 msgid "Microsoft"
 msgstr "مایکروسافت"
 
-#: src/goaidentity/goaidentityservice.c:569
+#: src/goaidentity/goaidentityservice.c:564
 msgid "Initial secret key is invalid"
 msgstr "کلید رمز ابتدایی نامعتبر است"
 
 #. TODO: more specific
-#: src/goaidentity/goaidentityservice.c:806
-#: src/goaidentity/goaidentityservice.c:910
+#: src/goaidentity/goaidentityservice.c:786
 #, c-format
 msgid "Couldn't get GoaObject for object path %s"
 msgstr "نمی‌توان GoaObject را برای مسیر شی %s گرفت"
 
-#: src/goaidentity/goaidentityservice.c:1292
+#: src/goaidentity/goaidentityservice.c:1119
 #, c-format
 msgid "The network realm %s needs some information to sign you in."
 msgstr "محدودهٔ شبکهٔ %s برای ورودتان نیاز به برخی اطلاعات دارد."
 
-#: src/goaidentity/goakerberosidentity.c:274
-#: src/goaidentity/goakerberosidentity.c:282
-#: src/goaidentity/goakerberosidentity.c:706
+#: src/goaidentity/goakerberosidentity.c:293
+#: src/goaidentity/goakerberosidentity.c:301
+#: src/goaidentity/goakerberosidentity.c:695
 msgid "Could not find identity in credential cache: "
 msgstr "شناسه در انبارهٔ گواهی‌ها پیدا نشد: "
 
-#: src/goaidentity/goakerberosidentity.c:719
+#: src/goaidentity/goakerberosidentity.c:707
 msgid "Could not find identity credentials in cache: "
 msgstr "گواهی‌های شناسه در انباره پیدا نشد: "
 
-#: src/goaidentity/goakerberosidentity.c:770
+#: src/goaidentity/goakerberosidentity.c:751
 msgid "Could not sift through identity credentials in cache: "
 msgstr "وارسی بین گواهی‌های شناسه در انباره امکان‌پذیر نبود: "
 
-#: src/goaidentity/goakerberosidentity.c:787
+#: src/goaidentity/goakerberosidentity.c:763
 msgid "Could not finish up sifting through identity credentials in cache: "
 msgstr "اتمام وارسی بین گواهی‌های شناسه در انباره امکان‌پذیر نبود: "
 
-#: src/goaidentity/goakerberosidentity.c:1102
+#: src/goaidentity/goakerberosidentity.c:1406
 msgid "No associated identification found"
 msgstr "شناسهٔ مرتبطی پیدا نشد"
 
-#: src/goaidentity/goakerberosidentity.c:1185
+#: src/goaidentity/goakerberosidentity.c:1535
 msgid "Could not create credential cache: "
 msgstr "نمی‌توان انبارهٔ گواهی‌نامه را ایجاد کرد: "
 
-#: src/goaidentity/goakerberosidentity.c:1219
+#: src/goaidentity/goakerberosidentity.c:1575
 msgid "Could not initialize credentials cache: "
 msgstr "مقداردهی نخستین انبارهٔ گواهی‌ها امکان‌پذیر نبود: "
 
-#: src/goaidentity/goakerberosidentity.c:1235
+#: src/goaidentity/goakerberosidentity.c:1588
 msgid "Could not store new credentials in credentials cache: "
 msgstr "نمی‌توان گواهی‌های جدید را در انبارهٔ گواهی‌ها ذخیره کرد: "
 
-#: src/goaidentity/goakerberosidentity.c:1533
-msgid "Could not renew identity: Not signed in"
-msgstr "نمی‌توان شناسه را تجدید کرد: وارد نشده"
+#: src/goaidentity/goakerberosidentity.c:1824
+msgid "Not signed in"
+msgstr "وارد نشده"
 
-#: src/goaidentity/goakerberosidentity.c:1545
-msgid "Could not renew identity: "
-msgstr "نمی‌توان شناسه را تازه‌سازی کرد: "
+#: src/goaidentity/goakerberosidentity.c:1837
+msgid "Could not get the default principal: "
+msgstr "نتوانست اصل پیش‌گزیده را بگیرد: "
 
-#: src/goaidentity/goakerberosidentity.c:1561
+#: src/goaidentity/goakerberosidentity.c:1850
 #, c-format
-msgid "Could not get new credentials to renew identity %s: "
-msgstr "نمی‌توان گواهی‌های جدید را برای تازه‌سازی شناسهٔ %s گرفت: "
+msgid "Could not get renewed credentials from the KDC for identity %s: "
+msgstr "نتوانست گواهی‌های تازه شده را برای هویت %s از KDC بگیرد: "
 
-#: src/goaidentity/goakerberosidentity.c:1603
+#: src/goaidentity/goakerberosidentity.c:1898
 msgid "Could not erase identity: "
 msgstr "نمی‌توان شناسه را پاک کرد: "
 
-#: src/goaidentity/goakerberosidentitymanager.c:827
+#: src/goaidentity/goakerberosidentitymanager.c:955
 msgid "Could not find identity"
 msgstr "نمی‌توان شناسه را یافت"
 
-#: src/goaidentity/goakerberosidentitymanager.c:919
+#: src/goaidentity/goakerberosidentitymanager.c:1038
 msgid "Could not create credential cache for identity"
 msgstr "نمی‌توان انبارهٔ گواهی را برای شناسه ایجاد کرد"
 
-#~ msgid "_Domain"
-#~ msgstr "_دامنه"
+#: src/goaidentity/goalinuxnotificationstream.c:58
+#, c-format
+msgid "Error closing file descriptor: %s"
+msgstr "خطا در بستن توصیف‌گر پرونده: %s"
+
+#~ msgid "None"
+#~ msgstr "هیچ‌کدام"
+
+#~ msgid "_Sign in…"
+#~ msgstr "_ورود…"
+
+#~ msgid "Connect to a Microsoft 365 provider to access files"
+#~ msgstr "وصل شدن به فراهم‌کنندهٔ ۳۶۵ مایکروسافت برای دسترسی به پرونده‌ها"
+
+#~ msgid "Authorization Details"
+#~ msgstr "جزییات تصدیق‌هویت"
+
+#~ msgid ""
+#~ "A custom Client or Tenant ID may need to be provided depending on the settings "
+#~ "for your organization"
+#~ msgstr ""
+#~ "بسته به تنظیمات سازمانتان ممکن است نیاز به شناسهٔ اجاره یا کارخواه شخصی باشد"
+
+#~ msgid "Common"
+#~ msgstr "معمول"
+
+#~ msgid "Custom"
+#~ msgstr "سفارشی"
+
+#~ msgid "Advanced"
+#~ msgstr "پیش‌رفته"
+
+#~ msgid "_Issuer"
+#~ msgstr "_صادرکننده"
+
+#~ msgid "C_ustom Issuer"
+#~ msgstr "صادرکنندهٔ _سفارشی"
+
+#~ msgid "Example provider: example.com"
+#~ msgstr "فراهمگر نمونه: smtp.example.com"
+
+#~ msgid "Microsoft Personal"
+#~ msgstr "مایکروسافت شخصی"
+
+#~ msgid "Endpoint Settings"
+#~ msgstr "تنظیمات نقطهٔ پایانی"
+
+#~ msgid "Files Endpoint"
+#~ msgstr "نقطهٔ پایانی پرونده‌ها"
+
+#~ msgid "CalDAV Endpoint"
+#~ msgstr "نقطهٔ پایانی CalDAV"
+
+#~ msgid "CardDAV Endpoint"
+#~ msgstr "نقطهٔ پایانی CardDAV"
+
+#~ msgid "C_onnect"
+#~ msgstr "_وصل شدن"
+
+#~ msgid "Connecting…"
+#~ msgstr "وصل شدن…"
+
+#, c-format
+#~ msgid "Dialog was dismissed (%s, %d): "
+#~ msgstr "محاوره رد شد (%s، %Id): "
+
+#~ msgid "Error connecting to Microsoft Exchange server"
+#~ msgstr "خطا در وصل شدن به کارساز اکسچنج مایکروسافت"
+
+#~ msgid "Error connecting to Fedora"
+#~ msgstr "خطا در وصل شدن به فدورا"
+
+#~ msgid "_Forward"
+#~ msgstr "_پیشروی"
+
+#~ msgid "Error connecting to IMAP server"
+#~ msgstr "خطا در وصل شدن به کارساز IMAP"
+
+#~ msgid "Error connecting to SMTP server"
+#~ msgstr "خطا در وصل شدن به کارساز SMTP"
+
+#~ msgid "Enterprise Login (Kerberos)"
+#~ msgstr "ورود تجاری ‫(Kerberos)"
+
+#~ msgid "Error connecting to enterprise identity server"
+#~ msgstr "خطا در وصل شدن به کارساز شناسهٔ تجاری"
+
+#~ msgid "Continue"
+#~ msgstr "ادامه"
+
+#~ msgid "Use for"
+#~ msgstr "استفاده برای"
+
+#~ msgid "Error logging into the account"
+#~ msgstr "خطا در هنگام ورود به حساب"
+
+#~ msgid "Credentials have expired"
+#~ msgstr "گواهی‌نامه‌ها منقضی شده‌اند"
+
+#~ msgid "_URL"
+#~ msgstr "_نشانی"
+
+#~ msgid "Error connecting to server"
+#~ msgstr "خطا در وصل شدن به کارساز"
+
+#~ msgid "Error connecting to Files endpoint"
+#~ msgstr "خطا در وصل شدن به نقطهٔ پایانی پرونده‌ها"
+
+#~ msgid "Error connecting to CalDAV endpoint"
+#~ msgstr "خطا در وصل شدن به نقطهٔ پایانی CalDAV"
+
+#~ msgid "Error connecting to CardDAV endpoint"
+#~ msgstr "خطا در وصل شدن به نقطهٔ پایانی CardDAV"
+
+#~ msgid "Error connecting to WebDAV server"
+#~ msgstr "خطا در وصل شدن به نقطهٔ پایانی WebDAV"
+
+#~ msgid "Server does not support PLAIN"
+#~ msgstr "کارساز از PLAIN پشتیبانی نمی‌کند"
+
+#~ msgid "Last.fm"
+#~ msgstr "لست.اف‌ام"
+
+#~ msgid "Error connecting to Last.fm"
+#~ msgstr "خطا در اتصال به لست.اف‌ام"
+
+#~ msgid "Media Server"
+#~ msgstr "کارساز رسانه"
+
+#~ msgid ""
+#~ "Personal content can be added to your applications through a media server "
+#~ "account."
+#~ msgstr ""
+#~ "اطلاعات شخصی می‌توانند از طریق حساب کارساز رسانه به برنامه‌های شما اضافه شوند."
+
+#~ msgid "Available Media Servers"
+#~ msgstr "کارسازهای رسانهٔ موجود"
+
+#~ msgid "No media servers found"
+#~ msgstr "هیچ کارساز رسانه‌ای پیدا نشد"
+
+#~ msgid "Error connecting to Nextcloud server"
+#~ msgstr "خطا در اتصال به کارساز نکست‌کلود"
+
+#, c-format
+#~ msgid "Loading “%s”…"
+#~ msgstr "درحال بارگیری «%s»…"
+
+#~ msgid "Facebook"
+#~ msgstr "فیس‌بوک"
+
+#~ msgid "Flickr"
+#~ msgstr "فلیکر"
+
+#~ msgid "Your system time is invalid. Check your date and time settings."
+#~ msgstr "زمان سامانه‌تان نامعنبر است. تنظیمات تاریخ و زمانتان را بررسی کنید."
+
+#~ msgid "Foursquare"
+#~ msgstr "فوراسکور"
+
+#~ msgid "Missing access_token or access_token_secret headers in response"
+#~ msgstr "موارد access_token یا access_token_secret در سرصفحه پاسخ پیدا نشد"
+
+#~ msgid "Error getting a Request Token: "
+#~ msgstr "خطا در هنگام دریافت رمز درخواست: "
+
+#, c-format
+#~ msgid ""
+#~ "Expected status 200 for getting a Request Token, instead got status %d (%s)"
+#~ msgstr ""
+#~ "در هنگام درخواست رمز درخواست (Request Token) انتظار وضعیت ۲۰۰ را داشتیم، در "
+#~ "عوض وضعیت %Id دریافت شد (%s)"
+
+#~ msgid "Missing request_token or request_token_secret headers in response"
+#~ msgstr "موارد request_token یا request_token در سرصفحه پاسخ پیدا نشد"
+
+#~ msgid "Credentials do not contain access_token or access_token_secret"
+#~ msgstr "گواهینامه‌ها حاوی access_token یا access_token_secret نیستند"
+
+#~ msgid "Pocket"
+#~ msgstr "پاکت"
+
+#~ msgid "No username or access_token"
+#~ msgstr "نام کاربری یا ژتون دسترسی وجود ندارد"
+
+#~ msgid "Cannot resolve hostname"
+#~ msgstr "امکان برقراری ارتباط با نام کارساز نبود"
+
+#~ msgid "Cannot resolve proxy hostname"
+#~ msgstr "امکان برقراری ارتباط با نام کارساز پیشکار نبود"
+
+#~ msgid "Could not renew identity: Not signed in"
+#~ msgstr "نمی‌توان شناسه را تجدید کرد: وارد نشده"
+
+#~ msgid "Could not renew identity: "
+#~ msgstr "نمی‌توان شناسه را تازه‌سازی کرد: "
 
 #~ msgid "Enterprise domain or realm name"
 #~ msgstr "دامنه‌ی تجاری یا نام محدوده"
@@ -805,12 +1005,6 @@ msgstr "نمی‌توان انبارهٔ گواهی را برای شناسه ا�
 
 #~ msgid "Failed to create a user interface for %s"
 #~ msgstr "ایجاد رابط کاربری بری %s شکست خورد"
-
-#~ msgid "Connection Settings"
-#~ msgstr "تنظیمات اتصال"
-
-#~ msgid "Personal Details"
-#~ msgstr "جزئیات شخصی"
 
 #~ msgid "_OK"
 #~ msgstr "_قبول"
@@ -851,9 +1045,6 @@ msgstr "نمی‌توان انبارهٔ گواهی را برای شناسه ا�
 #~ msgid "initial secret passed before secret key exchange"
 #~ msgstr "رمز ابتدایی قبل از تبادل کلید رمز صادر شد"
 
-#~ msgid "Failed to initialize a GOA client"
-#~ msgstr "راه‌اندازی اولیه کارگیر GOA شکست خورد"
-
 #~ msgid "Did not find password with identity ‘%s’ in credentials"
 #~ msgstr "گذرواژه‌ای با هویت «%s» در گواهی‌نامه‌ها یافت نشد"
 
@@ -869,11 +1060,10 @@ msgstr "نمی‌توان انبارهٔ گواهی را برای شناسه ا�
 #~ "(%s)"
 
 #~ msgid ""
-#~ "Paste authorization code obtained from the <a href=\"%s\">authorization "
-#~ "page</a>:"
+#~ "Paste authorization code obtained from the <a href=\"%s\">authorization page</"
+#~ "a>:"
 #~ msgstr ""
-#~ "لطفاُ کد تصدیق‌هویت دریافت شده از <a href=\"%s\">صفحه تصدیق‌هویت</a> را "
-#~ "بچسبانید:"
+#~ "لطفاُ کد تصدیق‌هویت دریافت شده از <a href=\"%s\">صفحه تصدیق‌هویت</a> را بچسبانید:"
 
 #~ msgid "Paste token obtained from the <a href=\"%s\">authorization page</a>:"
 #~ msgstr "رمز دریافت شده از <a href=\"%s\">صفحه تصدیق‌هویت</a> را وارد کنید:"
@@ -909,9 +1099,6 @@ msgstr "نمی‌توان انبارهٔ گواهی را برای شناسه ا�
 
 #~ msgid "Invalid smtp-password with username `%s' (%s, %d): "
 #~ msgstr "گذرواژه smtp با نام کاربری «%s» نامعتبر است (%s، %Id): "
-
-#~ msgid "Online Accounts"
-#~ msgstr "حساب‌های کاربری برخط"
 
 #~ msgid "An online account needs attention"
 #~ msgstr "یک حساب کاربری برخط نیاز به توجه دارد"

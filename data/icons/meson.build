@@ -3,7 +3,7 @@ icon_scalable_data = [
   'goa-account-exchange.svg',
   'goa-account-fedora.svg',
   'goa-account-google.svg',
-  'goa-account-lastfm.svg',
+  'goa-account-ms365.svg',
   'goa-account-msn.svg',
   'goa-account-owncloud.svg',
 ]
@@ -12,7 +12,6 @@ icon_symbolic_data = [
   'goa-account-symbolic.svg',
   'goa-account-exchange-symbolic.svg',
   'goa-account-google-symbolic.svg',
-  'goa-account-lastfm-symbolic.svg',
   'goa-account-msn-symbolic.svg',
   'goa-account-owncloud-symbolic.svg',
 ]

@@ -1,3 +1,278 @@
+Overview of changes in 3.54.5
+=============================
+* Bugs fixed:
+  - #71 Adding GOA account fails with sonic.net IMAP service
+  - #162 Cannot add a ProtonMail bridge with IMAP + TLS
+  - #420 Nextcloud login does not work anymore due to OPTIONS /login request
+  - #429 Linked online accounts no longer work
+  - #430 Invalid URI when adding Google account
+  - !340 goamsgraphprovider: ensure a valid PresentationIdentity
+  - !345 goadaemon: complete GTasks to avoid a scary debug warning
+
+Overview of changes in 3.54.4
+=============================
+* Bugs fixed:
+  - Fix Nextcloud and mailbox.org preconfiguration
+  - Add DAV preconfig for mail.ru
+
+* Translation updates:
+  - Japanese (Takayuki Kusano)
+
+Overview of changes in 3.54.3
+=============================
+* Bugs fixed:
+  - #423 Authentication failure in goa IMAP accounts
+  - !331 Handle unexpected casing in domain names (Patrick Griffis)
+
+* Translation updates:
+  - Italian (Davide Ferracin)
+  - Romanian (Antonio Marin)
+
+Overview of changes in 3.54.2
+===============================
+* Bugs fixed:
+  - #406 Improve OAuth2 credential performance (Jan-Michael Brummer)
+  - !328 Fix hung dialog for OAuth providers
+
+* Translation updates:
+  - Belarusian (Vasil Pupkin)
+  - Chinese (Taiwan) (Cheng-Chia Tseng)
+  - English (United Kingdom) (Andi Chandler)
+  - German (Philipp Kiemle)
+  - Uzbek (Baxrom Raxmatov)
+
+Overview of changes in 3.54.1
+===============================
+* Bugs fixed:
+  - #411 Cannot sign in to Google
+
+Overview of changes in 3.54.0
+=============================
+* Bugs fixed:
+  - #114 Fix unescaped characters in IMAP and SMTP logins
+  - #391 Nextcloud 'Cannot find WebDAV endpoint' error
+  - !319 goaproviderdialog: don't update the error revealer until set
+  - !320 goaoauth2provider: rewrite the D-Bus helper as a per-task service
+  - !323 goagoogleprovider: drop the client secret and deprecate the option
+
+* Translation updates:
+  - Bokmål, Norwegian (Brage Fuglseth)
+  - Catalan (Jordi Mas i Hernandez)
+  - Danish (Ask Hjorth Larsen)
+  - Hungarian (Balázs Úr)
+  - Korean (Seong-ho Cho)
+  - Nepali (Pawan Chitrakar)
+  - Panjabi (A S Alam)
+  - Spanish (Daniel Mustieles)
+
+Overview of changes in 3.53.2
+=============================
+* Bugs fixed:
+  - !306 goaoauth2provider: handle OAuth2 error responses
+  - !307 docs: update README
+  - !308 goabackend: drop GoaHTTPClient
+  - !309 examples: drop g_error() usage
+  - !311 oauth2handler: Replace libsecret with dbus (Jan-Michael Brummer)
+
+* Translation updates:
+  - Basque (Asier Sarasua Garmendia)
+  - Bulgarian (twlvnn kraftwerk)
+  - Chinese (China) (Luming Zh)
+  - Czech (Daniel Rusek)
+  - Finnish (Jiri Grönroos)
+  - French (Irénée THIRION)
+  - Galician (Fran Dieguez)
+  - Georgian (Ekaterine Papava)
+  - Hebrew (Yosef Or Boczko)
+  - Indonesian (Andika Triwidada)
+  - Lithuanian (Aurimas Černius)
+  - Occitan (post 1500) (Quentin PAGÈS)
+  - Panjabi (A S Alam)
+  - Persian (Danial Behzadi)
+  - Polish (Piotr Drąg)
+  - Portuguese (Hugo Carvalho)
+  - Portuguese (Brazil) (Álvaro Burns)
+  - Swedish (Anders Jonsson)
+  - Ukrainian (Yuri Chornoivan)
+
+Overview of changes in 3.53.1
+=============================
+* Bugs fixed:
+  - !286 onedrive: Use presentation id in OneDrive uri
+
+* Translation updates:
+  - Russian (Artur S0)
+  - Slovenian (Martin)
+
+Overview of changes in 3.53.0
+=============================
+* Bugs fixed:
+  - #113 Add GUI field for PresentationIdentity to be able to set a custom name
+    / nickname for an online account
+  - #357 Also offer an oauth2 sign-in link that can be copied instead of only
+    directly opening in external browser?
+  - #367 Non-actionable "Account Action Required" notification when account
+    requires VPN
+  - #383 imap: Remove / Demote "None" encryption option
+  - #384 Unable to Sign In to Microsoft Exchange account on Gnome 46 24.04.1
+  - #386 segfault after signing into Fedora account
+  - #389 Missing kerberos password not detected
+  - #392 Fail faster - don't wait 120 seconds to timeout and return an error on
+    initial authentication
+  - !282 goadaemon: add a timeout for credential checks
+  - !288 goaoauthprovider: fix expected NULL GError
+  - !290 docs: add issue templates
+  - !293 goadavclient.c: add WebDAV default candidate to test
+  - !300 ci: add support for new release service
+  - !303 goadaemon: Changes around "no provider" runtime warnings
+
+* Translation updates:
+  - Catalan (Jordi Mas i Hernandez)
+  - Dutch (Nathan Follens)
+  - Friulian (Fabio Tomat)
+  - Hebrew (Yaron Shahrabani)
+  - Latvian (Rūdolfs Mazurs)
+  - Russian (Artur S0)
+  - Serbian (Марко Костић)
+  - Slovenian (Martin)
+  - Thai (Aefgh Threenine)
+  - Turkish (Sabri Ünal)
+
+Overview of changes in 3.52.0
+=============================
+* Translation updates:
+  - Bulgarian (Alexander Shopov, twlvnn kraftwerk)
+  - Catalan (Jordi Mas i Hernandez)
+  - Czech (Daniel Rusek)
+  - Danish (Ask Hjorth Larsen)
+  - English (United Kingdom) (Andi Chandler)
+  - French (Irénée THIRION)
+  - Galician (Fran Dieguez)
+  - German (Tim Sabsch)
+  - Indonesian (Andika Triwidada)
+  - Lithuanian (Aurimas Černius)
+  - Polish (Piotr Drąg)
+  - Russian (Artur S0)
+  - Slovak (Dušan Kazik)
+  - Spanish (Daniel)
+  - Swedish (Anders Jonsson)
+  - Turkish (Sabri Ünal)
+
+Overview of changes in 3.51.3
+=============================
+* Accessibility fixes and event announcements
+* Translation updates
+
+Overview of changes in 3.51.2
+=============================
+* Adopt a less aggressive notification policy
+* Translation updates
+
+Overview of changes in 3.51.1
+=============================
+* Enable Mail, Calendar & Contacts for Microsoft 365
+* Improvements to Microsoft 365 setup dialog
+* Use AdwButtonRow when applicable
+* Allow overriding dependencies supporting built as a meson wrap
+* Refactor web browser authentication flow as a discrete task
+* Improve error reporting and notification for providers
+* Document configuration files used by the daemon
+* Correctly save and reset settings for TLS certificate errors
+
+Overview of changes in 3.51.0
+=============================
+* Support Mail Autoconfig XML for IMAP/SMTP services
+* Support SRV lookups for DAV services
+* Support Linux's KEYRING notification pipe for Kerberos
+* Ability to restrict which services of a particular account type are available
+* Add version CLI flag for goa-daemon
+* Port to AdwDialog and AdwAlertDialog
+* Accept GtkWidget as a top-level for account setup
+* Port documentation to gi-docgen
+* Documentation and manual pages are enabled by default
+* Fixes for bugs found by Coverity Scan
+* Fix libsoup error handling
+* Translation fixes and missing strings
+* Translation updates
+
+Overview of changes in 3.50.1
+=============================
+* Fix translation domain in account dialogs
+* Fix OAuth 2.0 URI handler for some users
+* Fix crash in Kerberos/Fedora provider
+* Improved WebDAV support for Fastmail and mailbox.org
+* Fixes for WebDAV discovery
+* OAuth 2.0 PKCE support
+* Fix issues caught by static analysis
+* Update Microsoft Client ID
+* Translation updates
+
+Overview of changes in 3.50.0
+=============================
+* Updated project link
+* Translation updates
+
+Overview of changes in 3.49.4
+=============================
+* Update dependencies in the GoaBackend pkgconfig
+
+Overview of changes in 3.49.3
+=============================
+* Bump GoaBacked soname to 2.0.0
+* Fix nested modal windows
+* Simplified account setup UX
+* Updates to user visible labels and descriptions
+* Translation updates
+
+Overview of changes in 3.49.2
+=============================
+* Fix a use-after-free error
+* Set a minimum height for dialogs
+* Translation updates
+
+Overview of changes in 3.49.1
+=============================
+
+* Add Microsoft 365 provider
+* Port to GTK4/Adwaita and an async API
+* Remove nautilus-floating-bar
+* Derive the Fedora provider from Kerberos
+* Migrate existing WebDAV accounts
+* Update provider icons
+* Translation updates
+
+Overview of changes in 3.49.0
+=============================
+
+* Depend on GCR4
+* Remove the media server provider
+* Remove the Last.fm provider
+* Add WebDAV base provider
+* Remove the webview and WebKit dependency
+* Translation updates
+
+Overview of changes in 3.48.0
+=============================
+
+* Translation updates
+
+Overview of changes in 3.47.1
+=============================
+
+* Build fixes [#226]
+* Expired Kerberos tickets not re-acquired on resume from suspend [#160]
+* Update CalDAV/CardDAV OwnCloud endpoints [#67]
+* Attempt to cope with multiple credential caches per identity [#79]
+* Error in solving Nextcloud account address [#243]
+* Translation updates
+
+Overview of changes in 3.46.0
+=============================
+
+* Build system fixes with recent Meson
+* Updated translations
+  - Catalan
+
 Overview of changes in 3.45.2
 =============================
 

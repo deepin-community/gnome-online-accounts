@@ -18,22 +18,34 @@
 
 #include "config.h"
 
+#define _GNU_SOURCE 1
+
 #include "goakerberosidentitymanager.h"
 #include "goaidentitymanager.h"
 #include "goaidentitymanagererror.h"
 #include "goaidentitymanagerprivate.h"
 #include "goakerberosidentityinquiry.h"
 
+#include <errno.h>
 #include <fcntl.h>
 #include <string.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
 #include <glib/gi18n.h>
 #include <glib/gstdio.h>
+#include <glib-unix.h>
 #include <gio/gio.h>
 
 #include <krb5.h>
+
+#ifdef __linux__
+#include <keyutils.h>
+#include "goalinuxnotificationstream.h"
+#include "goalinuxwatchqueue-priv.h"
+#endif /* __linux__ */
 
 struct _GoaKerberosIdentityManager
 {
@@ -46,7 +58,7 @@ struct _GoaKerberosIdentityManager
   GThreadPool *thread_pool;
 
   krb5_context kerberos_context;
-  GFileMonitor *credentials_cache_monitor;
+  GFileMonitor *credentials_cache_file_monitor;
   char *credentials_cache_type;
 
   GMutex scheduler_job_lock;
@@ -55,7 +67,8 @@ struct _GoaKerberosIdentityManager
 
   volatile int pending_refresh_count;
 
-  guint polling_timeout_id;
+  guint credentials_cache_keyring_notification_id;
+  guint credentials_cache_polling_timeout_id;
 };
 
 typedef enum
@@ -174,6 +187,94 @@ operation_free (Operation *operation)
   g_slice_free (Operation, operation);
 }
 
+static GSource *
+goa_kerberos_identity_manager_keyring_source_new (GError **error)
+{
+  GSource *ret = NULL;
+  gint fds[2] = { -1, -1 };
+
+  g_return_val_if_fail (error == NULL || *error == NULL, NULL);
+
+#if !defined(__linux__)
+  {
+    g_set_error_literal (error, G_UNIX_ERROR, 0, "KEYRING only supported on Linux");
+    return NULL;
+  }
+#elif !defined(HAVE_PIPE2)
+  {
+    g_set_error_literal (error, G_UNIX_ERROR, 0, "pipe2(2) not supported");
+    return NULL;
+  }
+#else
+  {
+    g_autoptr (GInputStream) stream = NULL;
+    gint error_code;
+
+    error_code = pipe2 (fds, O_NOTIFICATION_PIPE);
+    if (error_code == -1)
+      {
+        const gchar *error_str;
+
+        error_str = g_strerror (errno);
+        g_set_error_literal (error, G_UNIX_ERROR, 0, error_str);
+        goto out;
+      }
+
+    error_code = ioctl (fds[0], IOC_WATCH_QUEUE_SET_SIZE, WATCH_QUEUE_BUFFER_SIZE);
+    if (error_code == -1)
+      {
+        const gchar *error_str;
+
+        error_str = g_strerror (errno);
+        g_set_error_literal (error, G_UNIX_ERROR, 0, error_str);
+        goto out;
+      }
+
+    error_code = ioctl(fds[0], IOC_WATCH_QUEUE_SET_FILTER, &watch_queue_notification_filter);
+    if (error_code == -1)
+      {
+        const gchar *error_str;
+
+        error_str = g_strerror (errno);
+        g_set_error_literal (error, G_UNIX_ERROR, 0, error_str);
+        goto out;
+      }
+
+    error_code = keyctl_watch_key (KEY_SPEC_SESSION_KEYRING, fds[0], 0x01);
+    if (error_code == -1)
+      {
+        const gchar *error_str;
+
+        error_str = g_strerror (errno);
+        g_set_error_literal (error, G_UNIX_ERROR, 0, error_str);
+        goto out;
+      }
+
+    error_code = keyctl_watch_key (KEY_SPEC_USER_KEYRING, fds[0], 0x02);
+    if (error_code == -1)
+      {
+        const gchar *error_str;
+
+        error_str = g_strerror (errno);
+        g_set_error_literal (error, G_UNIX_ERROR, 0, error_str);
+        goto out;
+      }
+
+    stream = goa_linux_notification_stream_new (fds[0], fds[1]);
+    ret = g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM (stream), NULL);
+  }
+#endif
+
+ out:
+  if (ret == NULL)
+    {
+      g_close (fds[0], NULL);
+      g_close (fds[1], NULL);
+    }
+
+  return ret;
+}
+
 typedef struct {
   GSourceFunc func;
   gboolean ret_val;
@@ -282,11 +383,28 @@ identity_signal_work_free (IdentitySignalWork *work)
 }
 
 static void
+do_identity_signal_expired_work (IdentitySignalWork *work)
+{
+  GoaKerberosIdentityManager *self = work->manager;
+  GoaIdentity *identity = work->identity;
+
+  g_debug ("GoaKerberosIdentityManager: identity expired");
+  _goa_identity_manager_emit_identity_expired (GOA_IDENTITY_MANAGER (self), identity);
+}
+
+static void
 on_identity_expired (GoaIdentity                *identity,
                      GoaKerberosIdentityManager *self)
 {
-  _goa_identity_manager_emit_identity_expired (GOA_IDENTITY_MANAGER (self),
-                                               identity);
+  IdentitySignalWork *work;
+
+  work = identity_signal_work_new (self, identity);
+  goa_kerberos_identify_manager_send_to_context (g_main_context_default (),
+                                                 (GSourceFunc)
+                                                 do_identity_signal_expired_work,
+                                                 work,
+                                                 (GDestroyNotify)
+                                                 identity_signal_work_free);
 }
 
 static void
@@ -499,34 +617,6 @@ drop_stale_identities (GoaKerberosIdentityManager *self,
 }
 
 static void
-update_identity (GoaKerberosIdentityManager *self,
-                 Operation                  *operation,
-                 GoaIdentity                *identity,
-                 GoaIdentity                *new_identity)
-{
-
-  goa_kerberos_identity_update (GOA_KERBEROS_IDENTITY (identity),
-                                GOA_KERBEROS_IDENTITY (new_identity));
-
-  if (goa_identity_is_signed_in (identity))
-    {
-      IdentitySignalWork *work;
-
-      /* if it's not expired, send out a refresh signal */
-      g_debug ("GoaKerberosIdentityManager: identity '%s' refreshed",
-               goa_identity_get_identifier (identity));
-
-      work = identity_signal_work_new (self, identity);
-      goa_kerberos_identify_manager_send_to_context (operation->context,
-                                                     (GSourceFunc)
-                                                     do_identity_signal_refreshed_work,
-                                                     work,
-                                                     (GDestroyNotify)
-                                                     identity_signal_work_free);
-    }
-}
-
-static void
 add_identity (GoaKerberosIdentityManager *self,
               Operation                  *operation,
               GoaIdentity                *identity,
@@ -547,40 +637,69 @@ add_identity (GoaKerberosIdentityManager *self,
                                                  (GDestroyNotify) identity_signal_work_free);
 }
 
-static void
-refresh_identity (GoaKerberosIdentityManager *self,
-                  Operation                  *operation,
-                  GHashTable                 *refreshed_identities,
-                  GoaIdentity                *identity)
+static char *
+get_principal_from_cache (GoaKerberosIdentityManager *self,
+                          krb5_ccache                 cache)
 {
-  const char *identifier;
-  GoaIdentity *old_identity;
+  int error_code;
+  krb5_principal principal;
+  char *unparsed_name;
+  char *principal_name;
 
-  identifier = goa_identity_get_identifier (identity);
+  error_code = krb5_cc_get_principal (self->kerberos_context, cache, &principal);
+
+  error_code = krb5_unparse_name_flags (self->kerberos_context, principal, 0, &unparsed_name);
+  krb5_free_principal (self->kerberos_context, principal);
+
+  if (error_code != 0)
+    return NULL;
+
+  principal_name = g_strdup (unparsed_name);
+
+  krb5_free_unparsed_name (self->kerberos_context, unparsed_name);
+
+  return principal_name;
+}
+
+static void
+import_credentials_cache (GoaKerberosIdentityManager *self,
+                          Operation                  *operation,
+                          GHashTable                 *refreshed_identities,
+                          krb5_ccache                 cache)
+{
+  g_autofree char *identifier = NULL;
+  GoaIdentity *identity = NULL;
+
+  identifier = get_principal_from_cache (self, cache);
 
   if (identifier == NULL)
     return;
 
-  old_identity = g_hash_table_lookup (self->identities, identifier);
+  identity = g_hash_table_lookup (self->identities, identifier);
 
-  if (old_identity != NULL)
+  if (identity == NULL)
     {
-      g_debug ("GoaKerberosIdentityManager: refreshing identity '%s'", identifier);
-      update_identity (self, operation, old_identity, identity);
+      g_autoptr(GError) error = NULL;
 
-      /* Reuse the old identity, so any object data set up on it doesn't
-       * disappear spurriously
-       */
-      identifier = goa_identity_get_identifier (old_identity);
-      identity = old_identity;
+      g_debug ("GoaKerberosIdentityManager: Adding new identity '%s'", identifier);
+      identity = goa_kerberos_identity_new (self->kerberos_context, cache, &error);
+
+      if (error != NULL)
+        {
+          g_debug ("GoaKerberosIdentityManager: Could not track identity %s: %s",
+                   identifier, error->message);
+          return;
+        }
+
+      add_identity (self, operation, identity, identifier);
     }
   else
     {
-      g_debug ("GoaKerberosIdentityManager: adding new identity '%s'", identifier);
-      add_identity (self, operation, identity, identifier);
+      if (!goa_kerberos_identity_has_credentials_cache (GOA_KERBEROS_IDENTITY (identity), cache))
+        goa_kerberos_identity_add_credentials_cache (GOA_KERBEROS_IDENTITY (identity), cache);
     }
 
-  /* Track refreshed identities so we can emit removals when we're done fully
+  /* Track refreshed identities so we can emit refreshes and removals when we're done fully
    * enumerating the collection of credential caches
    */
   g_hash_table_replace (refreshed_identities,
@@ -597,6 +716,9 @@ refresh_identities (GoaKerberosIdentityManager *self,
   krb5_cccol_cursor cursor;
   const char *error_message;
   GHashTable *refreshed_identities;
+  GHashTableIter iter;
+  const char *name;
+  GoaIdentity *identity;
 
   /* If we have more refreshes queued up, don't bother doing this one
    */
@@ -622,15 +744,7 @@ refresh_identities (GoaKerberosIdentityManager *self,
 
   while (error_code == 0 && cache != NULL)
     {
-      GoaIdentity *identity;
-
-      identity = goa_kerberos_identity_new (self->kerberos_context, cache, NULL);
-
-      if (identity != NULL)
-        {
-          refresh_identity (self, operation, refreshed_identities, identity);
-          g_object_unref (identity);
-        }
+      import_credentials_cache (self, operation, refreshed_identities, cache);
 
       krb5_cc_close (self->kerberos_context, cache);
       error_code = krb5_cccol_cursor_next (self->kerberos_context, cursor, &cache);
@@ -645,6 +759,30 @@ refresh_identities (GoaKerberosIdentityManager *self,
     }
 
   krb5_cccol_cursor_free (self->kerberos_context, &cursor);
+
+  g_hash_table_iter_init (&iter, self->identities);
+  while (g_hash_table_iter_next (&iter, (gpointer *) &name, (gpointer*) &identity))
+    {
+      goa_kerberos_identity_refresh (GOA_KERBEROS_IDENTITY (identity));
+
+      if (goa_identity_is_signed_in (identity))
+        {
+          IdentitySignalWork *work;
+
+          /* if it's not expired, send out a refresh signal */
+          g_debug ("GoaKerberosIdentityManager: identity '%s' refreshed",
+                   goa_identity_get_identifier (identity));
+
+          work = identity_signal_work_new (self, identity);
+          goa_kerberos_identify_manager_send_to_context (operation->context,
+                                                         (GSourceFunc)
+                                                         do_identity_signal_refreshed_work,
+                                                         work,
+                                                         (GDestroyNotify)
+                                                         identity_signal_work_free);
+        }
+    }
+
 done:
   drop_stale_identities (self, operation, refreshed_identities);
   g_hash_table_unref (refreshed_identities);
@@ -706,6 +844,7 @@ renew_identity (GoaKerberosIdentityManager *self,
                error->message);
 
       g_task_return_error (operation->task, error);
+      return;
     }
 
   g_task_return_boolean (operation->task, was_renewed);
@@ -833,7 +972,9 @@ get_new_credentials_cache (GoaKerberosIdentityManager *self,
                self->credentials_cache_type);
       supports_multiple_identities = FALSE;
     }
-  else if (g_strcmp0 (self->credentials_cache_type, "DIR") == 0 || g_strcmp0 (self->credentials_cache_type, "KEYRING") == 0)
+  else if (g_strcmp0 (self->credentials_cache_type, "DIR") == 0
+           || g_strcmp0 (self->credentials_cache_type, "KCM") == 0
+           || g_strcmp0 (self->credentials_cache_type, "KEYRING") == 0)
     {
       g_debug ("GoaKerberosIdentityManager: credential cache type %s supports cache collections", self->credentials_cache_type);
       supports_multiple_identities = TRUE;
@@ -1255,7 +1396,7 @@ goa_kerberos_identity_manager_name_identity (GoaIdentityManager *manager,
   GoaKerberosIdentityManager *self = GOA_KERBEROS_IDENTITY_MANAGER (manager);
   char *name;
   GList *other_identities;
-  gboolean other_identity_needs_rename;
+  gboolean other_identity_needs_rename = FALSE;
 
   name = goa_kerberos_identity_get_realm_name (GOA_KERBEROS_IDENTITY (identity));
 
@@ -1311,17 +1452,52 @@ identity_manager_interface_init (GoaIdentityManagerInterface *interface)
 }
 
 static void
-on_credentials_cache_changed (GFileMonitor               *monitor,
-                              GFile                      *file,
-                              GFile                      *other_file,
-                              GFileMonitorEvent          *event_type,
-                              GoaKerberosIdentityManager *self)
+credentials_cache_file_monitor_changed (GFileMonitor               *monitor,
+                                        GFile                      *file,
+                                        GFile                      *other_file,
+                                        GFileMonitorEvent          *event_type,
+                                        GoaKerberosIdentityManager *self)
 {
   schedule_refresh (self);
 }
 
 static gboolean
-on_polling_timeout (GoaKerberosIdentityManager *self)
+credentials_cache_keyring_notification (GPollableInputStream *stream, GoaKerberosIdentityManager *self)
+{
+  gssize bytes_read;
+  guchar buffer[433];
+
+  {
+    g_autoptr (GError) error = NULL;
+
+    bytes_read = g_pollable_input_stream_read_nonblocking (stream, buffer, sizeof (buffer), NULL, &error);
+    if (error != NULL)
+      {
+        if (g_error_matches (error, G_IO_ERROR, G_IO_ERROR_WOULD_BLOCK))
+          g_debug ("GoaKerberosIdentityManager: Keyring notification source not yet ready");
+        else
+          g_warning ("GoaKerberosIdentityManager: Could not read keyring notification source: %s", error->message);
+
+        goto out;
+      }
+  }
+
+  if (bytes_read != (gssize) sizeof (buffer))
+    {
+      g_warning ("GoaKerberosIdentityManager: Expected to read %" G_GSIZE_FORMAT " bytes, "
+                 "but received only %" G_GSSIZE_FORMAT " bytes",
+                 sizeof (buffer),
+                 bytes_read);
+    }
+
+  schedule_refresh (self);
+
+ out:
+  return G_SOURCE_CONTINUE;
+}
+
+static gboolean
+credentials_cache_polling_timeout (GoaKerberosIdentityManager *self)
 {
   schedule_refresh (self);
 
@@ -1335,7 +1511,6 @@ monitor_credentials_cache (GoaKerberosIdentityManager  *self,
   krb5_ccache default_cache;
   const char *cache_type;
   const char *cache_path;
-  GFileMonitor *monitor = NULL;
   krb5_error_code error_code;
   GError *monitoring_error = NULL;
   gboolean can_monitor = TRUE;
@@ -1359,13 +1534,6 @@ monitor_credentials_cache (GoaKerberosIdentityManager  *self,
   cache_type = krb5_cc_get_type (self->kerberos_context, default_cache);
   g_assert (cache_type != NULL);
 
-  if (strcmp (cache_type, "FILE") != 0 && strcmp (cache_type, "DIR") != 0)
-    {
-      g_warning ("GoaKerberosIdentityManager: Using polling for change notification for credential cache type '%s'",
-                 cache_type);
-      can_monitor = FALSE;
-    }
-
   g_free (self->credentials_cache_type);
   self->credentials_cache_type = g_strdup (cache_type);
 
@@ -1387,56 +1555,99 @@ monitor_credentials_cache (GoaKerberosIdentityManager  *self,
   if (cache_path[0] == ':')
     cache_path++;
 
-  if (can_monitor)
+  if (strcmp (cache_type, "FILE") == 0 || strcmp (cache_type, "DIR") == 0)
     {
-      GFile *file;
+      GFile *file = NULL;
+      GFileMonitor *monitor = NULL;
 
       file = g_file_new_for_path (cache_path);
 
-      monitoring_error = NULL;
       if (strcmp (cache_type, "FILE") == 0)
         {
-          monitor = g_file_monitor_file (file,
-                                         G_FILE_MONITOR_NONE,
-                                         NULL,
-                                         &monitoring_error);
+          monitoring_error = NULL;
+          monitor = g_file_monitor_file (file, G_FILE_MONITOR_NONE, NULL, &monitoring_error);
+          if (monitoring_error != NULL)
+            {
+              g_warning ("GoaKerberosIdentityManager: Could not monitor credentials for %s (type %s), reverting to "
+                         "polling: %s",
+                         cache_path,
+                         cache_type,
+                         monitoring_error->message);
+
+              can_monitor = FALSE;
+              g_error_free (monitoring_error);
+            }
         }
       else if (strcmp (cache_type, "DIR") == 0)
         {
           GFile *directory;
 
           directory = g_file_get_parent (file);
-          monitor = g_file_monitor_directory (directory,
-                                              G_FILE_MONITOR_NONE,
-                                              NULL,
-                                              &monitoring_error);
-          g_object_unref (directory);
 
+          monitoring_error = NULL;
+          monitor = g_file_monitor_directory (directory, G_FILE_MONITOR_NONE, NULL, &monitoring_error);
+          if (monitoring_error != NULL)
+            {
+              g_warning ("GoaKerberosIdentityManager: Could not monitor credentials for %s (type %s), reverting to "
+                         "polling: %s",
+                         cache_path,
+                         cache_type,
+                         monitoring_error->message);
+
+              can_monitor = FALSE;
+              g_error_free (monitoring_error);
+            }
+
+          g_object_unref (directory);
         }
+
+      if (monitor != NULL)
+        {
+          g_signal_connect (G_OBJECT (monitor), "changed", G_CALLBACK (credentials_cache_file_monitor_changed), self);
+          self->credentials_cache_file_monitor = monitor;
+        }
+
       g_object_unref (file);
     }
-
-  if (monitor == NULL)
+  else if (strcmp (cache_type, "KEYRING") == 0)
     {
+      GSource *keyring_source = NULL;
+
+      monitoring_error = NULL;
+      keyring_source = goa_kerberos_identity_manager_keyring_source_new (&monitoring_error);
       if (monitoring_error != NULL)
         {
-          g_warning ("GoaKerberosIdentityManager: Could not monitor credentials for %s (type %s), reverting to "
-                     "polling: %s",
+          g_warning ("GoaKerberosIdentityManager: Could not monitor credentials for %s (type %s), reverting to polling: %s",
                      cache_path,
                      cache_type,
-                     monitoring_error != NULL? monitoring_error->message : "");
-          g_clear_error (&monitoring_error);
+                     monitoring_error->message);
+
+          can_monitor = FALSE;
+          g_error_free (monitoring_error);
         }
-      can_monitor = FALSE;
+
+      if (keyring_source != NULL)
+        {
+          g_source_set_callback (keyring_source, (GSourceFunc) credentials_cache_keyring_notification, self, NULL);
+          self->credentials_cache_keyring_notification_id = g_source_attach (keyring_source, NULL);
+        }
+
+      g_clear_pointer (&keyring_source, g_source_unref);
     }
   else
     {
-      g_signal_connect (G_OBJECT (monitor), "changed", G_CALLBACK (on_credentials_cache_changed), self);
-      self->credentials_cache_monitor = monitor;
+      can_monitor = FALSE;
     }
 
   if (!can_monitor)
-    self->polling_timeout_id = g_timeout_add_seconds (FALLBACK_POLLING_INTERVAL, (GSourceFunc) on_polling_timeout, self);
+    {
+      g_warning ("GoaKerberosIdentityManager: Using polling for change notification for credential cache type '%s'",
+                 cache_type);
+
+      self->credentials_cache_polling_timeout_id = g_timeout_add_seconds (FALLBACK_POLLING_INTERVAL,
+                                                                          (GSourceFunc) credentials_cache_polling_timeout,
+                                                                          self);
+    }
 
   krb5_cc_close (self->kerberos_context, default_cache);
 
@@ -1446,18 +1657,24 @@ monitor_credentials_cache (GoaKerberosIdentityManager  *self,
 static void
 stop_watching_credentials_cache (GoaKerberosIdentityManager *self)
 {
-  if (self->credentials_cache_monitor != NULL)
+  if (self->credentials_cache_file_monitor != NULL)
     {
-      if (!g_file_monitor_is_cancelled (self->credentials_cache_monitor))
-        g_file_monitor_cancel (self->credentials_cache_monitor);
+      if (!g_file_monitor_is_cancelled (self->credentials_cache_file_monitor))
+        g_file_monitor_cancel (self->credentials_cache_file_monitor);
 
-      g_clear_object (&self->credentials_cache_monitor);
+      g_clear_object (&self->credentials_cache_file_monitor);
     }
 
-  if (self->polling_timeout_id != 0)
+  if (self->credentials_cache_keyring_notification_id != 0)
     {
-      g_source_remove (self->polling_timeout_id);
-      self->polling_timeout_id = 0;
+      g_source_remove (self->credentials_cache_keyring_notification_id);
+      self->credentials_cache_keyring_notification_id = 0;
+    }
+
+  if (self->credentials_cache_polling_timeout_id != 0)
+    {
+      g_source_remove (self->credentials_cache_polling_timeout_id);
+      self->credentials_cache_polling_timeout_id = 0;
     }
 }
 

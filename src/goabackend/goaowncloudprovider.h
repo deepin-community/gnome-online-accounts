@@ -25,12 +25,12 @@
 
 #include <glib-object.h>
 
-#include "goaprovider-priv.h"
+#include "goawebdavprovider-priv.h"
 
 G_BEGIN_DECLS
 
 #define GOA_TYPE_OWNCLOUD_PROVIDER (goa_owncloud_provider_get_type ())
-G_DECLARE_FINAL_TYPE (GoaOwncloudProvider, goa_owncloud_provider, GOA, OWNCLOUD_PROVIDER, GoaProvider);
+G_DECLARE_FINAL_TYPE (GoaOwncloudProvider, goa_owncloud_provider, GOA, OWNCLOUD_PROVIDER, GoaWebDavProvider);
 
 G_END_DECLS
 

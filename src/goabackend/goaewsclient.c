@@ -27,6 +27,7 @@
 #include <glib/gi18n-lib.h>
 
 #include <libsoup/soup.h>
+#include <libxml/parser.h>
 #include <libxml/xmlIO.h>
 
 #include "goaewsclient.h"
@@ -70,6 +71,7 @@ typedef struct
 typedef struct
 {
   GCancellable *cancellable;
+  GCancellable *req_cancellable;
   GError *error;
   SoupMessage *msgs[2];
   SoupSession *session;
@@ -99,6 +101,7 @@ ews_client_autodiscover_data_free (gpointer user_data)
       g_object_unref (data->cancellable);
     }
 
+  g_clear_object (&data->req_cancellable);
   g_clear_error (&data->error);
 
   xmlOutputBufferClose (data->buf);
@@ -174,21 +177,13 @@ ews_client_autodiscover_cancelled_cb (GCancellable *cancellable, gpointer user_d
 static gboolean
 ews_client_autodiscover_parse_protocol (xmlNode *node)
 {
-  gboolean as_url = FALSE;
-  gboolean oab_url = FALSE;
-
   for (node = node->children; node; node = node->next)
     {
       if (ews_client_check_node (node, "ASUrl"))
-        as_url = TRUE;
-      else if (ews_client_check_node (node, "OABUrl"))
-        oab_url = TRUE;
-
-      if (as_url && oab_url)
-        break;
+        return TRUE;
     }
 
-  return as_url && oab_url;
+  return FALSE;
 }
 
 static gboolean
@@ -209,7 +204,7 @@ static void
 ews_client_autodiscover_response_cb (SoupSession *session, GAsyncResult *result, gpointer user_data)
 {
   SoupMessage *msg;
-  GBytes *body;
+  GBytes *body = NULL;
   GError *error = NULL;
   AutodiscoverData *data;
   GTask *task = G_TASK (user_data);
@@ -217,7 +212,7 @@ ews_client_autodiscover_response_cb (SoupSession *session, GAsyncResult *result,
   guint idx;
   guint status;
   gsize size;
-  xmlDoc *doc;
+  xmlDoc *doc = NULL;
   xmlNode *node;
 
   msg = soup_session_get_async_result_message (session, result);
@@ -237,7 +232,7 @@ ews_client_autodiscover_response_cb (SoupSession *session, GAsyncResult *result,
   if (idx == size || data->pending == 0)
     {
       g_bytes_unref (body);
-      g_clear_object (&error);
+      g_clear_error (&error);
       g_object_unref (task);
       return;
     }
@@ -342,7 +337,7 @@ ews_client_autodiscover_response_cb (SoupSession *session, GAsyncResult *result,
       g_set_error (&error,
                    GOA_ERROR,
                    GOA_ERROR_FAILED, /* TODO: more specific*/
-                   _("Failed to find ASUrl and OABUrl in autodiscover response"));
+                   _("Failed to find ASUrl in autodiscover response"));
       goto out;
     }
 
@@ -358,7 +353,7 @@ ews_client_autodiscover_response_cb (SoupSession *session, GAsyncResult *result,
           /* The callback (ie. this function) will be invoked after we
            * have returned to the main loop.
            */
-          g_cancellable_cancel (data->cancellable);
+          g_cancellable_cancel (data->req_cancellable);
         }
     }
 
@@ -391,6 +386,8 @@ ews_client_autodiscover_response_cb (SoupSession *session, GAsyncResult *result,
       g_source_attach (idle_source, g_task_get_context (task));
     }
 
+  g_clear_pointer (&body, g_bytes_unref);
+  g_clear_pointer (&doc, xmlFreeDoc);
   g_clear_error (&error);
   g_object_unref (task);
 }
@@ -537,6 +534,7 @@ goa_ews_client_autodiscover (GoaEwsClient        *self,
   data->session = soup_session_new ();
   soup_session_add_feature_by_type (data->session, SOUP_TYPE_AUTH_NTLM);
   data->accept_ssl_errors = accept_ssl_errors;
+  data->req_cancellable = g_cancellable_new ();
 
   if (cancellable != NULL)
     {
@@ -550,13 +548,13 @@ goa_ews_client_autodiscover (GoaEwsClient        *self,
   soup_session_send_and_read_async (data->session,
                                     data->msgs[0],
                                     G_PRIORITY_DEFAULT,
-                                    data->cancellable,
+                                    data->req_cancellable,
                                     (GAsyncReadyCallback)ews_client_autodiscover_response_cb,
                                     g_object_ref (task));
   soup_session_send_and_read_async (data->session,
                                     data->msgs[1],
                                     G_PRIORITY_DEFAULT,
-                                    data->cancellable,
+                                    data->req_cancellable,
                                     (GAsyncReadyCallback)ews_client_autodiscover_response_cb,
                                     g_object_ref (task));
 

@@ -32,6 +32,8 @@
 #include "goabackend/goaprovider-priv.h"
 #include "goabackend/goautils.h"
 
+#define CREDENTIALS_CHECK_TIMEOUT (60)
+
 struct _GoaDaemon
 {
   GObject parent_instance;
@@ -53,6 +55,11 @@ struct _GoaDaemon
 
   guint config_timeout_id;
   guint credentials_timeout_id;
+
+  uint32_t notification_id;
+  unsigned int notification_signal_id;
+  gboolean accounts_need_notification;
+  GPtrArray *accounts_needing_attention;
 };
 
 enum
@@ -94,6 +101,9 @@ static void ensure_credentials_queue_check (GoaDaemon *self);
 
 static void goa_daemon_check_credentials (GoaDaemon *self);
 static void goa_daemon_reload_configuration (GoaDaemon *self);
+static void goa_daemon_send_notification (GoaDaemon *self);
+static void goa_daemon_withdraw_notification (GoaDaemon *self);
+static void goa_daemon_update_notification (GoaDaemon *self);
 
 G_DEFINE_TYPE (GoaDaemon, goa_daemon, G_TYPE_OBJECT);
 
@@ -115,6 +125,13 @@ static void
 goa_daemon_finalize (GObject *object)
 {
   GoaDaemon *self = GOA_DAEMON (object);
+
+  if (self->notification_signal_id != 0)
+    {
+      g_dbus_connection_signal_unsubscribe (self->connection, self->notification_signal_id);
+      goa_daemon_withdraw_notification (self);
+    }
+  g_clear_pointer (&self->accounts_needing_attention, g_ptr_array_unref);
 
   if (self->config_timeout_id != 0)
     {
@@ -303,6 +320,9 @@ goa_daemon_init (GoaDaemon *self)
                            G_CALLBACK (on_network_monitor_network_changed),
                            self,
                            G_CONNECT_SWAPPED);
+
+  /* Notifications */
+  self->accounts_needing_attention = g_ptr_array_new_with_free_func (g_object_unref);
 
   self->ensure_credentials_queue = g_queue_new ();
   queue_check_credentials (self);
@@ -533,13 +553,13 @@ add_config_file (GoaDaemon     *self,
                   if (provider_type != NULL)
                     provider = goa_provider_get_for_provider_type (provider_type);
 
+                  needs_update = g_key_file_remove_group (key_file, groups[n], NULL) || needs_update;
+
                   if (provider == NULL)
                     {
-                      g_warning ("Unsupported account type %s for ID %s (no provider)", provider_type, id);
+                      g_debug ("Unsupported account type %s for ID %s (no provider)", provider_type, id);
                       goto cleanup_and_continue;
                     }
-
-                  needs_update = g_key_file_remove_group (key_file, groups[n], NULL);
 
                   error = NULL;
                   if (!goa_utils_delete_credentials_for_id_sync (provider, id, NULL, &error))
@@ -560,7 +580,7 @@ add_config_file (GoaDaemon     *self,
             }
           else
             {
-              needs_update = g_key_file_remove_key (key_file, groups[n], "SessionId", NULL);
+              needs_update = g_key_file_remove_key (key_file, groups[n], "SessionId", NULL) || needs_update;
             }
 
           g_hash_table_insert (group_name_to_key_file_data,
@@ -645,7 +665,7 @@ update_account_object (GoaDaemon           *self,
   provider = goa_provider_get_for_provider_type (type);
   if (provider == NULL)
     {
-      g_warning ("Unsupported account type %s for identity %s (no provider)", type, identity);
+      g_debug ("Unsupported account type %s for identity %s (no provider)", type, identity);
       goto out;
     }
 
@@ -726,6 +746,7 @@ process_config_entries (GoaDaemon  *self,
           continue;
 
         id = account_group_to_id (group);
+        g_assert (id != NULL);
 
         /* create and validate object path */
         object_path = g_strdup_printf ("/org/gnome/OnlineAccounts/Accounts/%s", id);
@@ -1374,6 +1395,10 @@ remove_account_cb (GObject *source_object, GAsyncResult *res, gpointer user_data
   invocation = G_DBUS_METHOD_INVOCATION (data->invocations->data);
   goa_account_complete_remove (account, invocation);
 
+  if (g_ptr_array_remove (self->accounts_needing_attention, account))
+    goa_daemon_update_notification (self);
+
+  g_task_return_boolean (task, TRUE);
   g_object_unref (task);
 }
 
@@ -1486,6 +1511,188 @@ on_account_handle_remove (GoaAccount            *account,
 
 /* ---------------------------------------------------------------------------------------------------- */
 
+#define NOTIFICATION_ACTION_FMT "('launch-panel', [<('online-accounts', @av [%s])>], @a{sv} {})"
+
+static void
+weak_ref_free (GWeakRef *weak_ref)
+{
+  g_assert (weak_ref != NULL);
+
+  g_weak_ref_clear (weak_ref);
+  g_free (weak_ref);
+}
+
+static void
+on_notification_signal (GDBusConnection *connection,
+                        const char      *sender_name,
+                        const char      *object_path,
+                        const char      *interface_name,
+                        const char      *signal_name,
+                        GVariant        *parameters,
+                        gpointer         user_data)
+{
+  g_autoptr(GoaDaemon) self = g_weak_ref_get ((GWeakRef *) user_data);
+
+  if (self == NULL)
+    return;
+
+  if (g_strcmp0 (signal_name, "ActionInvoked") == 0)
+    {
+      uint32_t id;
+
+      g_variant_get (parameters, "(u&s)", &id, NULL);
+      if (self->notification_id == id)
+        {
+          g_autofree char *target = NULL;
+
+          if (self->accounts_needing_attention->len == 1)
+            {
+              GoaAccount *account = g_ptr_array_index (self->accounts_needing_attention, 0);
+              g_autofree char *account_id = NULL;
+
+              account_id = g_strdup_printf ("<'%s'>", goa_account_get_id (account));
+              target = g_strdup_printf (NOTIFICATION_ACTION_FMT, account_id);
+            }
+          else
+            {
+              target = g_strdup_printf (NOTIFICATION_ACTION_FMT, "");
+            }
+
+          g_dbus_connection_call (self->connection,
+                                  "org.gnome.Settings",
+                                  "/org/gnome/Settings",
+                                  "org.freedesktop.Application",
+                                  "ActivateAction",
+                                  g_variant_new_parsed (target),
+                                  NULL,
+                                  G_DBUS_CALL_FLAGS_NONE,
+                                  -1,
+                                  NULL,
+                                  NULL,
+                                  NULL);
+        }
+    }
+  else if (g_strcmp0 (signal_name, "NotificationClosed") == 0)
+    {
+      uint32_t id;
+
+      g_variant_get (parameters, "(uu)", &id, NULL);
+      if (self->notification_id == id)
+        self->notification_id = 0;
+    }
+}
+
+static void
+goa_daemon_send_notification_cb (GDBusConnection *connection,
+                                 GAsyncResult    *result,
+                                 gpointer         user_data)
+{
+  g_autoptr(GoaDaemon) self = GOA_DAEMON (g_steal_pointer (&user_data));
+  g_autoptr(GVariant) reply = NULL;
+  g_autoptr(GError) error = NULL;
+
+  reply = g_dbus_connection_call_finish (connection, result, &error);
+  if (reply == NULL)
+    {
+      g_warning ("Failed to notify of required account action: %s", error->message);
+      return;
+    }
+
+  g_variant_get (reply, "(u)", &self->notification_id);
+}
+
+static void
+goa_daemon_send_notification (GoaDaemon *self)
+{
+  g_autofree char *message = NULL;
+
+  if (self->notification_signal_id == 0)
+    {
+      GWeakRef *weak_ref;
+
+      weak_ref = g_new0 (GWeakRef, 1);
+      g_weak_ref_init (weak_ref, self);
+
+      self->notification_signal_id =
+        g_dbus_connection_signal_subscribe (self->connection,
+                                            "org.freedesktop.Notifications",
+                                            "org.freedesktop.Notifications",
+                                            NULL, /* NotificationClosed/ActionInvoked */
+                                            "/org/freedesktop/Notifications",
+                                            NULL,
+                                            G_DBUS_SIGNAL_FLAGS_NONE,
+                                            on_notification_signal,
+                                            g_steal_pointer (&weak_ref),
+                                            (GDestroyNotify) weak_ref_free);
+    }
+
+  if (self->accounts_needing_attention->len == 1)
+    {
+      GoaAccount *account = g_ptr_array_index (self->accounts_needing_attention, 0);
+
+      message = g_strdup_printf (_("Failed to sign in to “%s”"),
+                                 goa_account_get_presentation_identity (account));
+    }
+  else
+    {
+      message = g_strdup (_("Failed to sign in to multiple accounts"));
+    }
+
+  g_dbus_connection_call (self->connection,
+                          "org.freedesktop.Notifications",
+                          "/org/freedesktop/Notifications",
+                          "org.freedesktop.Notifications",
+                          "Notify",
+                          g_variant_new ("(susss@as@a{sv}i)",
+                                         _("Online Accounts"),
+                                         self->notification_id,
+                                         "dialog-warning",
+                                         _("Account Action Required"),
+                                         message,
+                                         g_variant_new_parsed ("@as ['default', '']"),
+                                         g_variant_new_parsed ("@a{sv} {}"),
+                                         -1),
+                          NULL, /* reply type */
+                          G_DBUS_CALL_FLAGS_NONE,
+                          -1,
+                          NULL, /* cancellable */
+                          (GAsyncReadyCallback) goa_daemon_send_notification_cb,
+                          g_object_ref (self));
+}
+
+static void
+goa_daemon_withdraw_notification (GoaDaemon *self)
+{
+  if (self->notification_id > 0)
+    {
+      g_dbus_connection_call (self->connection,
+                              "org.freedesktop.Notifications",
+                              "/org/freedesktop/Notifications",
+                              "org.freedesktop.Notifications",
+                              "CloseNotification",
+                              g_variant_new ("(u)", self->notification_id),
+                              NULL,
+                              G_DBUS_CALL_FLAGS_NONE,
+                              -1,
+                              NULL,
+                              NULL,
+                              NULL);
+    }
+}
+
+static void
+goa_daemon_update_notification (GoaDaemon *self)
+{
+  if (self->accounts_need_notification)
+    goa_daemon_send_notification (self);
+  else if (self->accounts_needing_attention->len == 0)
+    goa_daemon_withdraw_notification (self);
+
+  self->accounts_need_notification = FALSE;
+}
+
+/* ---------------------------------------------------------------------------------------------------- */
+
 static gboolean
 is_authorization_error (GError *error)
 {
@@ -1499,10 +1706,9 @@ is_authorization_error (GError *error)
       if (SOUP_STATUS_IS_CLIENT_ERROR (error->code))
         ret = TRUE;
     }
-  else if (error->domain == GOA_ERROR)
+  else if (g_error_matches (error, GOA_ERROR, GOA_ERROR_NOT_AUTHORIZED))
     {
-      if (error->code == GOA_ERROR_NOT_AUTHORIZED)
-        ret = TRUE;
+      ret = TRUE;
     }
   return ret;
 }
@@ -1567,6 +1773,8 @@ ensure_credentials_queue_collector (GObject *source_object, GAsyncResult *res, g
               g_message ("%s: Setting AttentionNeeded to TRUE because EnsureCredentials() failed with: %s (%s, %d)",
                          g_dbus_object_get_object_path (G_DBUS_OBJECT (data->object)),
                          error->message, g_quark_to_string (error->domain), error->code);
+              g_ptr_array_add (self->accounts_needing_attention, g_object_ref (account));
+              self->accounts_need_notification = TRUE;
             }
         }
 
@@ -1582,6 +1790,7 @@ ensure_credentials_queue_collector (GObject *source_object, GAsyncResult *res, g
           g_dbus_interface_skeleton_flush (G_DBUS_INTERFACE_SKELETON (account));
           g_message ("%s: Setting AttentionNeeded to FALSE because EnsureCredentials() succeded\n",
                      g_dbus_object_get_object_path (G_DBUS_OBJECT (data->object)));
+          g_ptr_array_remove (self->accounts_needing_attention, account);
         }
 
       ensure_credentials_queue_complete (data->invocations, account, expires_in, NULL);
@@ -1589,6 +1798,8 @@ ensure_credentials_queue_collector (GObject *source_object, GAsyncResult *res, g
 
   self->ensure_credentials_running = FALSE;
   ensure_credentials_queue_check (self);
+
+  g_task_return_boolean (task, TRUE);
   g_object_unref (task);
 }
 
@@ -1606,11 +1817,19 @@ ensure_credentials_queue_sort (gconstpointer a, gconstpointer b, gpointer user_d
   return priority_a - priority_b;
 }
 
+static gboolean
+ensure_credentials_timeout_cb (gpointer user_data)
+{
+  g_cancellable_cancel (G_CANCELLABLE (user_data));
+  return G_SOURCE_REMOVE;
+}
+
 static void
 ensure_credentials_queue_check (GoaDaemon *self)
 {
   GoaAccount *account;
   GoaProvider *provider = NULL;
+  GCancellable *cancellable = NULL;
   GTask *task;
   ObjectInvocationData *data;
   const gchar *id;
@@ -1621,7 +1840,10 @@ ensure_credentials_queue_check (GoaDaemon *self)
     goto out;
 
   if (self->ensure_credentials_queue->length == 0)
-    goto out;
+    {
+      goa_daemon_update_notification (self);
+      goto out;
+    }
 
   g_queue_sort (self->ensure_credentials_queue, ensure_credentials_queue_sort, NULL);
 
@@ -1639,13 +1861,22 @@ ensure_credentials_queue_check (GoaDaemon *self)
   provider = goa_provider_get_for_provider_type (provider_type);
   g_assert_nonnull (provider);
 
+  /* Ensure credential checks without an implicit timeout don't hang forever
+   */
+  cancellable = g_cancellable_new ();
+  g_timeout_add_seconds_full (G_PRIORITY_DEFAULT,
+                              CREDENTIALS_CHECK_TIMEOUT,
+                              ensure_credentials_timeout_cb,
+                              g_object_ref (cancellable),
+                              g_object_unref);
   goa_provider_ensure_credentials (provider,
                                    data->object,
-                                   NULL, /* GCancellable */
+                                   cancellable,
                                    ensure_credentials_queue_collector,
                                    task);
 
  out:
+  g_clear_object (&cancellable);
   g_clear_object (&provider);
 }
 

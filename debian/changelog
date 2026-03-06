@@ -1,3 +1,243 @@
+gnome-online-accounts (3.54.5-1~deb13u1) trixie; urgency=medium
+
+  * New upstream bugfix release with these fixes (Closes: #1111674):
+    - Adding GOA account fails with sonic.net IMAP service
+    - Cannot add a ProtonMail bridge with IMAP + TLS
+    - Nextcloud login does not work anymore due to OPTIONS /login request
+    - Linked online accounts no longer work
+    - Invalid URI when adding Google account
+    - goamsgraphprovider: ensure a valid PresentationIdentity
+    - goadaemon: complete GTasks to avoid a scary debug warning
+    - Fix Nextcloud and mailbox.org preconfiguration
+    - Add DAV preconfig for mail.ru
+    - Authentication failure in goa IMAP accounts
+    - Handle unexpected casing in domain names
+    - Various translations updates
+  * debian/gbp.conf: branch for trixie
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 20 Aug 2025 20:16:15 -0400
+
+gnome-online-accounts (3.54.2-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Thu, 17 Apr 2025 08:28:58 -0400
+
+gnome-online-accounts (3.54.1-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 17 Mar 2025 14:13:55 -0400
+
+gnome-online-accounts (3.53.2-1) unstable; urgency=medium
+
+  * New upstream release
+  * Update symbols file
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Tue, 04 Mar 2025 13:10:41 -0500
+
+gnome-online-accounts (3.53.1-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 03 Feb 2025 09:22:43 -0500
+
+gnome-online-accounts (3.53.0-1) unstable; urgency=medium
+
+  * New upstream release
+    - Support changing Account Name (which is shown in the
+      file browser sidebar)
+    - Lower authentication error timeout from 120 seconds to 30 seconds
+  * debian/libgoa-backend-1.0-2.symbols: Add new symbol
+  * Add Recommends: evolution-ews-core
+    (except on Ubuntu since it's in universe currently) (Closes: #969955)
+  * Run wrap-and-sort
+  * Opt into Salsa CI
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 22 Jan 2025 09:19:07 -0500
+
+gnome-online-accounts (3.52.2-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 25 Nov 2024 10:54:29 -0500
+
+gnome-online-accounts (3.52.0-1) unstable; urgency=medium
+
+  * Team upload
+  * New upstream release
+  * Release to unstable
+
+ -- Alessandro Astone <alessandro.astone@canonical.com>  Mon, 16 Sep 2024 16:30:24 +0200
+
+gnome-online-accounts (3.51.2-1) experimental; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Tue, 20 Aug 2024 15:07:01 -0400
+
+gnome-online-accounts (3.51.1-1) experimental; urgency=medium
+
+  * New upstream release
+  * Bump minimum libadwaita and GTK4
+  * Add Build-Depends: docbook-xsl & xsltproc to build manpages
+  * Add Build-Depends: gi-docgen to build docs
+  * Add Build-Depends: libkeyutils-dev
+  * Add Provides: ${gir:Provides} to -dev package
+  * debian/libgoa-backend-1.0-2.symbols: Update
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Fri, 09 Aug 2024 17:04:13 -0400
+
+gnome-online-accounts (3.50.4-1) unstable; urgency=medium
+
+  * New upstream release
+  * Bump Standards Version to 4.7.0
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 07 Aug 2024 15:46:07 -0400
+
+gnome-online-accounts (3.50.2-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/libgoa-backend-1.0-2.symbols: Update
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 29 May 2024 13:10:33 -0400
+
+gnome-online-accounts (3.50.1-2) unstable; urgency=medium
+
+  [ Sebastien Bacher ]
+  * Enable OneDrive support
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Tue, 14 May 2024 16:42:26 +0200
+
+gnome-online-accounts (3.50.1-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/libgoa-backend-1.0-2.symbols: Add new symbols
+  * Drop ancient Conflicts/Replaces
+  * Drop all patches: applied in new release
+  * Drop Ubuntu i386 handling: gnome-online-accounts no longer needs to be
+    built there
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Thu, 11 Apr 2024 17:11:24 -0400
+
+gnome-online-accounts (3.50.0-4) unstable; urgency=medium
+
+  * Update Recommends to gnome-control-center | gnome-online-accounts-gtk
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 01 Apr 2024 13:34:08 -0400
+
+gnome-online-accounts (3.50.0-3) unstable; urgency=medium
+
+  * Release to Unstable
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 01 Apr 2024 09:29:38 -0400
+
+gnome-online-accounts (3.50.0-2) experimental; urgency=medium
+
+  * Cherry-pick 2 patches to fix Microsoft authentication
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 27 Mar 2024 17:23:52 -0400
+
+gnome-online-accounts (3.50.0-1) experimental; urgency=medium
+
+  * New upstream release
+  * Drop obsolete alternate Recommends: budgie-control-center,
+    unity-control-center (Closes: #1006398)
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 18 Mar 2024 11:44:14 -0400
+
+gnome-online-accounts (3.49.4-1) experimental; urgency=medium
+
+  * New upstream release
+  * Update libgoa-backend-1.0-dev dependencies to match pkgconfig file
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Mon, 04 Mar 2024 14:54:20 -0500
+
+gnome-online-accounts (3.49.3-1) experimental; urgency=medium
+
+  * New upstream release
+  * Rename libgoa backend library package name to match new soname bump.
+    The soname bump makes it more clear that everything using the backend
+    library needs to stop using the library or adjust to the 3.49 changes.
+  * Update symbols file
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Sat, 02 Mar 2024 17:13:39 -0500
+
+gnome-online-accounts (3.49.2-1) experimental; urgency=medium
+
+  * New upstream release
+    - This is a major API break known to break the Online Accounts
+      feature in cinnamon-control-center and unity-control-center.
+      budgie-control-center has removed its Online Accounts feature
+      because of this.
+  * Switch to gtk4 and libadwaita
+  * Don't enable msgraph (OneDrive) since it's not in Debian yet
+  * Add Build-Depends: libdbus-1-dev
+  * Update symbols file
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Thu, 29 Feb 2024 16:07:17 -0500
+
+gnome-online-accounts (3.49.0-2) unstable; urgency=medium
+
+  * Drop patch reverting switch to gcr4
+  * Update Build-Depends
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 28 Feb 2024 22:19:18 -0500
+
+gnome-online-accounts (3.49.0-1) unstable; urgency=medium
+
+  * New upstream release
+    - Drop Last.fm provider
+    - Add WebDav support, allowing adding CalDav integration for the
+      GNOME Calendar app without using Evolution
+      (Closes: #866794) (LP: #1731628)
+    - Authentication for Google & Microsoft now uses the web browser
+      instead of a webkitgtk-powered popup window (LP: #1826311, LP: #1827764)
+  * debian/gnome-online-accounts.docs: README -> README.md
+  * debian/gnome-online-accounts.install: Install new OAuth2 handler
+  * debian/libgoa-backend-1.0-1.symbols: Update
+  * Add patch to keep using gcr3 for now
+  * Drop unused Build-Depends: webkit2gtk
+  * Drop references to kfreebsd and use arch:any (Closes: #1058677)
+  * Stop using debian/control.in and dh_gnome_clean
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Wed, 10 Jan 2024 12:37:10 -0500
+
+gnome-online-accounts (3.48.0-2) unstable; urgency=medium
+
+  * Add debian/upstream/metadata
+  * Update standards version to 4.6.2, no changes needed
+  * Release to unstable
+
+ -- Jeremy Bícha <jbicha@ubuntu.com>  Sun, 23 Jul 2023 16:26:36 -0400
+
+gnome-online-accounts (3.48.0-1) experimental; urgency=medium
+
+  * New upstream release
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 27 Mar 2023 12:17:51 -0400
+
+gnome-online-accounts (3.46.0-1) unstable; urgency=medium
+
+  * New upstream release
+  * debian/control.in: Bump minimum meson to 0.57.0
+  * Bump Standards-Version to 4.6.1
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 19 Sep 2022 11:10:08 -0400
+
+gnome-online-accounts (3.45.2-3) unstable; urgency=medium
+
+  * Add alternate Recommends budgie-control-center & unity-control-center
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Thu, 15 Sep 2022 05:57:11 -0400
+
+gnome-online-accounts (3.45.2-2) unstable; urgency=medium
+
+  * debian/control.in: Add some breaks for the libsoup3 transition
+  * Release to unstable
+
+ -- Jeremy Bicha <jbicha@ubuntu.com>  Mon, 05 Sep 2022 15:51:18 -0400
+
 gnome-online-accounts (3.45.2-1) experimental; urgency=medium
 
   * New upstream release
@@ -127,7 +367,7 @@ gnome-online-accounts (3.35.90-1) experimental; urgency=medium
     /usr/libexec now that this is allowed in the debian policy
 
   [ Steve Langasek ]
-  * debian/rules: Omit the gnome-online-accounts binary package on 
+  * debian/rules: Omit the gnome-online-accounts binary package on
     Ubuntu/i386 (Closes: ##947257)
 
   [ Sebastien Bacher ]
