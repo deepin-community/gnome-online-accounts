@@ -1,9 +1,12 @@
 project(
   'gnome-online-accounts', 'c',
-  version: '3.45.2',
+  version: '3.54.5',
   license: 'LGPL2+',
-  default_options: 'buildtype=debugoptimized',
-  meson_version: '>= 0.56.0'
+  default_options: [
+    'buildtype=debugoptimized',
+    'c_std=gnu99',
+  ],
+  meson_version: '>= 0.63.0',
 )
 
 goa_name = 'goa'
@@ -44,7 +47,7 @@ goa_pkglibdir = join_paths(goa_libdir, goa_api_name)
 #
 # libversion = '@0@.@1@.@2@'.format(soversion, current, revision)
 goa_libversion = '0.0.0'
-goa_backend_libversion = '1.0.0'
+goa_backend_libversion = '2.0.0'
 
 goa_buildtype = get_option('buildtype')
 cc = meson.get_compiler('c')
@@ -96,13 +99,33 @@ endif
 
 enable_goabackend = get_option('goabackend')
 if enable_goabackend
-  gtk_dep = dependency('gtk+-3.0', version: '>= 3.19.12')
-  javascript_core_gtk_dep = dependency('javascriptcoregtk-4.1', version: '>= 2.33.1')
   json_glib_dep = dependency('json-glib-1.0')
   libsecret_dep = dependency('libsecret-1')
   libsoup_dep = dependency('libsoup-3.0', version: '>= 3.0', fallback: ['libsoup'])
   libxml_dep = dependency('libxml-2.0')
-  webkit_gtk_dep = dependency('webkit2gtk-4.1', version: '>= 2.33.1')
+  gtk_dep = dependency(
+    'gtk4',
+    version: '>= 4.15.2',
+    fallback: 'gtk',
+    default_options: [
+      'introspection=disabled',
+      'build-demos=false',
+      'build-testsuite=false',
+      'build-tests=false',
+      'build-examples=false',
+    ]
+  )
+  libadwaita_dep = dependency(
+    'libadwaita-1',
+    version: '>= 1.6.beta',
+    fallback: 'libadwaita',
+    default_options: [
+      'examples=false',
+      'introspection=disabled',
+      'tests=false',
+      'vapi=false',
+    ],
+  )
 endif
 rest_dep = dependency('rest-1.0',
   version: '>= 0.9.0',
@@ -111,9 +134,6 @@ rest_dep = dependency('rest-1.0',
   default_options: ['soup2=false', 'examples=false', 'tests=false', 'gtk_doc=false'],
 )
 config_h.set('GOA_BACKEND_ENABLED', enable_goabackend)
-
-enable_inspector = get_option('inspector')
-config_h.set('GOA_INSPECTOR_ENABLED', enable_inspector)
 
 template_file = get_option('template_file')
 config_h.set_quoted('GOA_TEMPLATE_FILE', template_file)
@@ -131,8 +151,12 @@ config_h.set_quoted('GOA_FEDORA_REALM', 'FEDORAPROJECT.ORG')
 
 enable_fedora = get_option('fedora')
 if enable_goabackend and enable_fedora
-  gcr_dep = dependency('gcr-3')
+  gcr_dep = dependency('gcr-4', version: '>= 4.1.0')
   krb5_dep = dependency('krb5')
+  libkeyutils_dep = dependency('libkeyutils',
+     version: '>= 1.6.2',
+    required: target_machine.system() == 'linux',
+  )
 
   config_h.set('GCR_API_SUBJECT_TO_CHANGE', true)
 endif
@@ -161,35 +185,26 @@ config_h.set_quoted('GOA_KERBEROS_NAME', 'kerberos')
 
 enable_kerberos = get_option('kerberos')
 if enable_goabackend and enable_kerberos
-  gcr_dep = dependency('gcr-3')
+  gcr_dep = dependency('gcr-4', version: '>= 4.1.0')
   krb5_dep = dependency('krb5')
+  libkeyutils_dep = dependency('libkeyutils',
+     version: '>= 1.6.2',
+    required: target_machine.system() == 'linux',
+  )
 
   config_h.set('GCR_API_SUBJECT_TO_CHANGE', true)
 endif
 config_h.set('GOA_KERBEROS_ENABLED', enable_kerberos)
 
-# Media Server
-config_h.set_quoted('GOA_MEDIA_SERVER_NAME', 'media-server')
-
-enable_media_server = get_option('media_server')
-config_h.set('GOA_MEDIA_SERVER_ENABLED', enable_media_server)
-
-# Last.fm
-config_h.set_quoted('GOA_LASTFM_NAME', 'lastfm')
-
-lastfm_client_id = get_option('lastfm_client_id')
-config_h.set_quoted('GOA_LASTFM_CLIENT_ID', lastfm_client_id)
-
-lastfm_client_secret = get_option('lastfm_client_secret')
-config_h.set_quoted('GOA_LASTFM_CLIENT_SECRET', lastfm_client_secret)
-
-enable_lastfm = get_option('lastfm')
-config_h.set('GOA_LASTFM_ENABLED', enable_lastfm)
-
 # ownCloud
 config_h.set_quoted('GOA_OWNCLOUD_NAME', 'owncloud')
 enable_owncloud = get_option('owncloud')
 config_h.set('GOA_OWNCLOUD_ENABLED', enable_owncloud)
+
+# WebDAV
+config_h.set_quoted('GOA_WEBDAV_NAME', 'webdav')
+enable_webdav = get_option('webdav')
+config_h.set('GOA_WEBDAV_ENABLED', enable_webdav)
 
 # Windows Live
 config_h.set_quoted('GOA_WINDOWS_LIVE_NAME', 'windows_live')
@@ -199,6 +214,15 @@ config_h.set_quoted('GOA_WINDOWS_LIVE_CLIENT_ID', windows_live_client_id)
 
 enable_windows_live = get_option('windows_live')
 config_h.set('GOA_WINDOWS_LIVE_ENABLED', enable_windows_live)
+
+# Microsoft Graph API account
+config_h.set_quoted('GOA_MS_GRAPH_NAME', 'ms_graph')
+
+ms_graph_client_id = get_option('ms_graph_client_id')
+config_h.set_quoted('GOA_MS_GRAPH_CLIENT_ID', ms_graph_client_id)
+
+enable_ms_graph = get_option('ms_graph')
+config_h.set('GOA_MS_GRAPH_ENABLED', enable_ms_graph)
 
 # Optional timerfd support
 timerfd_support_src = '''
@@ -243,6 +267,10 @@ if cc.compiles(timerfd_support_src, name: 'timerfd support')
   endif
 endif
 
+if cc.has_function('pipe2')
+  config_h.set('HAVE_PIPE2', true)
+endif
+
 configure_file(
   output: 'config.h',
   configuration: config_h
@@ -257,18 +285,17 @@ top_inc = include_directories('.')
 subdir('data')
 subdir('src')
 
-enable_gtk_doc = get_option('gtk_doc')
+enable_documentation = get_option('documentation')
 enable_man = get_option('man')
-if enable_goabackend and (enable_gtk_doc or enable_man)
+if enable_goabackend and (enable_documentation or enable_man)
   subdir('doc')
 endif
 
 subdir('po')
 
-meson.add_install_script(
-  'meson_post_install.py',
-  goa_datadir,
-  enable_goabackend ? 'compile-schemas' : ''
+gnome.post_install(
+  glib_compile_schemas: enable_goabackend,
+  gtk_update_icon_cache: true,
 )
 
 summary({
@@ -282,11 +309,10 @@ summary({
 
 summary({
     'Backend': enable_goabackend,
-    'Inspector': enable_inspector,
     'Introspection': enable_introspection,
     'Template tile': template_file,
     'Vala support': enable_vapi,
-    'API docs': enable_gtk_doc,
+    'API docs': enable_documentation,
     'Man pages': enable_man,
   },
   bool_yn: true,
@@ -298,11 +324,11 @@ summary({
     'Google': enable_google,
     'IMAP/SMTP': enable_imap_smtp,
     'Kerberos': enable_kerberos,
-    'Last.fm': enable_lastfm,
-    'Media Server': enable_media_server,
     'Microsoft Exchange': enable_exchange,
     'ownCloud': enable_owncloud,
+    'WebDAV': enable_webdav,
     'Windows Live': enable_windows_live,
+    'Microsoft 365': enable_ms_graph,
   },
   bool_yn: true,
   section: 'Providers',
@@ -317,19 +343,18 @@ if enable_google
   )
 endif
 
-if enable_lastfm
-  summary({
-      'id': lastfm_client_id,
-      'secret': lastfm_client_secret,
-    },
-    section: 'Last.fm Provider OAuth 2.0',
-  )
-endif
-
 if enable_windows_live
   summary({
       'id': windows_live_client_id,
     },
     section: 'Windows Live Provider OAuth 2.0',
+  )
+endif
+
+if enable_ms_graph
+  summary({
+      'id': ms_graph_client_id,
+    },
+    section: 'Microsoft 365 Provider OAuth 2.0',
   )
 endif

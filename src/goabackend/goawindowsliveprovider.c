@@ -90,10 +90,18 @@ get_token_uri (GoaOAuth2Provider *oauth2_provider)
 }
 
 
+static gboolean
+get_use_pkce (GoaOAuth2Provider *oauth2_provider)
+{
+  return TRUE;
+}
+
+
 static const gchar *
 get_redirect_uri (GoaOAuth2Provider *oauth2_provider)
 {
-  return "https://login.live.com/oauth20_desktop.srf";
+  /* See: https://learn.microsoft.com/en-us/entra/identity-platform/reply-url */
+  return "goa-oauth2://localhost/"GOA_WINDOWS_LIVE_CLIENT_ID;
 }
 
 static const gchar *
@@ -140,14 +148,12 @@ get_identity_sync (GoaOAuth2Provider  *oauth2_provider,
   gchar *id = NULL;
   gchar *presentation_identity = NULL;
 
-  /* TODO: cancellable */
-
   proxy = goa_rest_proxy_new ("https://apis.live.net/v5.0/me", FALSE);
   call = rest_proxy_new_call (proxy);
   rest_proxy_call_set_method (call, "GET");
   rest_proxy_call_add_param (call, "access_token", access_token);
 
-  if (!rest_proxy_call_sync (call, error))
+  if (!goa_rest_proxy_call_sync (call, cancellable, error))
     goto out;
   if (rest_proxy_call_get_status_code (call) != 200)
     {
@@ -233,36 +239,6 @@ get_identity_sync (GoaOAuth2Provider  *oauth2_provider,
 /* ---------------------------------------------------------------------------------------------------- */
 
 static gboolean
-is_identity_node (GoaOAuth2Provider *oauth2_provider, WebKitDOMHTMLInputElement *element)
-{
-  gboolean ret = FALSE;
-  gchar *element_type = NULL;
-  gchar *name = NULL;
-
-  /* FIXME: This does not show up in
-   *        webkit_dom_document_get_elements_by_tag_name, but can be
-   *        seen in the inspector. Needs further investigation.
-   */
-
-  g_object_get (element, "type", &element_type, NULL);
-  if (g_strcmp0 (element_type, "email") != 0)
-    goto out;
-
-  name = webkit_dom_html_input_element_get_name (element);
-  if (g_strcmp0 (name, "login") != 0)
-    goto out;
-
-  ret = TRUE;
-
- out:
-  g_free (element_type);
-  g_free (name);
-  return ret;
-}
-
-/* ---------------------------------------------------------------------------------------------------- */
-
-static gboolean
 build_object (GoaProvider         *provider,
               GoaObjectSkeleton   *object,
               GKeyFile            *key_file,
@@ -273,6 +249,8 @@ build_object (GoaProvider         *provider,
 {
   GoaAccount *account = NULL;
   GoaMail *mail = NULL;
+  GKeyFile *goa_conf;
+  const gchar *provider_type;
   gboolean mail_enabled;
   gboolean ret = FALSE;
   const gchar *email_address;
@@ -287,12 +265,18 @@ build_object (GoaProvider         *provider,
                                                                               error))
     goto out;
 
+  provider_type = goa_provider_get_provider_type (provider);
+  goa_conf = goa_util_open_goa_conf ();
   account = goa_object_get_account (GOA_OBJECT (object));
   email_address = goa_account_get_presentation_identity (account);
 
   /* Email */
   mail = goa_object_get_mail (GOA_OBJECT (object));
-  mail_enabled = g_key_file_get_boolean (key_file, group, "MailEnabled", NULL);
+  mail_enabled = goa_util_provider_feature_is_enabled (goa_conf, provider_type, GOA_PROVIDER_FEATURE_MAIL) &&
+                 g_key_file_get_boolean (key_file, group, "MailEnabled", NULL);
+
+  g_clear_pointer (&goa_conf, g_key_file_free);
+
   if (mail_enabled)
     {
       if (mail == NULL)
@@ -372,11 +356,11 @@ goa_windows_live_provider_class_init (GoaWindowsLiveProviderClass *klass)
   oauth2_class = GOA_OAUTH2_PROVIDER_CLASS (klass);
   oauth2_class->get_authorization_uri    = get_authorization_uri;
   oauth2_class->get_token_uri            = get_token_uri;
+  oauth2_class->get_use_pkce             = get_use_pkce;
   oauth2_class->get_redirect_uri         = get_redirect_uri;
   oauth2_class->get_scope                = get_scope;
   oauth2_class->get_client_id            = get_client_id;
   oauth2_class->get_client_secret        = get_client_secret;
   oauth2_class->get_identity_sync        = get_identity_sync;
-  oauth2_class->is_identity_node         = is_identity_node;
   oauth2_class->add_account_key_values   = add_account_key_values;
 }
